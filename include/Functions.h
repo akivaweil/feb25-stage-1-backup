@@ -21,6 +21,8 @@ enum SystemState {
   READY,
   IDLE,
   CUTTING,
+  NOWOOD,
+  YESWOOD,
   RETURNING,
   POSITIONING,
   ERROR,

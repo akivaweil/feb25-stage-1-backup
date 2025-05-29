@@ -4,6 +4,8 @@
 #include "StateMachine/ReadyState.h"
 #include "StateMachine/IdleState.h"
 #include "StateMachine/CuttingState.h"
+#include "StateMachine/NoWoodState.h"
+#include "StateMachine/YesWoodState.h"
 #include "StateMachine/ReturningState.h"
 #include "StateMachine/PositioningState.h"
 #include "ErrorStates/standard_error.h"
@@ -26,6 +28,8 @@ static HomingState homingState;
 static ReadyState readyState;
 static IdleState idleState;
 static CuttingState cuttingState;
+static NoWoodState noWoodState;
+static YesWoodState yesWoodState;
 static ReturningState returningState;
 static PositioningState positioningState;
 
@@ -57,6 +61,12 @@ void StateManager::execute() {
         case CUTTING:
             cuttingState.execute(*this);
             break;
+        case NOWOOD:
+            noWoodState.execute(*this);
+            break;
+        case YESWOOD:
+            yesWoodState.execute(*this);
+            break;
         case ERROR:
             handleStandardErrorState();
             break;
@@ -84,6 +94,8 @@ void StateManager::changeState(SystemState newState) {
             case READY: Serial.println("READY"); break;
             case IDLE: Serial.println("IDLE"); break;
             case CUTTING: Serial.println("CUTTING"); break;
+            case NOWOOD: Serial.println("NOWOOD"); break;
+            case YESWOOD: Serial.println("YESWOOD"); break;
             case ERROR: Serial.println("ERROR"); break;
             case ERROR_RESET: Serial.println("ERROR_RESET"); break;
             case SUCTION_ERROR_HOLD: Serial.println("SUCTION_ERROR_HOLD"); break;
@@ -100,6 +112,8 @@ void StateManager::printStateChange() {
             case HOMING: Serial.println("HOMING"); break;
             case IDLE: Serial.println("IDLE"); break;
             case CUTTING: Serial.println("CUTTING"); break;
+            case NOWOOD: Serial.println("NOWOOD"); break;
+            case YESWOOD: Serial.println("YESWOOD"); break;
             case RETURNING: Serial.println("RETURNING"); break;
             case POSITIONING: Serial.println("POSITIONING"); break;
             case ERROR: Serial.println("ERROR"); break;
