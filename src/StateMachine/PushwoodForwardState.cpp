@@ -103,10 +103,26 @@ void PushwoodForwardState::executeStep(StateManager& stateManager) {
             
         case COMPLETE:
             //! ************************************************************************
-            //! STEP 6: PUSHWOOD FORWARD SEQUENCE COMPLETE, RETURN TO IDLE
+            //! STEP 6: CHECK START CYCLE SWITCH AND TRANSITION ACCORDINGLY
             //! ************************************************************************
-            Serial.println("PushwoodForward: Sequence complete, returning to IDLE");
-            stateManager.changeState(IDLE);
+            Serial.println("PushwoodForward: Checking start cycle switch for next state");
+            
+            // Check start cycle switch state to determine next state
+            if (stateManager.getStartCycleSwitch()->read() == HIGH) {
+                // Start cycle switch is HIGH - go to CUTTING state
+                Serial.println("PushwoodForward: Start cycle switch HIGH - transitioning to CUTTING state");
+                stateManager.setCuttingCycleInProgress(true);
+                configureCutMotorForCutting();
+                turnGreenLedOff();
+                turnYellowLedOn();
+                stateManager.changeState(CUTTING);
+            } else {
+                // Start cycle switch is LOW - go to IDLE state
+                Serial.println("PushwoodForward: Start cycle switch LOW - transitioning to IDLE state");
+                turnGreenLedOn();
+                turnYellowLedOff();
+                stateManager.changeState(IDLE);
+            }
             break;
     }
 }

@@ -110,6 +110,7 @@ void StateManager::changeState(SystemState newState) {
             case HOMING: homingState.onEnter(*this); break;
             case IDLE: idleState.onEnter(*this); break;
             case FIRSTCUT: firstCutState.onEnter(*this); break;
+            case PUSHWOOD_FORWARD: pushwoodForwardState.onEnter(*this); break;
             case CUTTING: cuttingState.onEnter(*this); break;
             case NOWOOD: noWoodState.onEnter(*this); break;
             case YESWOOD: yesWoodState.onEnter(*this); break;
@@ -125,6 +126,7 @@ void StateManager::changeState(SystemState newState) {
             case HOMING: Serial.println("HOMING"); break;
             case IDLE: Serial.println("IDLE"); break;
             case FIRSTCUT: Serial.println("FIRSTCUT"); break;
+            case PUSHWOOD_FORWARD: Serial.println("PUSHWOOD_FORWARD"); break;
             case CUTTING: Serial.println("CUTTING"); break;
             case NOWOOD: Serial.println("NOWOOD"); break;
             case YESWOOD: Serial.println("YESWOOD"); break;
@@ -143,6 +145,7 @@ void StateManager::printStateChange() {
             case HOMING: Serial.println("HOMING"); break;
             case IDLE: Serial.println("IDLE"); break;
             case FIRSTCUT: Serial.println("FIRSTCUT"); break;
+            case PUSHWOOD_FORWARD: Serial.println("PUSHWOOD_FORWARD"); break;
             case CUTTING: Serial.println("CUTTING"); break;
             case NOWOOD: Serial.println("NOWOOD"); break;
             case YESWOOD: Serial.println("YESWOOD"); break;

@@ -183,14 +183,26 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             
         case TRANSITION_TO_CUTTING_FINAL:
             //! ************************************************************************
-            //! STEP 12: START CUTTING CYCLE BY SWITCHING TO CUTTING STATE (FINAL)
+            //! STEP 12: CHECK START CYCLE SWITCH AND TRANSITION ACCORDINGLY
             //! ************************************************************************
-            Serial.println("FirstCut: Transitioning to CUTTING state (final)");
-            stateManager.setCuttingCycleInProgress(true);
-            configureCutMotorForCutting();
-            turnGreenLedOff();
-            turnYellowLedOn();
-            stateManager.changeState(IDLE);
+            Serial.println("FirstCut: Checking start cycle switch for next state");
+            
+            // Check start cycle switch state to determine next state
+            if (stateManager.getStartCycleSwitch()->read() == HIGH) {
+                // Start cycle switch is HIGH - go to CUTTING state
+                Serial.println("FirstCut: Start cycle switch HIGH - transitioning to CUTTING state");
+                stateManager.setCuttingCycleInProgress(true);
+                configureCutMotorForCutting();
+                turnGreenLedOff();
+                turnYellowLedOn();
+                stateManager.changeState(CUTTING);
+            } else {
+                // Start cycle switch is LOW - go to IDLE state
+                Serial.println("FirstCut: Start cycle switch LOW - transitioning to IDLE state");
+                turnGreenLedOn();
+                turnYellowLedOff();
+                stateManager.changeState(IDLE);
+            }
             break;
     }
 }

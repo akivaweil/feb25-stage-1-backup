@@ -80,6 +80,10 @@ void IdleState::checkFirstCutConditions(StateManager& stateManager) {
         Serial.println("Idle: Fix position button pressed with wood sensor HIGH - transitioning to FIRSTCUT");
         stateManager.changeState(FIRSTCUT);
     }
+    else if (fixPositionPressed && woodSensorLow) {
+        Serial.println("Idle: Fix position button pressed with wood sensor LOW - transitioning to PUSHWOOD_FORWARD");
+        stateManager.changeState(PUSHWOOD_FORWARD);
+    }
     else if (pushwoodPressed && woodSensorLow) {
         Serial.println("Idle: Pushwood forward switch pressed with wood sensor LOW - executing pushwood forward action");
         // TODO: Add pushwood forward action here (what should this do?)
