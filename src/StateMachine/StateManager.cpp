@@ -1,8 +1,8 @@
 #include "StateMachine/StateManager.h"
 #include "StateMachine/StartupState.h"
 #include "StateMachine/HomingState.h"
-#include "StateMachine/ReadyState.h"
 #include "StateMachine/IdleState.h"
+#include "StateMachine/FirstCutState.h"
 #include "StateMachine/CuttingState.h"
 #include "StateMachine/NoWoodState.h"
 #include "StateMachine/YesWoodState.h"
@@ -25,8 +25,8 @@ StateManager stateManager;
 // State instances
 static StartupState startupState;
 static HomingState homingState;
-static ReadyState readyState;
 static IdleState idleState;
+static FirstCutState firstCutState;
 static CuttingState cuttingState;
 static NoWoodState noWoodState;
 static YesWoodState yesWoodState;
@@ -52,11 +52,11 @@ void StateManager::execute() {
         case HOMING:
             homingState.execute(*this);
             break;
-        case READY:
-            readyState.execute(*this);
-            break;
         case IDLE:
             idleState.execute(*this);
+            break;
+        case FIRSTCUT:
+            firstCutState.execute(*this);
             break;
         case CUTTING:
             cuttingState.execute(*this);
@@ -84,15 +84,45 @@ void StateManager::execute() {
 
 void StateManager::changeState(SystemState newState) {
     if (currentState != newState) {
+        // Call onExit for the current state before changing
+        switch (currentState) {
+            case STARTUP: startupState.onExit(*this); break;
+            case HOMING: homingState.onExit(*this); break;
+            case IDLE: idleState.onExit(*this); break;
+            case FIRSTCUT: firstCutState.onExit(*this); break;
+            case CUTTING: cuttingState.onExit(*this); break;
+            case NOWOOD: noWoodState.onExit(*this); break;
+            case YESWOOD: yesWoodState.onExit(*this); break;
+            case RETURNING: returningState.onExit(*this); break;
+            case POSITIONING: positioningState.onExit(*this); break;
+            // Error states don't have onExit handlers
+            default: break;
+        }
+        
         previousState = currentState;
         currentState = newState;
+        
+        // Call onEnter for the new state after changing
+        switch (newState) {
+            case STARTUP: startupState.onEnter(*this); break;
+            case HOMING: homingState.onEnter(*this); break;
+            case IDLE: idleState.onEnter(*this); break;
+            case FIRSTCUT: firstCutState.onEnter(*this); break;
+            case CUTTING: cuttingState.onEnter(*this); break;
+            case NOWOOD: noWoodState.onEnter(*this); break;
+            case YESWOOD: yesWoodState.onEnter(*this); break;
+            case RETURNING: returningState.onEnter(*this); break;
+            case POSITIONING: positioningState.onEnter(*this); break;
+            // Error states don't have onEnter handlers
+            default: break;
+        }
         
         // Debug print for state transitions
         switch (newState) {
             case STARTUP: Serial.println("STARTUP"); break;
             case HOMING: Serial.println("HOMING"); break;
-            case READY: Serial.println("READY"); break;
             case IDLE: Serial.println("IDLE"); break;
+            case FIRSTCUT: Serial.println("FIRSTCUT"); break;
             case CUTTING: Serial.println("CUTTING"); break;
             case NOWOOD: Serial.println("NOWOOD"); break;
             case YESWOOD: Serial.println("YESWOOD"); break;
@@ -111,6 +141,7 @@ void StateManager::printStateChange() {
             case STARTUP: Serial.println("STARTUP"); break;
             case HOMING: Serial.println("HOMING"); break;
             case IDLE: Serial.println("IDLE"); break;
+            case FIRSTCUT: Serial.println("FIRSTCUT"); break;
             case CUTTING: Serial.println("CUTTING"); break;
             case NOWOOD: Serial.println("NOWOOD"); break;
             case YESWOOD: Serial.println("YESWOOD"); break;
@@ -132,6 +163,7 @@ void StateManager::updateSwitches() {
     positionHomingSwitch.update();
     reloadSwitch.update();
     startCycleSwitch.update();
+    pushwoodForwardSwitch.update();
     fixPositionButton.update();
 }
 

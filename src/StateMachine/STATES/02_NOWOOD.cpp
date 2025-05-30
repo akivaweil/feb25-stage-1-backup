@@ -243,8 +243,7 @@ void NoWoodState::handleNO_WOOD_PositionMotorHoming(StateManager& stateManager) 
 
             resetSteps();
             stateManager.setCuttingCycleInProgress(false);
-            stateManager.changeState(READY);
-            stateManager.setContinuousModeActive(false);
+            stateManager.changeState(IDLE);
             
             // Check if cycle switch is currently ON - if yes, require cycling
             if (stateManager.getStartCycleSwitch()->read() == HIGH) {
@@ -254,7 +253,7 @@ void NoWoodState::handleNO_WOOD_PositionMotorHoming(StateManager& stateManager) 
                 Serial.println("Cycle switch is OFF - ready for next cycle.");
             }
             
-            Serial.println("NO_WOOD sequence with position motor homing complete. Transitioning to READY state. Continuous mode OFF."); 
+            Serial.println("NO_WOOD sequence with position motor homing complete. Transitioning to IDLE state. Continuous mode OFF."); 
             break;
     }
 }

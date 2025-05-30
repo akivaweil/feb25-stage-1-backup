@@ -50,6 +50,7 @@ Bounce cutHomingSwitch = Bounce();
 Bounce positionHomingSwitch = Bounce();
 Bounce reloadSwitch = Bounce();
 Bounce startCycleSwitch = Bounce();
+Bounce pushwoodForwardSwitch = Bounce();
 Bounce fixPositionButton = Bounce();
 
 // System flags
@@ -101,6 +102,7 @@ void setup() {
   pinMode(POSITION_MOTOR_HOMING_SWITCH, INPUT_PULLDOWN);
   pinMode(RELOAD_SWITCH, INPUT_PULLDOWN);
   pinMode(START_CYCLE_SWITCH, INPUT_PULLDOWN);
+  pinMode(PUSHWOOD_FORWARD_SWITCH, INPUT_PULLDOWN);
   pinMode(FIX_POSITION_BUTTON, INPUT_PULLDOWN);
   
   pinMode(WOOD_SENSOR, INPUT_PULLUP);
@@ -137,6 +139,9 @@ void setup() {
   
   startCycleSwitch.attach(START_CYCLE_SWITCH);
   startCycleSwitch.interval(20);
+  
+  pushwoodForwardSwitch.attach(PUSHWOOD_FORWARD_SWITCH);
+  pushwoodForwardSwitch.interval(20);
   
   fixPositionButton.attach(FIX_POSITION_BUTTON);
   fixPositionButton.interval(20);

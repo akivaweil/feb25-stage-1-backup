@@ -6,14 +6,17 @@
 //* ************************** IDLE STATE **********************************
 //* ************************************************************************
 // Handles the idle state, awaiting user input or automatic cycle start.
+// Maintains secure wood clamp extended and position clamp retracted.
+// Checks for pushwood forward switch press to transition to FirstCut state.
 // If not in reload mode:
 //   Step 1: Turn on green LED to indicate system is idle.
-//   Step 2: Check for start cycle conditions:
+//   Step 2: Check for pushwood forward switch press AND wood sensor high to start FirstCut.
+//   Step 3: Check for start cycle conditions:
 //           - Start switch just flipped ON (rising edge).
 //           - OR Continuous mode active AND not already in a cutting cycle.
 //           - AND Wood suction error is not present.
 //           - AND Start switch is safe to use (wasn't ON at startup or has been cycled).
-//   Step 3: If start conditions met:
+//   Step 4: If start conditions met:
 //           - Turn off green LED, turn on yellow LED.
 //           - Set cuttingCycleInProgress flag to true.
 //           - Transition to CUTTING state.
@@ -25,10 +28,18 @@ void IdleState::execute(StateManager& stateManager) {
     // Handle reload mode logic first
     handleReloadModeLogic(stateManager);
     
-    // Check start conditions if not in reload mode
+    // Check for FirstCut conditions if not in reload mode
     if (!stateManager.getIsReloadMode()) {
+        checkFirstCutConditions(stateManager);
         checkStartConditions(stateManager);
     }
+}
+
+void IdleState::onEnter(StateManager& stateManager) {
+    // Maintain clamp states: secure wood clamp extended, position clamp retracted
+    extendWoodSecureClamp();
+    retractPositionClamp();
+    Serial.println("Idle: Secure wood clamp extended, position clamp retracted");
 }
 
 void IdleState::handleReloadModeLogic(StateManager& stateManager) {
@@ -45,9 +56,28 @@ void IdleState::handleReloadModeLogic(StateManager& stateManager) {
     } else if (!reloadSwitchOn && isReloadMode) {
         // Exit reload mode
         stateManager.setIsReloadMode(false);
-        extendPositionClamp();   // Re-engage position clamp
         extendWoodSecureClamp(); // Re-engage wood secure clamp
+        retractPositionClamp();   // Keep position clamp retracted (idle state default)
         turnBlueLedOff();       // Turn off blue LED
+    }
+}
+
+void IdleState::checkFirstCutConditions(StateManager& stateManager) {
+    // Check for pushwood forward switch press AND wood sensor HIGH
+    extern Bounce pushwoodForwardSwitch;
+    extern const int WOOD_SENSOR;
+    bool pushwoodPressed = pushwoodForwardSwitch.rose();
+    bool woodSensorHigh = (digitalRead(WOOD_SENSOR) == HIGH);
+    bool woodSensorLow = (digitalRead(WOOD_SENSOR) == LOW);
+    
+    if (pushwoodPressed && woodSensorHigh) {
+        Serial.println("Idle: Pushwood forward switch pressed with wood sensor HIGH - transitioning to FIRSTCUT");
+        stateManager.changeState(FIRSTCUT);
+    }
+    else if (pushwoodPressed && woodSensorLow) {
+        Serial.println("Idle: Pushwood forward switch pressed with wood sensor LOW - executing pushwood forward action");
+        // TODO: Add pushwood forward action here (what should this do?)
+        // For now, just log the action
     }
 }
 

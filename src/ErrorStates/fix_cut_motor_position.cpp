@@ -49,14 +49,14 @@ void initFixCutMotorPosition() {
 // The position motor movements are only to return the system to operational state
 // after the cut motor position has been verified and recalibrated.
 // 
-// TRIGGERED BY: FIX_POSITION_BUTTON press while in READY state
+// TRIGGERED BY: FIX_POSITION_BUTTON press while in IDLE state
 // PURPOSE: Verify cut motor can properly detect its home position and recalibrate to 0
 // 
 // Step 0: Extend position clamp, start 100ms timer.
 // Step 1: After 100ms, retract clamps, send both motors to home position.
 // Step 2: Verify cut motor home sensor detection (3-try verification) and recalibrate position to 0.
 //         If cut motor home sensor fails verification, transition to ERROR state.
-// Step 3: Move position motor to operational position, engage clamps, return to READY.
+// Step 3: Move position motor to operational position, engage clamps, return to IDLE.
 void handleFixCutMotorPositionState() {
     static unsigned long step0Timer_fixCutMotorPosition = 0; 
     static int fixCutMotorPositionSubStep2 = 0;
@@ -166,7 +166,7 @@ void handleFixCutMotorPositionState() {
                 Serial.println("CUT MOTOR POSITION FIX: Verification complete. Cut motor home position confirmed and recalibrated.");
                 allLedsOff(); 
                 turnGreenLedOn();
-                currentState = READY;
+                currentState = IDLE;
                 fixCutMotorPositionStep = 0; // Reset for next time
             }
             break;

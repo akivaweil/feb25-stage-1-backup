@@ -31,6 +31,7 @@ const int POSITION_MOTOR_HOMING_SWITCH = 16;
 // Control switches (Active HIGH - input pulldown)
 const int RELOAD_SWITCH = 6;
 const int START_CYCLE_SWITCH = 5;
+const int PUSHWOOD_FORWARD_SWITCH = 7;
 const int FIX_POSITION_BUTTON = 41;
 
 // Sensors (Active LOW - input pullup)

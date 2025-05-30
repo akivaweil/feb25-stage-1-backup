@@ -18,8 +18,8 @@ class Bounce; // Forward declaration for linter
 enum SystemState {
   STARTUP,
   HOMING,
-  READY,
   IDLE,
+  FIRSTCUT,
   CUTTING,
   NOWOOD,
   YESWOOD,
@@ -40,6 +40,7 @@ extern const int CUT_MOTOR_HOMING_SWITCH;
 extern const int POSITION_MOTOR_HOMING_SWITCH;
 extern const int RELOAD_SWITCH;
 extern const int START_CYCLE_SWITCH;
+extern const int PUSHWOOD_FORWARD_SWITCH;
 extern const int WOOD_SENSOR;
 extern const int WAS_WOOD_SUCTIONED_SENSOR;
 extern const int POSITION_CLAMP;
@@ -106,6 +107,7 @@ extern Bounce cutHomingSwitch;
 extern Bounce positionHomingSwitch;
 extern Bounce reloadSwitch;
 extern Bounce startCycleSwitch;
+extern Bounce pushwoodForwardSwitch;
 extern Bounce fixPositionButton;
 
 // System flags

@@ -314,8 +314,8 @@ void CuttingState::handleCuttingStep8_PositionMotorHomingSequence(StateManager& 
                 resetSteps();
                 Serial.println("Transitioning to CUTTING state for continuous operation.");
             } else {
-                Serial.println("Cycle complete. Transitioning to READY state.");
-                stateManager.changeState(READY);
+                Serial.println("Cycle complete. Transitioning to IDLE state.");
+                stateManager.changeState(IDLE);
                 resetSteps();
             }
             break;
