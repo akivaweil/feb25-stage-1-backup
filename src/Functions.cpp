@@ -361,7 +361,7 @@ bool checkAndRecalibrateCutMotorHome(int attempts) {
 // Point 2: Switch handling
 
 void handleReloadMode() {
-    if (currentState == READY) {
+    if (currentState == IDLE) {
         bool reloadSwitchOn = reloadSwitch.read() == HIGH;
         if (reloadSwitchOn && !isReloadMode) {
             isReloadMode = true;
@@ -432,7 +432,7 @@ void handleStartSwitchContinuousMode(){
 // Point 3: Complex conditional logic
 
 bool shouldStartCycle() {
-    // Condition from READY state to start a cycle
+    // Condition from IDLE state to start a cycle
     return ((startCycleSwitch.rose() || (continuousModeActive && !cuttingCycleInProgress))
             && !woodSuctionError && startSwitchSafe);
 }

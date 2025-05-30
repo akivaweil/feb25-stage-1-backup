@@ -32,6 +32,7 @@ extern const int POSITION_MOTOR_HOMING_SWITCH;
 // Control switches (Active HIGH - input pulldown)
 extern const int RELOAD_SWITCH;
 extern const int START_CYCLE_SWITCH;
+extern const int PUSHWOOD_FORWARD_SWITCH;
 extern const int FIX_POSITION_BUTTON;
 
 // Sensors (Active LOW - input pullup)

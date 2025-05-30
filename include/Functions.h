@@ -18,15 +18,17 @@ class Bounce; // Forward declaration for linter
 enum SystemState {
   STARTUP,
   HOMING,
-  READY,
   IDLE,
+  FIRSTCUT,
+  PUSHWOOD_FORWARD,
   CUTTING,
+  NOWOOD,
+  YESWOOD,
   RETURNING,
   POSITIONING,
   ERROR,
   ERROR_RESET,
-  SUCTION_ERROR_HOLD,
-  FIX_CUT_MOTOR_POSITION
+  SUCTION_ERROR_HOLD
 };
 
 // Extern declarations for Pin Definitions
@@ -38,6 +40,7 @@ extern const int CUT_MOTOR_HOMING_SWITCH;
 extern const int POSITION_MOTOR_HOMING_SWITCH;
 extern const int RELOAD_SWITCH;
 extern const int START_CYCLE_SWITCH;
+extern const int PUSHWOOD_FORWARD_SWITCH;
 extern const int WOOD_SENSOR;
 extern const int WAS_WOOD_SUCTIONED_SENSOR;
 extern const int POSITION_CLAMP;
@@ -104,7 +107,8 @@ extern Bounce cutHomingSwitch;
 extern Bounce positionHomingSwitch;
 extern Bounce reloadSwitch;
 extern Bounce startCycleSwitch;
-extern Bounce fixPositionButton;
+extern Bounce pushwoodForwardSwitch;
+extern Bounce fixPositionSwitch;
 
 // System flags
 extern bool isReloadMode;
@@ -208,7 +212,5 @@ void handleCatcherServoReturn();
 //* ************************* ERROR STATE FUNCTIONS ************************
 //* ************************************************************************
 // Error state handling functions
-void handleFixCutMotorPositionState();
-void initFixCutMotorPosition();
 
 #endif // FUNCTIONS_H 

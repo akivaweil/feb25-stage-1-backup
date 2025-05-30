@@ -36,7 +36,7 @@ public:
     Bounce* getPositionHomingSwitch() { return &positionHomingSwitch; }
     Bounce* getReloadSwitch() { return &reloadSwitch; }
     Bounce* getStartCycleSwitch() { return &startCycleSwitch; }
-    Bounce* getFixPositionButton() { return &fixPositionButton; }
+    Bounce* getFixPositionSwitch() { return &fixPositionSwitch; }
     
     // System flag access methods
     bool getIsReloadMode() const { return isReloadMode; }

@@ -11,10 +11,12 @@
 class IdleState : public BaseState {
 public:
     void execute(StateManager& stateManager) override;
+    void onEnter(StateManager& stateManager) override;
     SystemState getStateType() const override { return IDLE; }
 
 private:
     void handleReloadModeLogic(StateManager& stateManager);
+    void checkFirstCutConditions(StateManager& stateManager);
     void checkStartConditions(StateManager& stateManager);
 };
 

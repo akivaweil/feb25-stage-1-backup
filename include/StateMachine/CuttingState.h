@@ -25,14 +25,7 @@ private:
     bool catcherClampActivatedThisCycle = false;
     bool catcherServoActivatedThisCycle = false;
     float cutMotorIncrementalMoveTotalInches = 0.0;
-    int cuttingSubStep7 = 0;
     int cuttingSubStep8 = 0; // For position motor homing sequence
-    
-    // NO_WOOD sequence tracking
-    int noWoodStep = 0;
-    int noWoodHomingSubStep = 0; // For NO_WOOD position motor homing sequence
-    unsigned long cylinderActionTime = 0;
-    bool waitingForCylinder = false;
     
     // Helper methods for different cutting phases
     void handleCuttingStep0(StateManager& stateManager);
@@ -41,13 +34,7 @@ private:
     void handleCuttingStep3(StateManager& stateManager);
     void handleCuttingStep4(StateManager& stateManager);
     void handleCuttingStep5(StateManager& stateManager);
-    void handleCuttingStep6_NO_WOOD_Sequence(StateManager& stateManager);
-    void handleCuttingStep7_YES_WOOD_Sequence(StateManager& stateManager);
     void handleCuttingStep8_PositionMotorHomingSequence(StateManager& stateManager);
-    
-    // Helper methods for NO_WOOD sequence
-    void handleNO_WOOD_Step(StateManager& stateManager, int step);
-    void handleNO_WOOD_PositionMotorHoming(StateManager& stateManager);
     
     // Helper method for home position error
     void handleHomePositionError(StateManager& stateManager);
