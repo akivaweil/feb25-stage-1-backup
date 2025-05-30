@@ -3,6 +3,7 @@
 #include "StateMachine/HomingState.h"
 #include "StateMachine/IdleState.h"
 #include "StateMachine/FirstCutState.h"
+#include "StateMachine/PushwoodForwardState.h"
 #include "StateMachine/CuttingState.h"
 #include "StateMachine/NoWoodState.h"
 #include "StateMachine/YesWoodState.h"
@@ -26,6 +27,7 @@ static StartupState startupState;
 static HomingState homingState;
 static IdleState idleState;
 static FirstCutState firstCutState;
+static PushwoodForwardState pushwoodForwardState;
 static CuttingState cuttingState;
 static NoWoodState noWoodState;
 static YesWoodState yesWoodState;
@@ -57,6 +59,9 @@ void StateManager::execute() {
         case FIRSTCUT:
             firstCutState.execute(*this);
             break;
+        case PUSHWOOD_FORWARD:
+            pushwoodForwardState.execute(*this);
+            break;
         case CUTTING:
             cuttingState.execute(*this);
             break;
@@ -86,6 +91,7 @@ void StateManager::changeState(SystemState newState) {
             case HOMING: homingState.onExit(*this); break;
             case IDLE: idleState.onExit(*this); break;
             case FIRSTCUT: firstCutState.onExit(*this); break;
+            case PUSHWOOD_FORWARD: pushwoodForwardState.onExit(*this); break;
             case CUTTING: cuttingState.onExit(*this); break;
             case NOWOOD: noWoodState.onExit(*this); break;
             case YESWOOD: yesWoodState.onExit(*this); break;

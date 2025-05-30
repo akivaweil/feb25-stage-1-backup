@@ -104,15 +104,93 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             
         case TRANSITION_TO_CUTTING:
             //! ************************************************************************
-            //! STEP 6: START CUTTING CYCLE BY SWITCHING TO CUTTING STATE
+            //! STEP 6: COMPLETE FIRST RUN, ADVANCE TO SECOND RUN
             //! ************************************************************************
-            Serial.println("FirstCut: Transitioning to CUTTING state");
+            Serial.println("FirstCut: First run complete, starting second run");
+            advanceToNextStep(stateManager);
+            break;
+            
+        case RETRACT_POSITION_CLAMP_SECOND:
+            //! ************************************************************************
+            //! STEP 7: RETRACT THE POSITION CLAMP (SECOND RUN)
+            //! ************************************************************************
+            if (stepStartTime == 0) {
+                stepStartTime = millis();
+                retractPositionClamp();
+                Serial.println("FirstCut: Position clamp retracted (second run)");
+            }
+            advanceToNextStep(stateManager);
+            break;
+            
+        case MOVE_TO_MINUS_ONE_SECOND:
+            //! ************************************************************************
+            //! STEP 8: MOVE THE POSITION MOTOR TO -2 (SECOND RUN)
+            //! ************************************************************************
+            if (stepStartTime == 0) {
+                stepStartTime = millis();
+                movePositionMotorToPosition(POSITION_TRAVEL_DISTANCE - 2.75);
+                Serial.println("FirstCut: Moving position motor to -2 inch (second run)");
+            }
+            
+            // Wait for motor to finish moving
+            if (!stateManager.getPositionMotor()->isRunning()) {
+                advanceToNextStep(stateManager);
+            }
+            break;
+            
+        case EXTEND_POSITION_CLAMP_RETRACT_SECURE_SECOND:
+            //! ************************************************************************
+            //! STEP 9: EXTEND POSITION CLAMP AND RETRACT SECURE WOOD CLAMP (SECOND RUN)
+            //! ************************************************************************
+            if (stepStartTime == 0) {
+                stepStartTime = millis();
+                extendPositionClamp();
+                retractWoodSecureClamp();
+                Serial.println("FirstCut: Position clamp extended, secure wood clamp retracted (second run)");
+            }
+            advanceToNextStep(stateManager);
+            break;
+            
+        case WAIT_300MS_SECOND:
+            //! ************************************************************************
+            //! STEP 10: WAIT 300MS (SECOND RUN)
+            //! ************************************************************************
+            if (stepStartTime == 0) {
+                stepStartTime = millis();
+                Serial.println("FirstCut: Waiting 300ms (second run)");
+            }
+            
+            if (millis() - stepStartTime >= 300) {
+                advanceToNextStep(stateManager);
+            }
+            break;
+            
+        case MOVE_TO_TRAVEL_DISTANCE_MINUS_275:
+            //! ************************************************************************
+            //! STEP 11: MOVE POSITION MOTOR TO POSITION_TRAVEL_DISTANCE - 2.75
+            //! ************************************************************************
+            if (stepStartTime == 0) {
+                stepStartTime = millis();
+                movePositionMotorToPosition(POSITION_TRAVEL_DISTANCE);
+                Serial.println("FirstCut: Moving position motor to travel distance minus 2.75 inches");
+            }
+            
+            // Wait for motor to finish moving
+            if (!stateManager.getPositionMotor()->isRunning()) {
+                advanceToNextStep(stateManager);
+            }
+            break;
+            
+        case TRANSITION_TO_CUTTING_FINAL:
+            //! ************************************************************************
+            //! STEP 12: START CUTTING CYCLE BY SWITCHING TO CUTTING STATE (FINAL)
+            //! ************************************************************************
+            Serial.println("FirstCut: Transitioning to CUTTING state (final)");
             stateManager.setCuttingCycleInProgress(true);
             configureCutMotorForCutting();
             turnGreenLedOff();
             turnYellowLedOn();
-            delay(100000);
-            stateManager.changeState(CUTTING);
+            stateManager.changeState(IDLE);
             break;
     }
 }
@@ -137,6 +215,24 @@ void FirstCutState::advanceToNextStep(StateManager& stateManager) {
             currentStep = TRANSITION_TO_CUTTING;
             break;
         case TRANSITION_TO_CUTTING:
+            currentStep = RETRACT_POSITION_CLAMP_SECOND;
+            break;
+        case RETRACT_POSITION_CLAMP_SECOND:
+            currentStep = MOVE_TO_MINUS_ONE_SECOND;
+            break;
+        case MOVE_TO_MINUS_ONE_SECOND:
+            currentStep = EXTEND_POSITION_CLAMP_RETRACT_SECURE_SECOND;
+            break;
+        case EXTEND_POSITION_CLAMP_RETRACT_SECURE_SECOND:
+            currentStep = WAIT_300MS_SECOND;
+            break;
+        case WAIT_300MS_SECOND:
+            currentStep = MOVE_TO_TRAVEL_DISTANCE_MINUS_275;
+            break;
+        case MOVE_TO_TRAVEL_DISTANCE_MINUS_275:
+            currentStep = TRANSITION_TO_CUTTING_FINAL;
+            break;
+        case TRANSITION_TO_CUTTING_FINAL:
             // Final step, no advancement needed
             break;
     }

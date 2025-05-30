@@ -20,6 +20,7 @@ enum SystemState {
   HOMING,
   IDLE,
   FIRSTCUT,
+  PUSHWOOD_FORWARD,
   CUTTING,
   NOWOOD,
   YESWOOD,

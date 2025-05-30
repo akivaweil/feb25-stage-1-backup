@@ -45,8 +45,8 @@ const float CUT_MOTOR_HOMING_SPEED = 1000;      // Speed for homing the cut moto
 //* ************************ POSITION MOTOR SPEED SETTINGS ***************
 //* ************************************************************************
 // Normal Positioning Operation (Positioning State / Parts of Cutting State)
-const float POSITION_MOTOR_NORMAL_SPEED = 20000;    // Speed for normal positioning moves (steps/sec)
-const float POSITION_MOTOR_NORMAL_ACCELERATION = 30000; // Acceleration for normal positioning (steps/sec^2)
+const float POSITION_MOTOR_NORMAL_SPEED = 17000;    // Speed for normal positioning moves (steps/sec)
+const float POSITION_MOTOR_NORMAL_ACCELERATION = 20000; // Acceleration for normal positioning (steps/sec^2)
 
 // Return to Home/Start (Returning State / End of Cutting State / Homing after initial move)
 const float POSITION_MOTOR_RETURN_SPEED = 20000;    // Speed for returning to home or start position (steps/sec)
