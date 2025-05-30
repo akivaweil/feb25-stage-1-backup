@@ -111,6 +111,7 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             configureCutMotorForCutting();
             turnGreenLedOff();
             turnYellowLedOn();
+            delay(100000);
             stateManager.changeState(CUTTING);
             break;
     }

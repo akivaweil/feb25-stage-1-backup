@@ -107,6 +107,7 @@ extern Bounce positionHomingSwitch;
 extern Bounce reloadSwitch;
 extern Bounce startCycleSwitch;
 extern Bounce pushwoodForwardSwitch;
+extern Bounce fixPositionSwitch;
 
 // System flags
 extern bool isReloadMode;

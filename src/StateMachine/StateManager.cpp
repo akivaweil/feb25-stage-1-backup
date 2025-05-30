@@ -158,6 +158,7 @@ void StateManager::updateSwitches() {
     reloadSwitch.update();
     startCycleSwitch.update();
     pushwoodForwardSwitch.update();
+    fixPositionSwitch.update();
 }
 
 void StateManager::handleCommonOperations() {
