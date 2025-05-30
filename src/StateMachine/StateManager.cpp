@@ -11,7 +11,6 @@
 #include "ErrorStates/standard_error.h"
 #include "ErrorStates/error_reset.h"
 #include "ErrorStates/suction_error_hold.h"
-#include "ErrorStates/fix_cut_motor_position.h"
 #include <memory>
 
 //* ************************************************************************
@@ -76,9 +75,6 @@ void StateManager::execute() {
         case SUCTION_ERROR_HOLD:
             handleSuctionErrorHoldState();
             break;
-        case FIX_CUT_MOTOR_POSITION:
-            handleFixCutMotorPositionState();
-            break;
     }
 }
 
@@ -129,7 +125,6 @@ void StateManager::changeState(SystemState newState) {
             case ERROR: Serial.println("ERROR"); break;
             case ERROR_RESET: Serial.println("ERROR_RESET"); break;
             case SUCTION_ERROR_HOLD: Serial.println("SUCTION_ERROR_HOLD"); break;
-            case FIX_CUT_MOTOR_POSITION: Serial.println("FIX_CUT_MOTOR_POSITION"); break;
         }
     }
 }
@@ -150,7 +145,6 @@ void StateManager::printStateChange() {
             case ERROR: Serial.println("ERROR"); break;
             case ERROR_RESET: Serial.println("ERROR_RESET"); break;
             case SUCTION_ERROR_HOLD: Serial.println("SUCTION_ERROR_HOLD"); break;
-            case FIX_CUT_MOTOR_POSITION: Serial.println("FIX_CUT_MOTOR_POSITION"); break;
             default: Serial.println("UNKNOWN"); break;
         }
         previousState = currentState;
@@ -164,7 +158,6 @@ void StateManager::updateSwitches() {
     reloadSwitch.update();
     startCycleSwitch.update();
     pushwoodForwardSwitch.update();
-    fixPositionButton.update();
 }
 
 void StateManager::handleCommonOperations() {
@@ -228,15 +221,5 @@ void StateManager::handleCommonOperations() {
         digitalWrite(TA_SIGNAL_OUT_PIN, LOW); // Return to inactive state (LOW)
         signalTAActive = false;
         Serial.println("Signal to Stage 1 to TA completed");
-    }
-    
-    // Check for fix position button press
-    extern Bounce fixPositionButton; // This is in main.cpp
-    if (fixPositionButton.rose() && currentState == IDLE) {
-        changeState(FIX_CUT_MOTOR_POSITION);
-        initFixCutMotorPosition(); // Reset step
-        allLedsOff();
-        turnBlueLedOn(); // Indicate FIX_CUT_MOTOR_POSITION active
-        Serial.println("FIX_CUT_MOTOR_POSITION button pressed in IDLE state. Starting cut motor home position verification.");
     }
 } 

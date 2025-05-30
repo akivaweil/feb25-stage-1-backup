@@ -27,8 +27,7 @@ enum SystemState {
   POSITIONING,
   ERROR,
   ERROR_RESET,
-  SUCTION_ERROR_HOLD,
-  FIX_CUT_MOTOR_POSITION
+  SUCTION_ERROR_HOLD
 };
 
 // Extern declarations for Pin Definitions
@@ -108,7 +107,6 @@ extern Bounce positionHomingSwitch;
 extern Bounce reloadSwitch;
 extern Bounce startCycleSwitch;
 extern Bounce pushwoodForwardSwitch;
-extern Bounce fixPositionButton;
 
 // System flags
 extern bool isReloadMode;
@@ -212,7 +210,5 @@ void handleCatcherServoReturn();
 //* ************************* ERROR STATE FUNCTIONS ************************
 //* ************************************************************************
 // Error state handling functions
-void handleFixCutMotorPositionState();
-void initFixCutMotorPosition();
 
 #endif // FUNCTIONS_H 

@@ -11,7 +11,6 @@
 #include "ErrorStates/standard_error.h"
 #include "ErrorStates/error_reset.h"
 #include "ErrorStates/suction_error_hold.h"
-#include "ErrorStates/fix_cut_motor_position.h"
 #include "CutMotorHomeErrorHandler.h"
 
 //* ************************************************************************
@@ -51,7 +50,6 @@ Bounce positionHomingSwitch = Bounce();
 Bounce reloadSwitch = Bounce();
 Bounce startCycleSwitch = Bounce();
 Bounce pushwoodForwardSwitch = Bounce();
-Bounce fixPositionButton = Bounce();
 
 // System flags
 bool isHomed = false;
@@ -103,7 +101,6 @@ void setup() {
   pinMode(RELOAD_SWITCH, INPUT_PULLDOWN);
   pinMode(START_CYCLE_SWITCH, INPUT_PULLDOWN);
   pinMode(PUSHWOOD_FORWARD_SWITCH, INPUT_PULLDOWN);
-  pinMode(FIX_POSITION_BUTTON, INPUT_PULLDOWN);
   
   pinMode(WOOD_SENSOR, INPUT_PULLUP);
   pinMode(WAS_WOOD_SUCTIONED_SENSOR, INPUT_PULLUP);
@@ -142,9 +139,6 @@ void setup() {
   
   pushwoodForwardSwitch.attach(PUSHWOOD_FORWARD_SWITCH);
   pushwoodForwardSwitch.interval(20);
-  
-  fixPositionButton.attach(FIX_POSITION_BUTTON);
-  fixPositionButton.interval(20);
   
   //! Initialize motors
   engine.init();

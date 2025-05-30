@@ -10,7 +10,7 @@
 //
 // Sequence:
 // 1. Retract the position clamp
-// 2. Move the position motor to -1
+// 2. Move the position motor to -2
 // 3. Extend the position clamp and retract the secure wood clamp
 // 4. Wait 300ms
 // 5. Move the position motor to POSITION_TRAVEL_DISTANCE
@@ -49,7 +49,7 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                movePositionMotorToPosition(-1.0);
+                movePositionMotorToPosition(-2.0);
                 Serial.println("FirstCut: Moving position motor to -1 inch");
             }
             
