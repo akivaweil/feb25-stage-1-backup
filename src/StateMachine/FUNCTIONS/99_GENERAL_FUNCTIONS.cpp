@@ -1,6 +1,6 @@
 // IMPORTANT NOTE: This file contains helper functions used by 'Stage 1 Feb25.cpp'.
 // It relies on 'Stage 1 Feb25.cpp' for pin definitions and global variable declarations (via extern).
-#include "Functions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* *********************** HELPER FUNCTIONS ******************************

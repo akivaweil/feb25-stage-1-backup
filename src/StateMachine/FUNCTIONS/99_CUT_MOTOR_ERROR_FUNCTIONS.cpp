@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <Bounce2.h>
 #include <FastAccelStepper.h>
-#include "Functions.h"
-#include "CutMotorHomeErrorHandler.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "StateMachine/99_CUT_MOTOR_ERROR_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ****************** CUT MOTOR HOME ERROR HANDLER **********************

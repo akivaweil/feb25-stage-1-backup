@@ -1,4 +1,4 @@
-#include "Config/pin_definitions.h"
+#include "Config/Pins_Definitions.h"
 
 //* ************************************************************************
 //* ************************ PIN DEFINITIONS *****************************

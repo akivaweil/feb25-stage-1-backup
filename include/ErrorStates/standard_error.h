@@ -2,7 +2,7 @@
 #define STANDARD_ERROR_H
 
 #include <Arduino.h>
-#include "Functions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
 
 // Function declarations for standard error state functionality
 void handleStandardErrorState();
