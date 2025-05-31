@@ -1,8 +1,8 @@
 #include "StateMachine/04_NOWOOD.h"
 #include "StateMachine/StateManager.h"
 #include "StateMachine/99_GENERAL_FUNCTIONS.h"
-#include "Functions.h"
-#include "Config/pin_definitions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "Config/Pins_Definitions.h"
 
 //* ************************************************************************
 //* ************************** NO WOOD STATE *******************************

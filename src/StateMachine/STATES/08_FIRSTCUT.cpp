@@ -1,6 +1,6 @@
-#include "StateMachine/FirstCutState.h"
+#include "StateMachine/08_FIRSTCUT.h"
 #include "StateMachine/StateManager.h"
-#include "Functions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ************************ FIRST CUT STATE ******************************
