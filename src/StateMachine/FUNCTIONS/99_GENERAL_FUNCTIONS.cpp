@@ -312,7 +312,7 @@ void homePositionMotorBlocking(Bounce& homingSwitch) {
     
     // Step 2: Move to -1 inch from home switch to establish working zero
     Serial.println("Moving position motor to -1 inch from home switch...");
-    positionMotor->moveTo(POSITION_TRAVEL_DISTANCE * POSITION_MOTOR_STEPS_PER_INCH - 0.2 * POSITION_MOTOR_STEPS_PER_INCH);
+    positionMotor->moveTo(POSITION_TRAVEL_DISTANCE * POSITION_MOTOR_STEPS_PER_INCH - 1.0 * POSITION_MOTOR_STEPS_PER_INCH);
     
     // Wait for move to complete
     while (positionMotor->isRunning()) {
