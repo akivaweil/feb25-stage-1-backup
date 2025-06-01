@@ -40,47 +40,47 @@ void sendSignalToTA() {
 //* ************************* CLAMP FUNCTIONS ******************************
 //* ************************************************************************
 // Contains functions for controlling various clamps.
-// Clamp Logic: LOW = engaged (extended), HIGH = disengaged (retracted)
-// Catcher Clamp Logic: HIGH = engaged (extended), LOW = disengaged (retracted)
+// Clamp Logic: LOW = extended, HIGH = retracted
+// Catcher Clamp Logic: HIGH = extended, LOW = retracted
 
 void extendFeedClamp() {
     // Feed clamp extends when LOW (inversed logic)
-    digitalWrite(FEED_CLAMP, LOW); // Engaged
-    Serial.println("Feed Clamp Extended (Engaged)");
+    digitalWrite(FEED_CLAMP, LOW); // Extended
+    Serial.println("Feed Clamp Extended");
 }
 
 void retractFeedClamp() {
     // Feed clamp retracts when HIGH (inversed logic)
-    digitalWrite(FEED_CLAMP, HIGH); // Disengaged
-    Serial.println("Feed Clamp Retracted (Disengaged)");
+    digitalWrite(FEED_CLAMP, HIGH); // Retracted
+    Serial.println("Feed Clamp Retracted");
 }
 
 void extendWoodSecureClamp() {
     // Wood secure clamp extends when LOW (inversed logic)
-    digitalWrite(WOOD_SECURE_CLAMP, LOW); // Engaged
-    Serial.println("Wood Secure Clamp Extended (Engaged)");
+    digitalWrite(WOOD_SECURE_CLAMP, LOW); // Extended
+    Serial.println("Wood Secure Clamp Extended");
 }
 
 void retractWoodSecureClamp() {
     // Wood secure clamp retracts when HIGH (inversed logic)
-    digitalWrite(WOOD_SECURE_CLAMP, HIGH); // Disengaged
-    Serial.println("Wood Secure Clamp Retracted (Disengaged)");
+    digitalWrite(WOOD_SECURE_CLAMP, HIGH); // Retracted
+    Serial.println("Wood Secure Clamp Retracted");
 }
 
 void extendCatcherClamp() {
-    // Catcher clamp engages when HIGH
-    digitalWrite(CATCHER_CLAMP, HIGH); // Engaged (Reversed Logic)
-    catcherClampEngageTime = millis();
-    catcherClampIsEngaged = true;
-    Serial.println("Catcher Clamp Extended (Engaged)");
+    // Catcher clamp extends when HIGH
+    digitalWrite(CATCHER_CLAMP, HIGH); // Extended (Reversed Logic)
+    catcherClampExtendTime = millis();
+    catcherClampIsExtended = true;
+    Serial.println("Catcher Clamp Extended");
 }
 
 void retractCatcherClamp() {
-    // Catcher clamp disengages when LOW
-    // Note: Different behavior than position and wood secure clamps
-    digitalWrite(CATCHER_CLAMP, LOW); // Disengaged (Reversed Logic)
-    catcherClampIsEngaged = false; // Assuming we want to clear the flag when explicitly retracting
-    Serial.println("Catcher Clamp Retracted (Disengaged)");
+    // Catcher clamp retracts when LOW
+    // Note: Different behavior than feed and wood secure clamps
+    digitalWrite(CATCHER_CLAMP, LOW); // Retracted (Reversed Logic)
+    catcherClampIsExtended = false; // Assuming we want to clear the flag when explicitly retracting
+    Serial.println("Catcher Clamp Retracted");
 }
 
 //* ************************************************************************
@@ -475,10 +475,10 @@ void handleTASignalTiming() {
   }
 }
 
-void handleCatcherClampDisengage() { // Point 4
-  if (catcherClampIsEngaged && (millis() - catcherClampEngageTime >= CATCHER_CLAMP_ENGAGE_DURATION_MS)) {
+void handleCatcherClampRetract() { // Point 4
+  if (catcherClampIsExtended && (millis() - catcherClampExtendTime >= CATCHER_CLAMP_EXTEND_DURATION_MS)) {
     retractCatcherClamp();
-    Serial.println("Catcher Clamp disengaged after 1 second.");
+    Serial.println("Catcher Clamp retracted after 1 second.");
   }
 }
 

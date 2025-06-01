@@ -132,7 +132,7 @@ void CuttingState::handleCuttingStep3(StateManager& stateManager) {
     if (positionMotor && !positionMotor->isRunning()) {
         retractFeedClamp();
         retractWoodSecureClamp();
-        Serial.println("Feed clamp and wood secure clamp disengaged.");
+        Serial.println("Feed clamp and wood secure clamp retracted.");
 
         configurePositionMotorForReturn();
         movePositionMotorToHome();
@@ -151,7 +151,7 @@ void CuttingState::handleCuttingStep4(StateManager& stateManager) {
     
     if (positionMotor && !positionMotor->isRunning()) {
         retractFeedClamp();
-        Serial.println("Feed clamp disengaged.");
+        Serial.println("Feed clamp retracted.");
 
         if (cutMotor && !cutMotor->isRunning()) {
             Serial.println("Cut motor also at home. Checking cut motor position switch.");
@@ -269,7 +269,7 @@ void CuttingState::handleCuttingStep8_PositionMotorHomingSequence(StateManager& 
         case 4: // Homing complete - check for continuous mode or finish cycle
             Serial.println("Position Motor Homing Step 8.4: Homing sequence complete.");
             extendWoodSecureClamp(); 
-            Serial.println("Wood secure clamp engaged."); 
+            Serial.println("Wood secure clamp extended."); 
             turnYellowLedOff();
             stateManager.setCuttingCycleInProgress(false);
             

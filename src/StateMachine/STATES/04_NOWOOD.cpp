@@ -71,9 +71,9 @@ void NoWoodState::handleNO_WOOD_Step(StateManager& stateManager, int step) {
     extern const float POSITION_TRAVEL_DISTANCE; // From main.cpp
     
     switch (step) { 
-        case 1: // New Step: Wait for cut motor, then engage feed clamp
+        case 1: // New Step: Wait for cut motor, then extend feed clamp
             if (cutMotor && !cutMotor->isRunning()) {
-                Serial.println("NO_WOOD Step 1: Cut motor returned home. Engaging feed clamp.");
+                Serial.println("NO_WOOD Step 1: Cut motor returned home. Extending feed clamp.");
                 extendFeedClamp();
                 cylinderActionTime = millis();
                 waitingForCylinder = true; // Will cause noWoodStep to increment to 2 after delay
@@ -96,9 +96,9 @@ void NoWoodState::handleNO_WOOD_Step(StateManager& stateManager, int step) {
             noWoodStep = 4; // Directly advance step here as it's a command
             break;
             
-        case 4: // Was original noWoodStep 3: wait for position motor at 2.0, engage feed clamp
+        case 4: // Was original noWoodStep 3: wait for position motor at 2.0, extend feed clamp
             if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("NO_WOOD Step 4: Position motor at 2.0 inches. Engaging feed clamp.");
+                Serial.println("NO_WOOD Step 4: Position motor at 2.0 inches. Extending feed clamp.");
                 extendFeedClamp();
                 cylinderActionTime = millis();
                 waitingForCylinder = true; // Increments to 5
@@ -236,9 +236,9 @@ void NoWoodState::handleNO_WOOD_PositionMotorHoming(StateManager& stateManager) 
             Serial.println("NO_WOOD Position Motor Homing Step 9.4: Homing sequence complete.");
             
             retractWoodSecureClamp(); 
-            Serial.println("Wood secure clamp disengaged (final check in NO_WOOD)."); 
-            extendWoodSecureClamp(); 
-            Serial.println("Wood secure clamp engaged."); 
+            Serial.println("Wood secure clamp retracted (final check in NO_WOOD).");
+            extendWoodSecureClamp();
+            Serial.println("Wood secure clamp extended.");
             turnYellowLedOff();
             turnBlueLedOn(); 
 

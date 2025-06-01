@@ -62,12 +62,12 @@ const float POSITION_MOTOR_HOMING_SPEED = 2000;     // Speed for homing the posi
 const unsigned long CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS = 2700;
 
 // Catcher clamp timing
-const unsigned long CATCHER_CLAMP_ENGAGE_DURATION_MS = 1200; // 1.5 seconds
+const unsigned long CATCHER_CLAMP_EXTEND_DURATION_MS = 1200; // 1.5 seconds
 
 // Cut motor homing timeout
 const unsigned long CUT_HOME_TIMEOUT = 5000; // 5 seconds timeout
 
-// Signal timing
+// Transfer Arm signal timing
 const unsigned long TA_SIGNAL_DURATION = 2000; // Duration for Transfer Arm signal (ms)
 
 //* ************************************************************************

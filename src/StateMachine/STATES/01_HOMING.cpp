@@ -8,8 +8,8 @@
 // Handles the homing sequence for all motors.
 // Step 1: Blink blue LED to indicate homing in progress.
 // Step 2: Home the cut motor (blocking). If fails, it might retry or transition to ERROR (currently retries).
-// Step 3: If cut motor homed, home the position motor (blocking). Disengage feed clamp before homing.
-// Step 4: If position motor homed, move position motor to POSITION_TRAVEL_DISTANCE (blocking). Re-engage feed clamp.
+// Step 3: If cut motor homed, home the position motor (blocking). Retract feed clamp before homing.
+// Step 4: If position motor homed, move position motor to POSITION_TRAVEL_DISTANCE (blocking). Re-extend feed clamp.
 // Step 5: If all homing and initial positioning are complete, set isHomed flag to true.
 // Step 6: Turn off blue LED, turn on green LED.
 // Step 7: Ensure servo is at 2 degrees.
@@ -47,7 +47,7 @@ void HomingState::execute(StateManager& stateManager) {
         if (!positionHomingPhaseInitiated) {
             Serial.println("Starting position motor homing phase (blocking)..."); 
             retractFeedClamp(); 
-            Serial.println("Feed clamp disengaged for homing."); 
+            Serial.println("Feed clamp retracted for homing."); 
             positionHomingPhaseInitiated = true;
         }
         homePositionMotorBlocking(*stateManager.getPositionHomingSwitch());
@@ -55,7 +55,7 @@ void HomingState::execute(StateManager& stateManager) {
         positionHomingPhaseInitiated = false; // Reset for next potential homing cycle
     } else if (!positionMotorMoved) {
         extendFeedClamp();
-        Serial.println("Feed clamp re-engaged.");
+        Serial.println("Feed clamp re-extended.");
         movePositionMotorToTravel();
         while(stateManager.getPositionMotor()->isRunning()){
             // Wait for position motor to reach POSITION_TRAVEL_DISTANCE

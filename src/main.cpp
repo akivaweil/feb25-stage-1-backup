@@ -25,8 +25,8 @@
 unsigned long catcherServoActiveStartTime = 0;
 bool catcherServoIsActiveAndTiming = false;
 
-unsigned long catcherClampEngageTime = 0;
-bool catcherClampIsEngaged = false;
+unsigned long catcherClampExtendTime = 0;
+bool catcherClampIsExtended = false;
 
 // SystemStates Enum is now in Functions.h
 SystemState currentState = STARTUP;

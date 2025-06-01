@@ -64,8 +64,8 @@ extern SystemState currentState;
 extern Servo catcherServo;
 extern unsigned long catcherServoActiveStartTime;
 extern bool catcherServoIsActiveAndTiming;
-extern unsigned long catcherClampEngageTime;
-extern bool catcherClampIsEngaged;
+extern unsigned long catcherClampExtendTime;
+extern bool catcherClampIsExtended;
 extern unsigned long signalTAStartTime; // For Transfer Arm signal
 extern bool signalTAActive; // For Transfer Arm signal
 
@@ -99,7 +99,7 @@ extern const float CATCHER_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES;
 
 // Constants
 extern const unsigned long CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS;
-extern const unsigned long CATCHER_CLAMP_ENGAGE_DURATION_MS;
+extern const unsigned long CATCHER_CLAMP_EXTEND_DURATION_MS;
 extern const unsigned long TA_SIGNAL_DURATION; // Duration for TA signal
 
 // Switch objects
@@ -148,7 +148,7 @@ void extendWoodSecureClamp();
 void retractWoodSecureClamp();
 void extendCatcherClamp();
 void retractCatcherClamp();
-void handleCatcherClampDisengage(); // Point 4
+void handleCatcherClampRetract(); // Point 4
 
 //* ************************************************************************
 //* *************************** LED FUNCTIONS ******************************

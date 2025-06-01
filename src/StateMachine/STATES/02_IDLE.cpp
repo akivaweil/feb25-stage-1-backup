@@ -50,13 +50,13 @@ void IdleState::handleReloadModeLogic(StateManager& stateManager) {
     if (reloadSwitchOn && !isReloadMode) {
         // Enter reload mode
         stateManager.setIsReloadMode(true);
-        retractFeedClamp(); // Disengage feed clamp
-        retractWoodSecureClamp(); // Disengage wood secure clamp
+        retractFeedClamp(); // Retract feed clamp
+        retractWoodSecureClamp(); // Retract wood secure clamp
         turnBlueLedOn();     // Turn on blue LED for reload mode
     } else if (!reloadSwitchOn && isReloadMode) {
         // Exit reload mode
         stateManager.setIsReloadMode(false);
-        extendWoodSecureClamp(); // Re-engage wood secure clamp
+        extendWoodSecureClamp(); // Re-extend wood secure clamp
         retractFeedClamp();   // Keep feed clamp retracted (idle state default)
         turnBlueLedOff();       // Turn off blue LED
     }

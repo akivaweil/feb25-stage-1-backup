@@ -22,7 +22,7 @@ void YesWoodState::onEnter(StateManager& stateManager) {
     
     retractFeedClamp(); 
     retractWoodSecureClamp(); 
-    Serial.println("Position and Wood Secure clamps disengaged for simultaneous return.");
+    Serial.println("Position and Wood Secure clamps retracted for simultaneous return.");
 
     // Set flag to indicate we're in YES_WOOD return mode - enable homing sensor check
     extern bool cutMotorInYesWoodReturn; // From main.cpp
@@ -49,9 +49,9 @@ void YesWoodState::handleYES_WOOD_Sequence(StateManager& stateManager) {
     switch (yesWoodSubStep) {
         case 0: // Wait for position motor to home
             if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("YES_WOOD Step 0: Position motor has returned home. Engaging feed clamp.");
+                Serial.println("YES_WOOD Step 0: Position motor has returned home. Extending feed clamp.");
                 extendFeedClamp();
-                Serial.println("Feed clamp engaged (position motor home).");
+                Serial.println("Feed clamp extended (position motor home).");
                 yesWoodSubStep = 1;
             }
             break;
@@ -175,7 +175,7 @@ void YesWoodState::handleYES_WOOD_PositionMotorHoming(StateManager& stateManager
         case 4: // Homing complete - check for continuous mode or finish cycle
             Serial.println("YES_WOOD Position Motor Homing Step 4: Homing sequence complete.");
             extendWoodSecureClamp(); 
-            Serial.println("Wood secure clamp engaged."); 
+            Serial.println("Wood secure clamp extended."); 
             turnYellowLedOff();
             stateManager.setCuttingCycleInProgress(false);
             

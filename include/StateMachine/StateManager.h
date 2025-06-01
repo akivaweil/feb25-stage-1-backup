@@ -84,11 +84,11 @@ public:
     bool getCatcherServoIsActiveAndTiming() const { return catcherServoIsActiveAndTiming; }
     void setCatcherServoIsActiveAndTiming(bool value) { catcherServoIsActiveAndTiming = value; }
     
-    unsigned long getCatcherClampEngageTime() const { return catcherClampEngageTime; }
-    void setCatcherClampEngageTime(unsigned long value) { catcherClampEngageTime = value; }
+    unsigned long getCatcherClampExtendTime() const { return catcherClampExtendTime; }
+    void setCatcherClampExtendTime(unsigned long value) { catcherClampExtendTime = value; }
     
-    bool getCatcherClampIsEngaged() const { return catcherClampIsEngaged; }
-    void setCatcherClampIsEngaged(bool value) { catcherClampIsEngaged = value; }
+    bool getCatcherClampIsExtended() const { return catcherClampIsExtended; }
+    void setCatcherClampIsExtended(bool value) { catcherClampIsExtended = value; }
     
     // Signal timing access
     unsigned long getSignalTAStartTime() const { return signalTAStartTime; }

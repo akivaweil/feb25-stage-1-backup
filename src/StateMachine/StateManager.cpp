@@ -189,10 +189,10 @@ void StateManager::handleCommonOperations() {
         }
     }
 
-    // Handle Catcher Clamp disengagement after 1 second
-    if (catcherClampIsEngaged && (millis() - catcherClampEngageTime >= CATCHER_CLAMP_ENGAGE_DURATION_MS)) {
+    // Handle Catcher Clamp retraction after 1 second
+    if (catcherClampIsExtended && (millis() - catcherClampExtendTime >= CATCHER_CLAMP_EXTEND_DURATION_MS)) {
         retractCatcherClamp();
-        Serial.println("Catcher Clamp disengaged after 1 second.");
+        Serial.println("Catcher Clamp retracted after 1 second.");
     }
 
     // Wood sensor - Update global woodPresent flag

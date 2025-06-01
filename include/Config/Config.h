@@ -61,7 +61,7 @@ extern const float POSITION_MOTOR_HOMING_SPEED;     // Speed for homing the posi
 //* ************************************************************************
 // Servo timing configuration
 extern const unsigned long CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS; // Time servo stays active
-extern const unsigned long CATCHER_CLAMP_ENGAGE_DURATION_MS; // Time clamp stays engaged
+extern const unsigned long CATCHER_CLAMP_EXTEND_DURATION_MS; // Time clamp stays extended
 
 // Cut motor homing timeout
 extern const unsigned long CUT_HOME_TIMEOUT; // 5 seconds timeout
