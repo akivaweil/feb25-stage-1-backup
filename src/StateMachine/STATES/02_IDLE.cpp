@@ -114,6 +114,7 @@ void IdleState::checkStartConditions(StateManager& stateManager) {
         
         extendFeedClamp();
         extend2x4SecureClamp();
+        extendRotationClamp(); // Extend rotation clamp at start of cutting cycle
         
         if (!_2x4Present) {
             turnBlueLedOn();

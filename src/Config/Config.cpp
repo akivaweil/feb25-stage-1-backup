@@ -62,7 +62,7 @@ const float FEED_MOTOR_HOMING_SPEED = 2000;     // Speed for homing the feed mot
 const unsigned long ROTATION_SERVO_ACTIVE_HOLD_DURATION_MS = 2700;
 
 // Rotation clamp timing
-const unsigned long ROTATION_CLAMP_EXTEND_DURATION_MS = 1200; // 1.5 seconds
+const unsigned long ROTATION_CLAMP_EXTEND_DURATION_MS = 1200; // 1.2 seconds
 
 // Cut motor homing timeout
 const unsigned long CUT_HOME_TIMEOUT = 5000; // 5 seconds timeout

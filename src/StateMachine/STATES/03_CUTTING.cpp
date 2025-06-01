@@ -103,6 +103,20 @@ void CuttingState::handleCuttingStep2(StateManager& stateManager) {
     extern const float ROTATION_SERVO_EARLY_ACTIVATION_OFFSET_INCHES; // From main.cpp
     extern const int CUT_MOTOR_STEPS_PER_INCH; // From main.cpp
     
+    // Debug logging for motor position every 500ms
+    static unsigned long lastDebugTime = 0;
+    if (cutMotor && cutMotor->isRunning() && millis() - lastDebugTime >= 500) {
+        long currentPosition = cutMotor->getCurrentPosition();
+        float currentPositionInches = (float)currentPosition / CUT_MOTOR_STEPS_PER_INCH;
+        Serial.print("Cut motor position: ");
+        Serial.print(currentPositionInches);
+        Serial.print(" inches (");
+        Serial.print(currentPosition);
+        Serial.print(" steps). Clamp activated: ");
+        Serial.println(rotationClampActivatedThisCycle ? "YES" : "NO");
+        lastDebugTime = millis();
+    }
+    
     // Check if rotation clamp should be activated based on cut motor position
     if (cutMotor && cutMotor->isRunning() && !rotationClampActivatedThisCycle) {
         // Calculate clamp activation position: travel distance minus clamp early activation offset
@@ -111,6 +125,11 @@ void CuttingState::handleCuttingStep2(StateManager& stateManager) {
         long currentPosition = cutMotor->getCurrentPosition();
         
         if (currentPosition >= clampActivationPositionSteps) {
+            Serial.print("*** ACTIVATING ROTATION CLAMP *** Position: ");
+            Serial.print((float)currentPosition / CUT_MOTOR_STEPS_PER_INCH);
+            Serial.print(" inches, Activation threshold: ");
+            Serial.print(clampActivationPositionInches);
+            Serial.println(" inches");
             retractRotationClamp(); // Retract clamp when reaching activation position
             rotationClampActivatedThisCycle = true;
             Serial.print("Cutting Step 2: Cut motor reached ");
@@ -304,6 +323,7 @@ void CuttingState::handleCuttingStep8_FeedMotorHomingSequence(StateManager& stat
                 Serial.println("Start cycle switch is active - continuing with another cut cycle.");
                 // Prepare for next cycle
                 extend2x4SecureClamp();
+                extendRotationClamp(); // Extend rotation clamp for next cutting cycle
                 configureCutMotorForCutting(); // Ensure cut motor is set to proper cutting speed
                 turnYellowLedOn();
                 stateManager.setCuttingCycleInProgress(true);

@@ -78,6 +78,7 @@ void ReturningYes2x4State::handleReturningYes2x4Sequence(StateManager& stateMana
                 Serial.println("Start cycle switch is active - continuing with another cut cycle.");
                 // Prepare for next cycle
                 extend2x4SecureClamp();
+                extendRotationClamp(); // Extend rotation clamp for next cutting cycle
                 configureCutMotorForCutting(); // Ensure cut motor is set to proper cutting speed
                 turnYellowLedOn();
                 stateManager.setCuttingCycleInProgress(true);
