@@ -10,9 +10,9 @@
 // in idle state AND wood sensor reads LOW.
 //
 // Sequence:
-// 1. Retract the position clamp
-// 2. Move the position motor to 0
-// 3. Extend the position clamp and retract the secure wood clamp
+// 1. Retract the feed clamp
+// 2. Move the position motor to POSITION_TRAVEL_DISTANCE
+// 3. Extend the feed clamp and retract the secure wood clamp
 // 4. Wait 200ms
 // 5. Move the position motor to POSITION_TRAVEL_DISTANCE
 
@@ -25,15 +25,16 @@ public:
 
 private:
     enum PushwoodForwardStep {
-        RETRACT_POSITION_CLAMP,
+        RETRACT_FEED_CLAMP,
         MOVE_TO_ZERO,
-        EXTEND_POSITION_CLAMP_RETRACT_SECURE,
+        EXTEND_FEED_CLAMP_RETRACT_SECURE,
         WAIT_200MS,
         MOVE_TO_TRAVEL_DISTANCE,
         COMPLETE
     };
     
-    PushwoodForwardStep currentStep = RETRACT_POSITION_CLAMP;
+    // Member to track the current step in the pushwood forward sequence
+    PushwoodForwardStep currentStep = RETRACT_FEED_CLAMP;
     unsigned long stepStartTime = 0;
     
     void executeStep(StateManager& stateManager);

@@ -20,7 +20,7 @@ void YesWoodState::onEnter(StateManager& stateManager) {
     Serial.println("YES_WOOD state - Wood sensor reads LOW. Starting YES_WOOD Sequence (simultaneous return).");
     configurePositionMotorForReturn();
     
-    retractPositionClamp(); 
+    retractFeedClamp(); 
     retractWoodSecureClamp(); 
     Serial.println("Position and Wood Secure clamps disengaged for simultaneous return.");
 
@@ -49,9 +49,9 @@ void YesWoodState::handleYES_WOOD_Sequence(StateManager& stateManager) {
     switch (yesWoodSubStep) {
         case 0: // Wait for position motor to home
             if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("YES_WOOD Step 0: Position motor has returned home. Engaging position clamp.");
-                extendPositionClamp();
-                Serial.println("Position clamp engaged (position motor home).");
+                Serial.println("YES_WOOD Step 0: Position motor has returned home. Engaging feed clamp.");
+                extendFeedClamp();
+                Serial.println("Feed clamp engaged (position motor home).");
                 yesWoodSubStep = 1;
             }
             break;
@@ -105,10 +105,10 @@ void YesWoodState::handleYES_WOOD_Sequence(StateManager& stateManager) {
                 Serial.println("YES_WOOD Step 2: Position motor at final position. Starting end-of-cycle position motor homing sequence."); 
                 
                 //! ************************************************************************
-                //! STEP: RETRACT POSITION CLAMP AND START POSITION MOTOR HOMING SEQUENCE
+                //! STEP: RETRACT FEED CLAMP AND START POSITION MOTOR HOMING SEQUENCE
                 //! ************************************************************************
-                retractPositionClamp();
-                Serial.println("Position clamp retracted. Starting position motor homing sequence...");
+                retractFeedClamp();
+                Serial.println("Feed clamp retracted. Starting position motor homing sequence...");
                 
                 // Transition to position motor homing sequence
                 yesWoodSubStep = 3;
@@ -183,7 +183,7 @@ void YesWoodState::handleYES_WOOD_PositionMotorHoming(StateManager& stateManager
             if (stateManager.getStartCycleSwitch()->read() == HIGH && stateManager.getStartSwitchSafe()) {
                 Serial.println("Start cycle switch is active - continuing with another cut cycle.");
                 // Prepare for next cycle
-                extendPositionClamp();
+                extendFeedClamp();
                 configureCutMotorForCutting(); // Ensure cut motor is set to proper cutting speed
                 turnYellowLedOn();
                 stateManager.setCuttingCycleInProgress(true);

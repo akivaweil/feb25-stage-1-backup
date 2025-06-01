@@ -94,11 +94,11 @@ void setup() {
   //! Configure pin modes
   pinMode(CUT_MOTOR_STEP_PIN, OUTPUT);
   pinMode(CUT_MOTOR_DIR_PIN, OUTPUT);
-  pinMode(WOOD_FEED_MOTOR_STEP_PIN, OUTPUT);
-  pinMode(WOOD_FEED_MOTOR_DIR_PIN, OUTPUT);
+  pinMode(FEED_MOTOR_STEP_PIN, OUTPUT);
+  pinMode(FEED_MOTOR_DIR_PIN, OUTPUT);
   
   pinMode(CUT_MOTOR_HOME_SWITCH, INPUT_PULLDOWN);
-  pinMode(WOOD_FEED_MOTOR_HOME_SWITCH, INPUT_PULLDOWN);
+  pinMode(FEED_MOTOR_HOME_SWITCH, INPUT_PULLDOWN);
   pinMode(RELOAD_SWITCH, INPUT_PULLDOWN);
   pinMode(START_CYCLE_SWITCH, INPUT_PULLDOWN);
   pinMode(MANUAL_FEED_SWITCH, INPUT_PULLDOWN);
@@ -107,9 +107,9 @@ void setup() {
   pinMode(WOOD_PRESENT_SENSOR, INPUT_PULLUP);
   pinMode(WOOD_SUCTION_CONFIRM_SENSOR, INPUT_PULLUP);
   
-  pinMode(WOOD_FEED_CLAMP_RELAY, OUTPUT);
-  pinMode(WOOD_SECURE_CLAMP_RELAY, OUTPUT);
-  pinMode(CATCHER_CLAMP_RELAY, OUTPUT);
+  pinMode(FEED_CLAMP, OUTPUT);
+  pinMode(WOOD_SECURE_CLAMP, OUTPUT);
+  pinMode(CATCHER_CLAMP, OUTPUT);
   
   pinMode(STATUS_LED_RED, OUTPUT);
   pinMode(STATUS_LED_YELLOW, OUTPUT);
@@ -120,7 +120,7 @@ void setup() {
   digitalWrite(TRANSFER_ARM_SIGNAL_PIN, LOW);
   
   //! Initialize clamps and LEDs
-  extendPositionClamp();
+  extendFeedClamp();
   extendWoodSecureClamp();
   retractCatcherClamp();
   allLedsOff();
@@ -130,7 +130,7 @@ void setup() {
   cutHomingSwitch.attach(CUT_MOTOR_HOME_SWITCH);
   cutHomingSwitch.interval(3);
   
-  positionHomingSwitch.attach(WOOD_FEED_MOTOR_HOME_SWITCH);
+  positionHomingSwitch.attach(FEED_MOTOR_HOME_SWITCH);
   positionHomingSwitch.interval(5);
   
   reloadSwitch.attach(RELOAD_SWITCH);
@@ -157,9 +157,9 @@ void setup() {
     Serial.println("Failed to init cutMotor");
   }
 
-  positionMotor = engine.stepperConnectToPin(WOOD_FEED_MOTOR_STEP_PIN);
+  positionMotor = engine.stepperConnectToPin(FEED_MOTOR_STEP_PIN);
   if (positionMotor) {
-    positionMotor->setDirectionPin(WOOD_FEED_MOTOR_DIR_PIN);
+    positionMotor->setDirectionPin(FEED_MOTOR_DIR_PIN);
     configurePositionMotorForNormalOperation();
     positionMotor->setCurrentPosition(0);
   } else {

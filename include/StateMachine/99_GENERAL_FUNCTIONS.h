@@ -34,18 +34,18 @@ enum SystemState {
 // Extern declarations for Pin Definitions
 extern const int CUT_MOTOR_STEP_PIN;
 extern const int CUT_MOTOR_DIR_PIN;
-extern const int WOOD_FEED_MOTOR_STEP_PIN;
-extern const int WOOD_FEED_MOTOR_DIR_PIN;
+extern const int FEED_MOTOR_STEP_PIN;
+extern const int FEED_MOTOR_DIR_PIN;
 extern const int CUT_MOTOR_HOME_SWITCH;
-extern const int WOOD_FEED_MOTOR_HOME_SWITCH;
+extern const int FEED_MOTOR_HOME_SWITCH;
 extern const int RELOAD_SWITCH;
 extern const int START_CYCLE_SWITCH;
 extern const int MANUAL_FEED_SWITCH;
 extern const int WOOD_PRESENT_SENSOR;
 extern const int WOOD_SUCTION_CONFIRM_SENSOR;
-extern const int WOOD_FEED_CLAMP_RELAY;
-extern const int WOOD_SECURE_CLAMP_RELAY;
-extern const int CATCHER_CLAMP_RELAY;
+extern const int FEED_CLAMP;
+extern const int WOOD_SECURE_CLAMP;
+extern const int CATCHER_CLAMP;
 extern const int TRANSFER_ARM_SIGNAL_PIN;
 extern const int STATUS_LED_RED;
 extern const int STATUS_LED_YELLOW;
@@ -142,8 +142,8 @@ void handleTASignalTiming(); // Handles timing for TA signal
 //* ************************* CLAMP FUNCTIONS ******************************
 //* ************************************************************************
 // Contains functions for controlling various clamps.
-void extendPositionClamp();
-void retractPositionClamp();
+void extendFeedClamp();
+void retractFeedClamp();
 void extendWoodSecureClamp();
 void retractWoodSecureClamp();
 void extendCatcherClamp();
@@ -206,6 +206,7 @@ void handleStartSwitchContinuousMode(); // Continuous mode from main loop
 // Point 3: Complex conditional logic
 bool shouldStartCycle();
 // Point 4
+void activateCatcherServo();
 void handleCatcherServoReturn();
 
 //* ************************************************************************

@@ -71,19 +71,19 @@ void NoWoodState::handleNO_WOOD_Step(StateManager& stateManager, int step) {
     extern const float POSITION_TRAVEL_DISTANCE; // From main.cpp
     
     switch (step) { 
-        case 1: // New Step: Wait for cut motor, then engage position clamp
+        case 1: // New Step: Wait for cut motor, then engage feed clamp
             if (cutMotor && !cutMotor->isRunning()) {
-                Serial.println("NO_WOOD Step 1: Cut motor returned home. Engaging position clamp.");
-                extendPositionClamp();
+                Serial.println("NO_WOOD Step 1: Cut motor returned home. Engaging feed clamp.");
+                extendFeedClamp();
                 cylinderActionTime = millis();
                 waitingForCylinder = true; // Will cause noWoodStep to increment to 2 after delay
             }
             break;
             
-        case 2: // Was original noWoodStep 1: wait for position motor, then retract position clamp
+        case 2: // Was original noWoodStep 1: wait for position motor, then retract feed clamp
             if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("NO_WOOD Step 2: Position motor at home. Disengaging position clamp."); 
-                retractPositionClamp();
+                Serial.println("NO_WOOD Step 2: Position motor at home. Disengaging feed clamp.");
+                retractFeedClamp();
                 cylinderActionTime = millis();
                 waitingForCylinder = true; // Increments to 3
             }
@@ -96,10 +96,10 @@ void NoWoodState::handleNO_WOOD_Step(StateManager& stateManager, int step) {
             noWoodStep = 4; // Directly advance step here as it's a command
             break;
             
-        case 4: // Was original noWoodStep 3: wait for position motor at 2.0, engage position clamp
+        case 4: // Was original noWoodStep 3: wait for position motor at 2.0, engage feed clamp
             if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("NO_WOOD Step 4: Position motor at 2.0 inches. Engaging position clamp."); 
-                extendPositionClamp();
+                Serial.println("NO_WOOD Step 4: Position motor at 2.0 inches. Engaging feed clamp.");
+                extendFeedClamp();
                 cylinderActionTime = millis();
                 waitingForCylinder = true; // Increments to 5
             }
@@ -112,10 +112,10 @@ void NoWoodState::handleNO_WOOD_Step(StateManager& stateManager, int step) {
             noWoodStep = 6; // Directly advance step
             break;
             
-        case 6: // Was original noWoodStep 5: wait for position motor at home, retract position clamp
+        case 6: // Was original noWoodStep 5: wait for position motor at home, retract feed clamp
             if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("NO_WOOD Step 6: Position motor at home. Disengaging position clamp."); 
-                retractPositionClamp();
+                Serial.println("NO_WOOD Step 6: Position motor at home. Disengaging feed clamp.");
+                retractFeedClamp();
                 cylinderActionTime = millis();
                 waitingForCylinder = true; // Increments to 7
             }
@@ -167,8 +167,8 @@ void NoWoodState::handleNO_WOOD_Step(StateManager& stateManager, int step) {
                 //! ************************************************************************
                 //! START POSITION MOTOR HOMING SEQUENCE FOR NO_WOOD
                 //! ************************************************************************
-                retractPositionClamp();
-                Serial.println("Position clamp retracted. Starting NO_WOOD position motor homing sequence...");
+                retractFeedClamp();
+                Serial.println("Feed clamp retracted. Starting NO_WOOD position motor homing sequence...");
                 
                 // Transition to new NO_WOOD homing substeps
                 noWoodStep = 9;

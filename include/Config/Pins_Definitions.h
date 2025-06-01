@@ -13,8 +13,8 @@
 // Stepper motor control pins
 extern const int CUT_MOTOR_STEP_PIN;         // Step pulse signal for cutting motor
 extern const int CUT_MOTOR_DIR_PIN;          // Direction control for cutting motor
-extern const int WOOD_FEED_MOTOR_STEP_PIN;   // Step pulse signal for wood feeding motor (pushes wood forward for angled cuts)
-extern const int WOOD_FEED_MOTOR_DIR_PIN;    // Direction control for wood feeding motor
+extern const int FEED_MOTOR_STEP_PIN;   // Step pulse signal for feed motor (pushes wood forward for angled cuts)
+extern const int FEED_MOTOR_DIR_PIN;    // Direction control for feed motor
 
 //* ************************************************************************
 //* ************************ SERVO PINS ***********************************
@@ -27,7 +27,7 @@ extern const int CATCHER_SERVO_PIN;
 //* ************************************************************************
 // Homing switches (Active HIGH - input pulldown)
 extern const int CUT_MOTOR_HOME_SWITCH;
-extern const int WOOD_FEED_MOTOR_HOME_SWITCH;
+extern const int FEED_MOTOR_HOME_SWITCH;
 
 // Control switches (Active HIGH - input pulldown)
 extern const int RELOAD_SWITCH;
@@ -43,9 +43,9 @@ extern const int WOOD_SUCTION_CONFIRM_SENSOR;  // Confirms wood is secured by su
 //* ************************ CLAMP PINS ***********************************
 //* ************************************************************************
 // Pneumatic clamp control pins (HIGH = extend, LOW = retract)
-extern const int WOOD_FEED_CLAMP_RELAY;      // Clamps wood during feed positioning
-extern const int WOOD_SECURE_CLAMP_RELAY;    // Secures wood during cutting
-extern const int CATCHER_CLAMP_RELAY;        // Clamps cut pieces in catcher
+extern const int FEED_CLAMP;      // Clamps wood during feed positioning
+extern const int WOOD_SECURE_CLAMP;    // Secures wood during cutting
+extern const int CATCHER_CLAMP;        // Clamps cut pieces in catcher
 
 //* ************************************************************************
 //* ************************ SIGNAL PINS **********************************

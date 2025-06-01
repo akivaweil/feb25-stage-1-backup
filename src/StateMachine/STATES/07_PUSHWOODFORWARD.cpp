@@ -9,9 +9,9 @@
 // in idle state AND wood sensor reads LOW.
 //
 // Sequence:
-// 1. Retract the position clamp
+// 1. Retract the feed clamp
 // 2. Move the position motor to 0
-// 3. Extend the position clamp and retract the secure wood clamp
+// 3. Extend the feed clamp and retract the secure wood clamp
 // 4. Wait 200ms
 // 5. Move the position motor to POSITION_TRAVEL_DISTANCE
 
@@ -20,15 +20,15 @@ void PushwoodForwardState::execute(StateManager& stateManager) {
 }
 
 void PushwoodForwardState::onEnter(StateManager& stateManager) {
-    currentStep = RETRACT_POSITION_CLAMP;
+    currentStep = RETRACT_FEED_CLAMP;
     stepStartTime = millis();
     Serial.println("PushwoodForward: Starting pushwood forward sequence");
     
     //! ************************************************************************
-    //! STEP 1: RETRACT THE POSITION CLAMP
+    //! STEP 1: RETRACT THE FEED CLAMP
     //! ************************************************************************
-    retractPositionClamp();
-    Serial.println("PushwoodForward: Position clamp retracted");
+    retractFeedClamp();
+    Serial.println("PushwoodForward: Feed clamp retracted");
 }
 
 void PushwoodForwardState::onExit(StateManager& stateManager) {
@@ -37,8 +37,8 @@ void PushwoodForwardState::onExit(StateManager& stateManager) {
 
 void PushwoodForwardState::executeStep(StateManager& stateManager) {
     switch (currentStep) {
-        case RETRACT_POSITION_CLAMP:
-            // Position clamp already retracted in onEnter, move to next step
+        case RETRACT_FEED_CLAMP:
+            // Feed clamp already retracted in onEnter, move to next step
             advanceToNextStep(stateManager);
             break;
             
@@ -58,15 +58,15 @@ void PushwoodForwardState::executeStep(StateManager& stateManager) {
             }
             break;
             
-        case EXTEND_POSITION_CLAMP_RETRACT_SECURE:
+        case EXTEND_FEED_CLAMP_RETRACT_SECURE:
             //! ************************************************************************
-            //! STEP 3: EXTEND POSITION CLAMP AND RETRACT SECURE WOOD CLAMP
+            //! STEP 3: EXTEND FEED CLAMP AND RETRACT SECURE WOOD CLAMP
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                extendPositionClamp();
+                extendFeedClamp();
                 retractWoodSecureClamp();
-                Serial.println("PushwoodForward: Position clamp extended, secure wood clamp retracted");
+                Serial.println("PushwoodForward: Feed clamp extended, secure wood clamp retracted");
             }
             advanceToNextStep(stateManager);
             break;
@@ -131,13 +131,13 @@ void PushwoodForwardState::advanceToNextStep(StateManager& stateManager) {
     stepStartTime = 0; // Reset step timer
     
     switch (currentStep) {
-        case RETRACT_POSITION_CLAMP:
+        case RETRACT_FEED_CLAMP:
             currentStep = MOVE_TO_ZERO;
             break;
         case MOVE_TO_ZERO:
-            currentStep = EXTEND_POSITION_CLAMP_RETRACT_SECURE;
+            currentStep = EXTEND_FEED_CLAMP_RETRACT_SECURE;
             break;
-        case EXTEND_POSITION_CLAMP_RETRACT_SECURE:
+        case EXTEND_FEED_CLAMP_RETRACT_SECURE:
             currentStep = WAIT_200MS;
             break;
         case WAIT_200MS:

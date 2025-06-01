@@ -7,7 +7,7 @@
 //* ************************ FIRST CUT STATE ******************************
 //* ************************************************************************
 // Handles the first cut sequence when pushwood forward switch is pressed.
-// Manages position clamp retraction, motor movement, and transition to cutting.
+// Manages feed clamp retraction, motor movement, and transition to cutting.
 
 class FirstCutState : public BaseState {
 public:
@@ -18,22 +18,21 @@ public:
 
 private:
     enum FirstCutStep {
-        RETRACT_POSITION_CLAMP,
+        RETRACT_FEED_CLAMP,
         MOVE_TO_MINUS_ONE,
-        EXTEND_POSITION_CLAMP_RETRACT_SECURE,
+        EXTEND_FEED_CLAMP_RETRACT_SECURE,
         WAIT_200MS,
         MOVE_TO_TRAVEL_DISTANCE,
         TRANSITION_TO_CUTTING,
-        // Second run steps
-        RETRACT_POSITION_CLAMP_SECOND,
+        RETRACT_FEED_CLAMP_SECOND,
         MOVE_TO_MINUS_ONE_SECOND,
-        EXTEND_POSITION_CLAMP_RETRACT_SECURE_SECOND,
+        EXTEND_FEED_CLAMP_RETRACT_SECURE_SECOND,
         WAIT_200MS_SECOND,
         MOVE_TO_TRAVEL_DISTANCE_MINUS_275,
         TRANSITION_TO_CUTTING_FINAL
     };
     
-    FirstCutStep currentStep = RETRACT_POSITION_CLAMP;
+    FirstCutStep currentStep = RETRACT_FEED_CLAMP;
     unsigned long stepStartTime = 0;
     
     void executeStep(StateManager& stateManager);

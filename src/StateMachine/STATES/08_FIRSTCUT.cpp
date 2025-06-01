@@ -9,9 +9,9 @@
 // in idle state AND wood sensor reads high.
 //
 // Sequence:
-// 1. Retract the position clamp
-// 2. Move the position motor to -2
-// 3. Extend the position clamp and retract the secure wood clamp
+// 1. Retract the feed clamp
+// 2. Move the position motor to -1 inch
+// 3. Extend the feed clamp and retract the secure wood clamp
 // 4. Wait 200ms
 // 5. Move the position motor to POSITION_TRAVEL_DISTANCE
 // 6. Start a cutting cycle by switching to cutting state
@@ -21,15 +21,15 @@ void FirstCutState::execute(StateManager& stateManager) {
 }
 
 void FirstCutState::onEnter(StateManager& stateManager) {
-    currentStep = RETRACT_POSITION_CLAMP;
+    currentStep = RETRACT_FEED_CLAMP;
     stepStartTime = millis();
     Serial.println("FirstCut: Starting first cut sequence");
     
     //! ************************************************************************
-    //! STEP 1: RETRACT THE POSITION CLAMP
+    //! STEP 1: RETRACT THE FEED CLAMP
     //! ************************************************************************
-    retractPositionClamp();
-    Serial.println("FirstCut: Position clamp retracted");
+    retractFeedClamp();
+    Serial.println("FirstCut: Feed clamp retracted");
 }
 
 void FirstCutState::onExit(StateManager& stateManager) {
@@ -38,8 +38,8 @@ void FirstCutState::onExit(StateManager& stateManager) {
 
 void FirstCutState::executeStep(StateManager& stateManager) {
     switch (currentStep) {
-        case RETRACT_POSITION_CLAMP:
-            // Position clamp already retracted in onEnter, move to next step
+        case RETRACT_FEED_CLAMP:
+            // Feed clamp already retracted in onEnter, move to next step
             advanceToNextStep(stateManager);
             break;
             
@@ -59,15 +59,15 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             }
             break;
             
-        case EXTEND_POSITION_CLAMP_RETRACT_SECURE:
+        case EXTEND_FEED_CLAMP_RETRACT_SECURE:
             //! ************************************************************************
-            //! STEP 3: EXTEND POSITION CLAMP AND RETRACT SECURE WOOD CLAMP
+            //! STEP 3: EXTEND FEED CLAMP AND RETRACT SECURE WOOD CLAMP
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                extendPositionClamp();
+                extendFeedClamp();
                 retractWoodSecureClamp();
-                Serial.println("FirstCut: Position clamp extended, secure wood clamp retracted");
+                Serial.println("FirstCut: Feed clamp extended, secure wood clamp retracted");
             }
             advanceToNextStep(stateManager);
             break;
@@ -110,14 +110,14 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             advanceToNextStep(stateManager);
             break;
             
-        case RETRACT_POSITION_CLAMP_SECOND:
+        case RETRACT_FEED_CLAMP_SECOND:
             //! ************************************************************************
-            //! STEP 7: RETRACT THE POSITION CLAMP (SECOND RUN)
+            //! STEP 7: RETRACT THE FEED CLAMP (SECOND RUN)
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                retractPositionClamp();
-                Serial.println("FirstCut: Position clamp retracted (second run)");
+                retractFeedClamp();
+                Serial.println("FirstCut: Feed clamp retracted (second run)");
             }
             advanceToNextStep(stateManager);
             break;
@@ -138,15 +138,15 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             }
             break;
             
-        case EXTEND_POSITION_CLAMP_RETRACT_SECURE_SECOND:
+        case EXTEND_FEED_CLAMP_RETRACT_SECURE_SECOND:
             //! ************************************************************************
-            //! STEP 9: EXTEND POSITION CLAMP AND RETRACT SECURE WOOD CLAMP (SECOND RUN)
+            //! STEP 9: EXTEND FEED CLAMP AND RETRACT SECURE WOOD CLAMP (SECOND RUN)
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                extendPositionClamp();
+                extendFeedClamp();
                 retractWoodSecureClamp();
-                Serial.println("FirstCut: Position clamp extended, secure wood clamp retracted (second run)");
+                Serial.println("FirstCut: Feed clamp extended, secure wood clamp retracted (second run)");
             }
             advanceToNextStep(stateManager);
             break;
@@ -211,14 +211,14 @@ void FirstCutState::advanceToNextStep(StateManager& stateManager) {
     stepStartTime = 0; // Reset step timer
     
     switch (currentStep) {
-        case RETRACT_POSITION_CLAMP:
+        case RETRACT_FEED_CLAMP:
             currentStep = MOVE_TO_MINUS_ONE;
             break;
         case MOVE_TO_MINUS_ONE:
-            currentStep = EXTEND_POSITION_CLAMP_RETRACT_SECURE;
+            currentStep = EXTEND_FEED_CLAMP_RETRACT_SECURE;
             break;
-        case EXTEND_POSITION_CLAMP_RETRACT_SECURE:
-        currentStep = WAIT_200MS;
+        case EXTEND_FEED_CLAMP_RETRACT_SECURE:
+            currentStep = WAIT_200MS;
             break;
         case WAIT_200MS:
             currentStep = MOVE_TO_TRAVEL_DISTANCE;
@@ -227,15 +227,15 @@ void FirstCutState::advanceToNextStep(StateManager& stateManager) {
             currentStep = TRANSITION_TO_CUTTING;
             break;
         case TRANSITION_TO_CUTTING:
-            currentStep = RETRACT_POSITION_CLAMP_SECOND;
+            currentStep = RETRACT_FEED_CLAMP_SECOND;
             break;
-        case RETRACT_POSITION_CLAMP_SECOND:
+        case RETRACT_FEED_CLAMP_SECOND:
             currentStep = MOVE_TO_MINUS_ONE_SECOND;
             break;
         case MOVE_TO_MINUS_ONE_SECOND:
-            currentStep = EXTEND_POSITION_CLAMP_RETRACT_SECURE_SECOND;
+            currentStep = EXTEND_FEED_CLAMP_RETRACT_SECURE_SECOND;
             break;
-        case EXTEND_POSITION_CLAMP_RETRACT_SECURE_SECOND:
+        case EXTEND_FEED_CLAMP_RETRACT_SECURE_SECOND:
             currentStep = WAIT_200MS_SECOND;
             break;
         case WAIT_200MS_SECOND:

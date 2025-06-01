@@ -19,6 +19,7 @@ public:
 private:
     // Main cutting step tracking
     int cuttingStep = 0;
+    unsigned long stepStartTime = 0;
     unsigned long signalStartTime = 0;
     bool signalActive = false;
     bool homePositionErrorDetected = false;

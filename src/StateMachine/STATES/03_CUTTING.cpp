@@ -130,9 +130,9 @@ void CuttingState::handleCuttingStep3(StateManager& stateManager) {
     Serial.println("Cutting Step 3: (Should be bypassed for wood path) Initial position move complete.");
     FastAccelStepper* positionMotor = stateManager.getPositionMotor();
     if (positionMotor && !positionMotor->isRunning()) {
-        retractPositionClamp();
+        retractFeedClamp();
         retractWoodSecureClamp();
-        Serial.println("Position clamp and wood secure clamp disengaged.");
+        Serial.println("Feed clamp and wood secure clamp disengaged.");
 
         configurePositionMotorForReturn();
         movePositionMotorToHome();
@@ -150,8 +150,8 @@ void CuttingState::handleCuttingStep4(StateManager& stateManager) {
     extern const float POSITION_TRAVEL_DISTANCE; // From main.cpp
     
     if (positionMotor && !positionMotor->isRunning()) {
-        retractPositionClamp();
-        Serial.println("Position clamp disengaged.");
+        retractFeedClamp();
+        Serial.println("Feed clamp disengaged.");
 
         if (cutMotor && !cutMotor->isRunning()) {
             Serial.println("Cut motor also at home. Checking cut motor position switch.");
@@ -180,7 +180,7 @@ void CuttingState::handleCuttingStep4(StateManager& stateManager) {
                     Serial.println("ERROR: Cut motor position switch did not detect home after MAX incremental moves!");
                     stopCutMotor();
                     stopPositionMotor();
-                    extendPositionClamp();
+                    extendFeedClamp();
                     turnRedLedOn();
                     turnYellowLedOff();
                     stateManager.changeState(ERROR);
@@ -205,10 +205,10 @@ void CuttingState::handleCuttingStep5(StateManager& stateManager) {
         Serial.println("Cutting Step 5: Position motor at final position. Starting end-of-cycle position motor homing sequence."); 
         
         //! ************************************************************************
-        //! STEP 1: RETRACT POSITION CLAMP AND START POSITION MOTOR HOMING SEQUENCE
+        //! STEP 1: RETRACT FEED CLAMP AND START POSITION MOTOR HOMING SEQUENCE
         //! ************************************************************************
-        retractPositionClamp();
-        Serial.println("Position clamp retracted. Starting position motor homing sequence...");
+        retractFeedClamp();
+        Serial.println("Feed clamp retracted. Starting position motor homing sequence...");
         
         // Transition to new step 8 for position motor homing sequence
         cuttingStep = 8;
@@ -277,7 +277,7 @@ void CuttingState::handleCuttingStep8_PositionMotorHomingSequence(StateManager& 
             if (stateManager.getStartCycleSwitch()->read() == HIGH && stateManager.getStartSwitchSafe()) {
                 Serial.println("Start cycle switch is active - continuing with another cut cycle.");
                 // Prepare for next cycle
-                extendPositionClamp();
+                extendFeedClamp();
                 configureCutMotorForCutting(); // Ensure cut motor is set to proper cutting speed
                 turnYellowLedOn();
                 stateManager.setCuttingCycleInProgress(true);
@@ -311,7 +311,7 @@ void CuttingState::handleHomePositionError(StateManager& stateManager) {
     if (cutMotor) cutMotor->forceStopAndNewPosition(cutMotor->getCurrentPosition());
     if (positionMotor) positionMotor->forceStopAndNewPosition(positionMotor->getCurrentPosition());
     
-    extendPositionClamp();
+    extendFeedClamp();
     extendWoodSecureClamp();
     
     if (stateManager.getReloadSwitch()->rose()) {

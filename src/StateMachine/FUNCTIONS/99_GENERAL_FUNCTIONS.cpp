@@ -43,37 +43,44 @@ void sendSignalToTA() {
 // Clamp Logic: LOW = engaged (extended), HIGH = disengaged (retracted)
 // Catcher Clamp Logic: HIGH = engaged (extended), LOW = disengaged (retracted)
 
-void extendPositionClamp() {
-  digitalWrite(WOOD_FEED_CLAMP_RELAY, LOW); // Engaged
-  Serial.println("Position Clamp Extended (Engaged)");
+void extendFeedClamp() {
+    // Feed clamp extends when LOW (inversed logic)
+    digitalWrite(FEED_CLAMP, LOW); // Engaged
+    Serial.println("Feed Clamp Extended (Engaged)");
 }
 
-void retractPositionClamp() {
-  digitalWrite(WOOD_FEED_CLAMP_RELAY, HIGH); // Disengaged
-  Serial.println("Position Clamp Retracted (Disengaged)");
+void retractFeedClamp() {
+    // Feed clamp retracts when HIGH (inversed logic)
+    digitalWrite(FEED_CLAMP, HIGH); // Disengaged
+    Serial.println("Feed Clamp Retracted (Disengaged)");
 }
 
 void extendWoodSecureClamp() {
-  digitalWrite(WOOD_SECURE_CLAMP_RELAY, LOW); // Engaged
-  Serial.println("Wood Secure Clamp Extended (Engaged)");
+    // Wood secure clamp extends when LOW (inversed logic)
+    digitalWrite(WOOD_SECURE_CLAMP, LOW); // Engaged
+    Serial.println("Wood Secure Clamp Extended (Engaged)");
 }
 
 void retractWoodSecureClamp() {
-  digitalWrite(WOOD_SECURE_CLAMP_RELAY, HIGH); // Disengaged
-  Serial.println("Wood Secure Clamp Retracted (Disengaged)");
+    // Wood secure clamp retracts when HIGH (inversed logic)
+    digitalWrite(WOOD_SECURE_CLAMP, HIGH); // Disengaged
+    Serial.println("Wood Secure Clamp Retracted (Disengaged)");
 }
 
 void extendCatcherClamp() {
-  digitalWrite(CATCHER_CLAMP_RELAY, HIGH); // Engaged (Reversed Logic)
-  catcherClampEngageTime = millis();
-  catcherClampIsEngaged = true;
-  Serial.println("Catcher Clamp Extended (Engaged)");
+    // Catcher clamp engages when HIGH
+    digitalWrite(CATCHER_CLAMP, HIGH); // Engaged (Reversed Logic)
+    catcherClampEngageTime = millis();
+    catcherClampIsEngaged = true;
+    Serial.println("Catcher Clamp Extended (Engaged)");
 }
 
 void retractCatcherClamp() {
-  digitalWrite(CATCHER_CLAMP_RELAY, LOW); // Disengaged (Reversed Logic)
-  catcherClampIsEngaged = false; // Assuming we want to clear the flag when explicitly retracting
-  Serial.println("Catcher Clamp Retracted (Disengaged)");
+    // Catcher clamp disengages when LOW
+    // Note: Different behavior than position and wood secure clamps
+    digitalWrite(CATCHER_CLAMP, LOW); // Disengaged (Reversed Logic)
+    catcherClampIsEngaged = false; // Assuming we want to clear the flag when explicitly retracting
+    Serial.println("Catcher Clamp Retracted (Disengaged)");
 }
 
 //* ************************************************************************
@@ -365,13 +372,13 @@ void handleReloadMode() {
         bool reloadSwitchOn = reloadSwitch.read() == HIGH;
         if (reloadSwitchOn && !isReloadMode) {
             isReloadMode = true;
-            retractPositionClamp();
+            retractFeedClamp();
             retractWoodSecureClamp();
             turnYellowLedOn();
             Serial.println("Entered reload mode");
         } else if (!reloadSwitchOn && isReloadMode) {
             isReloadMode = false;
-            extendPositionClamp();
+            extendFeedClamp();
             extendWoodSecureClamp();
             turnYellowLedOff();
             Serial.println("Exited reload mode, ready for operation");
@@ -438,6 +445,20 @@ bool shouldStartCycle() {
 }
 
 // Point 4: Catcher Servo Timing
+void activateCatcherServo() {
+    // Activate catcher servo without sending TA signal
+    if (!catcherServoIsActiveAndTiming) {
+        catcherServo.write(CATCHER_SERVO_ACTIVE_POSITION);
+        catcherServoActiveStartTime = millis();
+        catcherServoIsActiveAndTiming = true;
+        Serial.print("Catcher servo activated to ");
+        Serial.print(CATCHER_SERVO_ACTIVE_POSITION);
+        Serial.println(" degrees.");
+    } else {
+        Serial.println("Catcher servo already active - skipping activation.");
+    }
+}
+
 void handleCatcherServoReturn() {
     // Move catcher servo to home position
     catcherServo.write(CATCHER_SERVO_HOME_POSITION);

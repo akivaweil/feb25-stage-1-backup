@@ -184,7 +184,6 @@ void StateManager::handleCommonOperations() {
             catcherServo.write(CATCHER_SERVO_HOME_POSITION);
             Serial.println("Servo timing completed AND WAS_WOOD_SUCTIONED_SENSOR is HIGH, returning catcher servo to home.");
             catcherServoIsActiveAndTiming = false; // Clear flag
-            catcherServoIsReturningHome = true; // Set returning flag
         } else {
             Serial.println("Waiting for WAS_WOOD_SUCTIONED_SENSOR to read HIGH before returning catcher servo...");
         }

@@ -6,7 +6,7 @@
 //* ************************** IDLE STATE **********************************
 //* ************************************************************************
 // Handles the idle state, awaiting user input or automatic cycle start.
-// Maintains secure wood clamp extended and position clamp retracted.
+// Maintains secure wood clamp extended and feed clamp retracted.
 // Checks for pushwood forward switch press to transition to FirstCut state.
 // If not in reload mode:
 //   Step 1: Turn on green LED to indicate system is idle.
@@ -36,10 +36,10 @@ void IdleState::execute(StateManager& stateManager) {
 }
 
 void IdleState::onEnter(StateManager& stateManager) {
-    // Maintain clamp states: secure wood clamp extended, position clamp retracted
+    // Maintain clamp states: secure wood clamp extended, feed clamp retracted
     extendWoodSecureClamp();
-    retractPositionClamp();
-    Serial.println("Idle: Secure wood clamp extended, position clamp retracted");
+    retractFeedClamp();
+    Serial.println("Idle: Secure wood clamp extended, feed clamp retracted");
 }
 
 void IdleState::handleReloadModeLogic(StateManager& stateManager) {
@@ -50,14 +50,14 @@ void IdleState::handleReloadModeLogic(StateManager& stateManager) {
     if (reloadSwitchOn && !isReloadMode) {
         // Enter reload mode
         stateManager.setIsReloadMode(true);
-        retractPositionClamp(); // Disengage position clamp
+        retractFeedClamp(); // Disengage feed clamp
         retractWoodSecureClamp(); // Disengage wood secure clamp
         turnBlueLedOn();     // Turn on blue LED for reload mode
     } else if (!reloadSwitchOn && isReloadMode) {
         // Exit reload mode
         stateManager.setIsReloadMode(false);
         extendWoodSecureClamp(); // Re-engage wood secure clamp
-        retractPositionClamp();   // Keep position clamp retracted (idle state default)
+        retractFeedClamp();   // Keep feed clamp retracted (idle state default)
         turnBlueLedOff();       // Turn off blue LED
     }
 }
@@ -111,7 +111,7 @@ void IdleState::checkStartConditions(StateManager& stateManager) {
         stateManager.changeState(CUTTING);
         configureCutMotorForCutting();
         
-        extendPositionClamp();
+        extendFeedClamp();
         extendWoodSecureClamp();
         
         if (!woodPresent) {

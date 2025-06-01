@@ -327,7 +327,7 @@ void executeCutMotorErrorStateTransition(
     }
     
     //! ENGAGE SAFETY CLAMPS - Secure all mechanical systems
-    extendPositionClamp();  // Always engage position clamp for safety
+    extendFeedClamp();  // Always engage feed clamp for safety
     if (engageWoodSecureClamp) {
         extendWoodSecureClamp();
         Serial.println("Wood secure clamp engaged for safety.");
