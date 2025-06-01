@@ -21,6 +21,9 @@ void ReturningNo2x4State::onEnter(StateManager& stateManager) {
     configureCutMotorForReturn();
     moveCutMotorToHome();
     configureFeedMotorForNormalOperation();
+
+    turnBlueLedOn();
+    turnYellowLedOff();
     
     // Initialize step tracking
     returningNo2x4Step = 0;
@@ -36,7 +39,6 @@ void ReturningNo2x4State::onExit(StateManager& stateManager) {
 
 void ReturningNo2x4State::handleReturningNo2x4Sequence(StateManager& stateManager) {
     // RETURNING_NO_2x4 sequence logic
-    FastAccelStepper* cutMotor = stateManager.getCutMotor();
     FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     const unsigned long CYLINDER_ACTION_DELAY_MS = 150;
     

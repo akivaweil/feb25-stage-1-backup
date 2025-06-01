@@ -1,11 +1,8 @@
 #include "ErrorStates/suction_error_hold.h"
+#include "StateMachine/StateManager.h"
 #include <Bounce2.h>
 
 // External references to global variables and functions from main.cpp
-extern SystemState currentState;
-extern bool continuousModeActive;
-extern bool startSwitchSafe;
-extern Bounce startCycleSwitch;
 extern void turnRedLedOn();
 extern void turnRedLedOff();
 extern void turnYellowLedOff();
@@ -42,13 +39,14 @@ void handleSuctionErrorHoldState() {
     turnGreenLedOff();
     turnBlueLedOff();
 
-    if (startCycleSwitch.rose()) { // Check for start switch OFF to ON transition
+    // Use StateManager to access switches instead of global variables
+    if (stateManager.getStartCycleSwitch()->rose()) { // Check for start switch OFF to ON transition
         Serial.println("Start cycle switch toggled ON. Resetting from suction error. Transitioning to HOMING.");
         turnRedLedOff();   // Turn off error LED explicitly before changing state
         
-        continuousModeActive = false; // Ensure continuous mode is off
-        startSwitchSafe = false;      // Require user to cycle switch OFF then ON for a new actual start
+        stateManager.setContinuousModeActive(false); // Ensure continuous mode is off
+        stateManager.setStartSwitchSafe(false);      // Require user to cycle switch OFF then ON for a new actual start
         
-        currentState = HOMING;        // Go to HOMING to re-initialize
+        stateManager.changeState(HOMING);        // Go to HOMING to re-initialize using proper StateManager method
     }
 } 

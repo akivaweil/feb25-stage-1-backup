@@ -36,6 +36,7 @@ private:
     void handleCuttingStep4(StateManager& stateManager);
     void handleCuttingStep5(StateManager& stateManager);
     void handleCuttingStep8_FeedMotorHomingSequence(StateManager& stateManager);
+    void handleCuttingStep9_SuctionErrorRecovery(StateManager& stateManager);
     
     // Helper method for home position error
     void handleHomePositionError(StateManager& stateManager);

@@ -59,6 +59,9 @@ void CuttingState::execute(StateManager& stateManager) {
         case 8:
             handleCuttingStep8_FeedMotorHomingSequence(stateManager);
             break;
+        case 9:
+            handleCuttingStep9_SuctionErrorRecovery(stateManager);
+            break;
     }
 }
 
@@ -81,9 +84,30 @@ void CuttingState::handleCuttingStep1(StateManager& stateManager) {
     // Check suction sensor after brief delay to ensure it's stabilized
     if (millis() - stepStartTime >= 500) {
         if (digitalRead(WOOD_SUCTION_CONFIRM_SENSOR) == LOW) { // LOW means NO SUCTION (Error condition)
-            Serial.println("Cutting Step 1: WAS_WOOD_SUCTIONED_SENSOR is LOW (No Suction). Error detected. Transitioning to SUCTION_ERROR_HOLD state.");
-            stateManager.changeState(SUCTION_ERROR_HOLD);
-            resetSteps();
+            Serial.println("Cutting Step 1: WAS_WOOD_SUCTIONED_SENSOR is LOW (No Suction). Error detected. Returning cut motor home before manual reset.");
+            
+            // Stop feed motor immediately but return cut motor home safely
+            FastAccelStepper* cutMotor = stateManager.getCutMotor();
+            FastAccelStepper* feedMotor = stateManager.getFeedMotor();
+            
+            if (feedMotor && feedMotor->isRunning()) {
+                feedMotor->forceStopAndNewPosition(feedMotor->getCurrentPosition());
+                Serial.println("Feed motor stopped due to suction error.");
+            }
+            
+            // Configure cut motor for safe return home
+            if (cutMotor) {
+                configureCutMotorForReturn();
+                moveCutMotorToHome();
+                Serial.println("Cut motor returning home due to suction error.");
+            }
+            
+            // Set cutting cycle flag to false to prevent continuous operation
+            stateManager.setCuttingCycleInProgress(false);
+            
+            // Transition to suction error recovery step
+            cuttingStep = 9; // New step for suction error recovery
+            stepStartTime = 0; // Reset step timer
             return;
         } else {
             Serial.println("Cutting Step 1: WAS_WOOD_SUCTIONED_SENSOR is HIGH (Suction OK). Starting cut motor toward cut position.");
@@ -326,6 +350,50 @@ void CuttingState::handleCuttingStep8_FeedMotorHomingSequence(StateManager& stat
                 resetSteps();
             }
             break;
+    }
+}
+
+void CuttingState::handleCuttingStep9_SuctionErrorRecovery(StateManager& stateManager) {
+    // CUTTING (Step 9): Suction Error Recovery - Wait for cut motor to return home, then transition to error hold
+    FastAccelStepper* cutMotor = stateManager.getCutMotor();
+    
+    if (cutMotor && !cutMotor->isRunning()) {
+        Serial.println("Cutting Step 9: Cut motor returned home after suction error. Checking home sensor.");
+        
+        // Check cut motor home sensor
+        bool sensorDetectedHome = false;
+        for (int i = 0; i < 3; i++) {
+            delay(30);
+            stateManager.getCutHomingSwitch()->update();
+            Serial.print("Cut position switch read attempt "); 
+            Serial.print(i+1); 
+            Serial.print(": "); 
+            Serial.println(stateManager.getCutHomingSwitch()->read());
+            
+            if (stateManager.getCutHomingSwitch()->read() == HIGH) {
+                sensorDetectedHome = true;
+                if (cutMotor) cutMotor->setCurrentPosition(0); // Recalibrate to 0 when switch is hit
+                Serial.println("Cut motor position switch detected HIGH after suction error recovery.");
+                break;
+            }
+        }
+        
+        if (sensorDetectedHome) {
+            Serial.println("Cut motor successfully returned home after suction error. Transitioning to SUCTION_ERROR_HOLD for manual reset.");
+            stateManager.changeState(SUCTION_ERROR_HOLD);
+            resetSteps();
+        } else {
+            Serial.println("WARNING: Cut motor home sensor not detected after suction error recovery. Proceeding to SUCTION_ERROR_HOLD anyway.");
+            stateManager.changeState(SUCTION_ERROR_HOLD);
+            resetSteps();
+        }
+    } else if (cutMotor) {
+        // Motor still running - provide status update
+        static unsigned long lastStatusTime = 0;
+        if (millis() - lastStatusTime >= 1000) {
+            Serial.println("Cutting Step 9: Cut motor returning home after suction error...");
+            lastStatusTime = millis();
+        }
     }
 }
 
