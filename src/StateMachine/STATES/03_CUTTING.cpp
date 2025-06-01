@@ -70,29 +70,23 @@ void CuttingState::handleCuttingStep0(StateManager& stateManager) {
 }
 
 void CuttingState::handleCuttingStep1(StateManager& stateManager) {
-    // CUTTING (Step 1): Delay 1000ms, activate rotation servo for 3 seconds, then check WAS_WOOD_SUCTIONED_SENSOR
+    // CUTTING (Step 1): Check WAS_WOOD_SUCTIONED_SENSOR, start cut motor, monitor position for servo activation
     extern const int WOOD_SUCTION_CONFIRM_SENSOR; // From main.cpp
-    extern const unsigned long ROTATION_SERVO_ACTIVE_HOLD_DURATION_MS; // From main.cpp
     
     if (stepStartTime == 0) {
         stepStartTime = millis();
-        Serial.println("Cutting Step 1: Delaying 1000ms then activating rotation servo.");
+        Serial.println("Cutting Step 1: Checking suction sensor then starting cut motion.");
     }
 
-    if (millis() - stepStartTime >= 1000 && !rotationServoIsActiveAndTiming) {
-        activateRotationServo(); // The function sets timing flags
-        Serial.println("Cutting Step 1: Rotation servo activated for 3 seconds.");
-    }
-
-    if (rotationServoIsActiveAndTiming && millis() - stepStartTime >= 1000 + ROTATION_SERVO_ACTIVE_HOLD_DURATION_MS) {
+    // Check suction sensor after brief delay to ensure it's stabilized
+    if (millis() - stepStartTime >= 500) {
         if (digitalRead(WOOD_SUCTION_CONFIRM_SENSOR) == LOW) { // LOW means NO SUCTION (Error condition)
             Serial.println("Cutting Step 1: WAS_WOOD_SUCTIONED_SENSOR is LOW (No Suction). Error detected. Transitioning to SUCTION_ERROR_HOLD state.");
             stateManager.changeState(SUCTION_ERROR_HOLD);
             resetSteps();
             return;
         } else {
-            Serial.println("Cutting Step 1: WAS_WOOD_SUCTIONED_SENSOR is HIGH (Suction OK). Advancing to Step 2.");
-            Serial.println("Cutting Step 1: Starting cut motor toward cut position.");
+            Serial.println("Cutting Step 1: WAS_WOOD_SUCTIONED_SENSOR is HIGH (Suction OK). Starting cut motor toward cut position.");
             configureCutMotorForCutting();
             moveCutMotorToCut();
             cuttingStep = 2;
@@ -104,11 +98,46 @@ void CuttingState::handleCuttingStep1(StateManager& stateManager) {
 void CuttingState::handleCuttingStep2(StateManager& stateManager) {
     FastAccelStepper* cutMotor = stateManager.getCutMotor();
     extern const int _2x4_PRESENT_SENSOR; // From main.cpp
+    extern const float CUT_TRAVEL_DISTANCE; // From main.cpp
+    extern const float ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES; // From main.cpp
+    extern const float ROTATION_SERVO_EARLY_ACTIVATION_OFFSET_INCHES; // From main.cpp
+    extern const int CUT_MOTOR_STEPS_PER_INCH; // From main.cpp
+    
+    // Check if rotation clamp should be activated based on cut motor position
+    if (cutMotor && cutMotor->isRunning() && !rotationClampActivatedThisCycle) {
+        // Calculate clamp activation position: travel distance minus clamp early activation offset
+        float clampActivationPositionInches = CUT_TRAVEL_DISTANCE - ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES;
+        long clampActivationPositionSteps = clampActivationPositionInches * CUT_MOTOR_STEPS_PER_INCH;
+        long currentPosition = cutMotor->getCurrentPosition();
+        
+        if (currentPosition >= clampActivationPositionSteps) {
+            retractRotationClamp(); // Retract clamp when reaching activation position
+            rotationClampActivatedThisCycle = true;
+            Serial.print("Cutting Step 2: Cut motor reached ");
+            Serial.print(clampActivationPositionInches);
+            Serial.println(" inches - retracting rotation clamp early.");
+        }
+    }
+    
+    // Check if servo should be activated based on cut motor position
+    if (cutMotor && cutMotor->isRunning() && !rotationServoIsActiveAndTiming) {
+        // Calculate servo activation position: travel distance minus servo early activation offset
+        float servoActivationPositionInches = CUT_TRAVEL_DISTANCE - ROTATION_SERVO_EARLY_ACTIVATION_OFFSET_INCHES;
+        long servoActivationPositionSteps = servoActivationPositionInches * CUT_MOTOR_STEPS_PER_INCH;
+        long currentPosition = cutMotor->getCurrentPosition();
+        
+        if (currentPosition >= servoActivationPositionSteps) {
+            activateRotationServo();
+            Serial.print("Cutting Step 2: Cut motor reached ");
+            Serial.print(servoActivationPositionInches);
+            Serial.println(" inches - activating rotation servo early.");
+        }
+    }
     
     // Check if motor finished moving to cut position
     if (cutMotor && !cutMotor->isRunning()) {
         Serial.println("Cutting Step 2: Cut fully complete."); 
-        sendSignalToTA(); // Signal to Transfer Arm
+        sendSignalToTA(); // Signal to Transfer Arm (this also activates servo if not already active)
         configureCutMotorForReturn();
 
         int sensorValue = digitalRead(_2x4_PRESENT_SENSOR);

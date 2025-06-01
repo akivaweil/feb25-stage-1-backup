@@ -5,72 +5,72 @@
 #include "Config/Pins_Definitions.h"
 
 //* ************************************************************************
-//* ************************** NO 2X4 STATE ********************************
+//* ************************ RETURNING NO 2X4 STATE ***********************
 //* ************************************************************************
-// Handles the No_2x4 cutting sequence when no wood is detected.
+// Handles the RETURNING_NO_2x4 cutting sequence when no wood is detected.
 // This state manages the multi-step process for handling material that doesn't trigger the wood sensor.
 
-void No2x4State::execute(StateManager& stateManager) {
-    handleNo2x4Sequence(stateManager);
+void ReturningNo2x4State::execute(StateManager& stateManager) {
+    handleReturningNo2x4Sequence(stateManager);
 }
 
-void No2x4State::onEnter(StateManager& stateManager) {
-    Serial.println("Entering No_2x4 state");
+void ReturningNo2x4State::onEnter(StateManager& stateManager) {
+    Serial.println("Entering RETURNING_NO_2x4 state");
     
-    // Initialize No_2x4 sequence from CUTTING_state logic
-    Serial.println("No_2x4 state - Wood sensor reads HIGH. Starting No_2x4 Sequence.");
+    // Initialize RETURNING_NO_2x4 sequence from CUTTING_state logic
+    Serial.println("RETURNING_NO_2x4 state - Wood sensor reads HIGH. Starting RETURNING_NO_2x4 Sequence.");
     configureCutMotorForReturn();
     moveCutMotorToHome();
-    configurePositionMotorForNormalOperation();
+    configureFeedMotorForNormalOperation();
     
     // Initialize step tracking
-    no2x4Step = 0;
-    no2x4HomingSubStep = 0;
+    returningNo2x4Step = 0;
+    returningNo2x4HomingSubStep = 0;
     cylinderActionTime = 0;
     waitingForCylinder = false;
 }
 
-void No2x4State::onExit(StateManager& stateManager) {
-    Serial.println("Exiting No_2x4 state");
+void ReturningNo2x4State::onExit(StateManager& stateManager) {
+    Serial.println("Exiting RETURNING_NO_2x4 state");
     resetSteps();
 }
 
-void No2x4State::handleNo2x4Sequence(StateManager& stateManager) {
-    // No_2x4 sequence logic
+void ReturningNo2x4State::handleReturningNo2x4Sequence(StateManager& stateManager) {
+    // RETURNING_NO_2x4 sequence logic
     FastAccelStepper* cutMotor = stateManager.getCutMotor();
-    FastAccelStepper* positionMotor = stateManager.getPositionMotor();
+    FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     const unsigned long CYLINDER_ACTION_DELAY_MS = 150;
     
-    if (no2x4Step == 0) { // First time entering this specific No_2x4 logic path
+    if (returningNo2x4Step == 0) { // First time entering this specific RETURNING_NO_2x4 logic path
         //! ************************************************************************
-        //! STEP 0: INITIATE POSITION MOTOR TO HOME & RETRACT 2x4 SECURE CLAMP
+        //! STEP 0: INITIATE FEED MOTOR TO HOME & RETRACT 2x4 SECURE CLAMP
         //! ************************************************************************
-        Serial.println("No_2x4 Step 0: Initiating position motor to home & retracting 2x4 secure clamp.");
+        Serial.println("RETURNING_NO_2x4 Step 0: Initiating feed motor to home & retracting 2x4 secure clamp.");
         retract2x4SecureClamp();
-        if (positionMotor) {
-            if (positionMotor->getCurrentPosition() != 0 || positionMotor->isRunning()) {
-                positionMotor->moveTo(0);
-                Serial.println("No_2x4 Step 0: Position motor commanded to home.");
+        if (feedMotor) {
+            if (feedMotor->getCurrentPosition() != 0 || feedMotor->isRunning()) {
+                feedMotor->moveTo(0);
+                Serial.println("RETURNING_NO_2x4 Step 0: Feed motor commanded to home.");
             } else {
-                Serial.println("No_2x4 Step 0: Position motor already at home.");
+                Serial.println("RETURNING_NO_2x4 Step 0: Feed motor already at home.");
             }
         }
-        no2x4Step = 1;
+        returningNo2x4Step = 1;
     }
 
     if (waitingForCylinder && (millis() - cylinderActionTime >= CYLINDER_ACTION_DELAY_MS)) {
         waitingForCylinder = false;
-        no2x4Step++; 
+        returningNo2x4Step++; 
     }
     
     if (!waitingForCylinder) {
-        handleNo2x4Step(stateManager, no2x4Step);
+        handleReturningNo2x4Step(stateManager, returningNo2x4Step);
     }
 }
 
-void No2x4State::handleNo2x4Step(StateManager& stateManager, int step) {
+void ReturningNo2x4State::handleReturningNo2x4Step(StateManager& stateManager, int step) {
     FastAccelStepper* cutMotor = stateManager.getCutMotor();
-    FastAccelStepper* positionMotor = stateManager.getPositionMotor();
+    FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     extern const float FEED_TRAVEL_DISTANCE; // From main.cpp
     
     switch (step) { 
@@ -79,87 +79,87 @@ void No2x4State::handleNo2x4Step(StateManager& stateManager, int step) {
             //! STEP 1: WAIT FOR CUT MOTOR AND EXTEND FEED CLAMP
             //! ************************************************************************
             if (cutMotor && !cutMotor->isRunning()) {
-                Serial.println("No_2x4 Step 1: Cut motor returned home. Extending feed clamp.");
+                Serial.println("RETURNING_NO_2x4 Step 1: Cut motor returned home. Extending feed clamp.");
                 extendFeedClamp();
                 cylinderActionTime = millis();
-                waitingForCylinder = true; // Will cause no2x4Step to increment to 2 after delay
+                waitingForCylinder = true; // Will cause returningNo2x4Step to increment to 2 after delay
             }
             break;
             
-        case 2: // Was original no2x4Step 1: wait for position motor, then retract feed clamp
+        case 2: // Was original returningNo2x4Step 1: wait for feed motor, then retract feed clamp
             //! ************************************************************************
-            //! STEP 2: WAIT FOR POSITION MOTOR AND RETRACT FEED CLAMP
+            //! STEP 2: WAIT FOR FEED MOTOR AND RETRACT FEED CLAMP
             //! ************************************************************************
-            if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("No_2x4 Step 2: Position motor at home. Disengaging feed clamp.");
+            if (feedMotor && !feedMotor->isRunning()) {
+                Serial.println("RETURNING_NO_2x4 Step 2: Feed motor at home. Disengaging feed clamp.");
                 retractFeedClamp();
                 cylinderActionTime = millis();
                 waitingForCylinder = true; // Increments to 3
             }
             break;
             
-        case 3: // Was original no2x4Step 2: move position motor to 2.0 inches
+        case 3: // Was original returningNo2x4Step 2: move feed motor to 2.0 inches
             //! ************************************************************************
-            //! STEP 3: MOVE POSITION MOTOR TO 2.0 INCHES
+            //! STEP 3: MOVE FEED MOTOR TO 2.0 INCHES
             //! ************************************************************************
-            Serial.println("No_2x4 Step 3: Moving position motor to 2.0 inches."); 
-            configurePositionMotorForNormalOperation(); // Ensure correct config
-            movePositionMotorToPosition(2.0);
-            no2x4Step = 4; // Directly advance step here as it's a command
+            Serial.println("RETURNING_NO_2x4 Step 3: Moving feed motor to 2.0 inches."); 
+            configureFeedMotorForNormalOperation(); // Ensure correct config
+            moveFeedMotorToPosition(2.0);
+            returningNo2x4Step = 4; // Directly advance step here as it's a command
             break;
             
-        case 4: // Was original no2x4Step 3: wait for position motor at 2.0, extend feed clamp
+        case 4: // Was original returningNo2x4Step 3: wait for feed motor at 2.0, extend feed clamp
             //! ************************************************************************
-            //! STEP 4: WAIT FOR POSITION MOTOR AT 2.0 AND EXTEND FEED CLAMP
+            //! STEP 4: WAIT FOR FEED MOTOR AT 2.0 AND EXTEND FEED CLAMP
             //! ************************************************************************
-            if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("No_2x4 Step 4: Position motor at 2.0 inches. Extending feed clamp.");
+            if (feedMotor && !feedMotor->isRunning()) {
+                Serial.println("RETURNING_NO_2x4 Step 4: Feed motor at 2.0 inches. Extending feed clamp.");
                 extendFeedClamp();
                 cylinderActionTime = millis();
                 waitingForCylinder = true; // Increments to 5
             }
             break;
             
-        case 5: // Was original no2x4Step 4: move position motor to home
+        case 5: // Was original returningNo2x4Step 4: move feed motor to home
             //! ************************************************************************
-            //! STEP 5: MOVE POSITION MOTOR TO HOME
+            //! STEP 5: MOVE FEED MOTOR TO HOME
             //! ************************************************************************
-            Serial.println("No_2x4 Step 5: Moving position motor to home."); 
-            configurePositionMotorForNormalOperation();
-            movePositionMotorToHome();
-            no2x4Step = 6; // Directly advance step
+            Serial.println("RETURNING_NO_2x4 Step 5: Moving feed motor to home."); 
+            configureFeedMotorForNormalOperation();
+            moveFeedMotorToHome();
+            returningNo2x4Step = 6; // Directly advance step
             break;
             
-        case 6: // Was original no2x4Step 5: wait for position motor at home, retract feed clamp
+        case 6: // Was original returningNo2x4Step 5: wait for feed motor at home, retract feed clamp
             //! ************************************************************************
-            //! STEP 6: WAIT FOR POSITION MOTOR AT HOME AND RETRACT FEED CLAMP
+            //! STEP 6: WAIT FOR FEED MOTOR AT HOME AND RETRACT FEED CLAMP
             //! ************************************************************************
-            if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("No_2x4 Step 6: Position motor at home. Disengaging feed clamp.");
+            if (feedMotor && !feedMotor->isRunning()) {
+                Serial.println("RETURNING_NO_2x4 Step 6: Feed motor at home. Disengaging feed clamp.");
                 retractFeedClamp();
                 cylinderActionTime = millis();
                 waitingForCylinder = true; // Increments to 7
             }
             break;
             
-        case 7: // Was original no2x4Step 6: move position motor to final position
+        case 7: // Was original returningNo2x4Step 6: move feed motor to final position
             //! ************************************************************************
-            //! STEP 7: MOVE POSITION MOTOR TO FINAL POSITION
+            //! STEP 7: MOVE FEED MOTOR TO FINAL POSITION
             //! ************************************************************************
-            Serial.println("No_2x4 Step 7: Moving position motor to final position (FEED_TRAVEL_DISTANCE)."); 
-            configurePositionMotorForNormalOperation();
-            movePositionMotorToPosition(FEED_TRAVEL_DISTANCE);
-            no2x4Step = 8; // Directly advance step
+            Serial.println("RETURNING_NO_2x4 Step 7: Moving feed motor to final position (FEED_TRAVEL_DISTANCE)."); 
+            configureFeedMotorForNormalOperation();
+            moveFeedMotorToPosition(FEED_TRAVEL_DISTANCE);
+            returningNo2x4Step = 8; // Directly advance step
             break;
             
-        case 8: // Was original no2x4Step 7: wait for motor, check cut home, start position motor homing
+        case 8: // Was original returningNo2x4Step 7: wait for motor, check cut home, start feed motor homing
             //! ************************************************************************
-            //! STEP 8: WAIT FOR MOTOR, CHECK CUT HOME, START POSITION MOTOR HOMING
+            //! STEP 8: WAIT FOR MOTOR, CHECK CUT HOME, START FEED MOTOR HOMING
             //! ************************************************************************
-            if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("No_2x4 Step 8: Position motor at final position."); 
+            if (feedMotor && !feedMotor->isRunning()) {
+                Serial.println("RETURNING_NO_2x4 Step 8: Feed motor at final position."); 
                 bool sensorDetectedHome = false;
-                Serial.println("No_2x4 Step 8: Checking cut motor position switch."); 
+                Serial.println("RETURNING_NO_2x4 Step 8: Checking cut motor position switch."); 
                 for (int i = 0; i < 3; i++) {
                     delay(30);  
                     stateManager.getCutHomingSwitch()->update();
@@ -175,7 +175,7 @@ void No2x4State::handleNo2x4Step(StateManager& stateManager, int step) {
                     if (sensorReading == HIGH) {
                         sensorDetectedHome = true;
                         if (cutMotor) cutMotor->setCurrentPosition(0); 
-                        Serial.println("Cut motor position switch detected HIGH during No_2x4 sequence completion."); 
+                        Serial.println("Cut motor position switch detected HIGH during RETURNING_NO_2x4 sequence completion."); 
                         break;  
                     }
                 }
@@ -189,124 +189,106 @@ void No2x4State::handleNo2x4Step(StateManager& stateManager, int step) {
                     Serial.println("DIAGNOSTIC: Cut motor home sensor successfully detected HIGH.");
                 }
 
-                Serial.println("No_2x4 Step 8: Starting position motor homing sequence...");
+                Serial.println("RETURNING_NO_2x4 Step 8: Starting feed motor homing sequence...");
                 
                 //! ************************************************************************
-                //! START POSITION MOTOR HOMING SEQUENCE FOR No_2x4
+                //! START FEED MOTOR HOMING SEQUENCE FOR RETURNING_NO_2x4
                 //! ************************************************************************
                 retractFeedClamp();
-                Serial.println("Feed clamp retracted. Starting No_2x4 position motor homing sequence...");
+                Serial.println("Feed clamp retracted. Starting RETURNING_NO_2x4 feed motor homing sequence...");
                 
-                // Transition to new No_2x4 homing substeps
-                no2x4Step = 9;
-                no2x4HomingSubStep = 0; // Initialize homing substep
-                Serial.println("Transitioning to No_2x4 position motor homing sequence (Step 9)."); 
+                // Transition to new RETURNING_NO_2x4 homing substeps
+                returningNo2x4Step = 9;
+                returningNo2x4HomingSubStep = 0; // Initialize homing substep
+                Serial.println("Transitioning to feed motor homing sequence (Step 9)."); 
             }
             break;
             
-        case 9: // No_2x4 Position Motor Homing Sequence
-            //! ************************************************************************
-            //! STEP 9: No_2x4 POSITION MOTOR HOMING SEQUENCE
-            //! ************************************************************************
-            handleNo2x4PositionMotorHoming(stateManager);
+        case 9: // Feed motor homing sequence
+            handleReturningNo2x4FeedMotorHoming(stateManager);
             break;
     }
 }
 
-void No2x4State::handleNo2x4PositionMotorHoming(StateManager& stateManager) {
-    FastAccelStepper* positionMotor = stateManager.getPositionMotor();
+void ReturningNo2x4State::handleReturningNo2x4FeedMotorHoming(StateManager& stateManager) {
+    FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     extern const float FEED_MOTOR_HOMING_SPEED; // From main.cpp
     extern const float FEED_TRAVEL_DISTANCE; // From main.cpp
     extern const int FEED_MOTOR_STEPS_PER_INCH; // From main.cpp
     
-    // Non-blocking position motor homing sequence for No_2x4
-    switch (no2x4HomingSubStep) {
+    // Non-blocking feed motor homing sequence
+    switch (returningNo2x4HomingSubStep) {
         case 0: // Start homing - move toward home switch
-            //! ************************************************************************
-            //! STEP 9.0: START HOMING - MOVE TOWARD HOME SWITCH
-            //! ************************************************************************
-            Serial.println("No_2x4 Position Motor Homing Step 9.0: Moving toward home switch.");
-            if (positionMotor) {
-                positionMotor->setSpeedInHz((uint32_t)FEED_MOTOR_HOMING_SPEED);
-                positionMotor->moveTo(10000 * FEED_MOTOR_STEPS_PER_INCH); // Large positive move toward switch
+            Serial.println("Feed Motor Homing Step 0: Moving toward home switch.");
+            if (feedMotor) {
+                feedMotor->setSpeedInHz((uint32_t)FEED_MOTOR_HOMING_SPEED);
+                feedMotor->moveTo(10000 * FEED_MOTOR_STEPS_PER_INCH); // Large positive move toward switch
             }
-            no2x4HomingSubStep = 1;
+            returningNo2x4HomingSubStep = 1;
             break;
             
         case 1: // Wait for home switch to trigger
-            //! ************************************************************************
-            //! STEP 9.1: WAIT FOR HOME SWITCH TO TRIGGER
-            //! ************************************************************************
-            stateManager.getPositionHomingSwitch()->update();
-            if (stateManager.getPositionHomingSwitch()->read() == HIGH) {
-                Serial.println("No_2x4 Position Motor Homing Step 9.1: Home switch triggered. Stopping motor.");
-                if (positionMotor) {
-                    positionMotor->stopMove();
-                    positionMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
+            stateManager.getFeedHomingSwitch()->update();
+            if (stateManager.getFeedHomingSwitch()->read() == HIGH) {
+                Serial.println("Feed Motor Homing Step 1: Home switch triggered. Stopping motor.");
+                if (feedMotor) {
+                    feedMotor->stopMove();
+                    feedMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
                 }
-                Serial.println("No_2x4: Position motor hit home switch.");
-                no2x4HomingSubStep = 2;
+                Serial.println("Feed motor hit home switch.");
+                returningNo2x4HomingSubStep = 2;
             }
             break;
             
-        case 2: // Wait for motor to stop, then move to -0.1 inch from switch
-            //! ************************************************************************
-            //! STEP 9.2: MOVE TO -0.1 INCH FROM SWITCH TO ESTABLISH WORKING ZERO
-            //! ************************************************************************
-            if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("No_2x4 Position Motor Homing Step 9.2: Moving to -0.1 inch from home switch to establish working zero.");
-                positionMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH - 0.1 * FEED_MOTOR_STEPS_PER_INCH);
-                no2x4HomingSubStep = 3;
+        case 2: // Wait for motor to stop, then move to -0.2 inch from switch
+            if (feedMotor && !feedMotor->isRunning()) {
+                Serial.println("Feed Motor Homing Step 2: Moving to -0.2 inch from home switch to establish working zero.");
+                feedMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH - 0.1 * FEED_MOTOR_STEPS_PER_INCH);
+                returningNo2x4HomingSubStep = 3;
             }
             break;
             
         case 3: // Wait for positioning move to complete, then set new zero
-            //! ************************************************************************
-            //! STEP 9.3: SET NEW WORKING ZERO POSITION
-            //! ************************************************************************
-            if (positionMotor && !positionMotor->isRunning()) {
-                Serial.println("No_2x4 Position Motor Homing Step 9.3: Setting new working zero position.");
-                positionMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH); // Set this position as the new zero
-                Serial.println("No_2x4: Position motor homed: 0.1 inch from switch set as position 0.");
+            if (feedMotor && !feedMotor->isRunning()) {
+                Serial.println("Feed Motor Homing Step 3: Setting new working zero position.");
+                feedMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH); // Set this position as the new zero
+                Serial.println("Feed motor homed: 0.2 inch from switch set as position 0.");
                 
-                configurePositionMotorForNormalOperation();
-                no2x4HomingSubStep = 4;
+                configureFeedMotorForNormalOperation();
+                returningNo2x4HomingSubStep = 4;
             }
             break;
             
-        case 4: // Homing complete - finish No_2x4 sequence
-            //! ************************************************************************
-            //! STEP 9.4: HOMING COMPLETE - FINISH No_2x4 SEQUENCE
-            //! ************************************************************************
-            Serial.println("No_2x4 Position Motor Homing Step 9.4: Homing sequence complete.");
-            
-            retract2x4SecureClamp(); 
-            Serial.println("2x4 secure clamp retracted (final check in No_2x4).");
+        case 4: // Homing complete - check for continuous mode or finish cycle
+            Serial.println("Feed Motor Homing Step 4: Homing sequence complete.");
             extend2x4SecureClamp();
-            Serial.println("2x4 secure clamp extended.");
+            Serial.println("2x4 secure clamp extended."); 
             turnYellowLedOff();
-            turnBlueLedOn(); 
-
-            resetSteps();
             stateManager.setCuttingCycleInProgress(false);
-            stateManager.changeState(IDLE);
             
-            // Check if cycle switch is currently ON - if yes, require cycling
-            if (stateManager.getStartCycleSwitch()->read() == HIGH) {
-                stateManager.setStartSwitchSafe(false);
-                Serial.println("Cycle switch is still ON - must be cycled OFF then ON for next cycle.");
+            // Check if start cycle switch is active for continuous operation
+            if (stateManager.getStartCycleSwitch()->read() == HIGH && stateManager.getStartSwitchSafe()) {
+                Serial.println("Start cycle switch is active - continuing with another cut cycle.");
+                // Prepare for next cycle
+                extend2x4SecureClamp();
+                configureCutMotorForCutting(); // Ensure cut motor is set to proper cutting speed
+                turnYellowLedOn();
+                stateManager.setCuttingCycleInProgress(true);
+                stateManager.changeState(CUTTING);
+                resetSteps();
+                Serial.println("Transitioning to CUTTING state for continuous operation.");
             } else {
-                Serial.println("Cycle switch is OFF - ready for next cycle.");
+                Serial.println("Cycle complete. Transitioning to IDLE state.");
+                stateManager.changeState(IDLE);
+                resetSteps();
             }
-            
-            Serial.println("No_2x4 sequence with position motor homing complete. Transitioning to IDLE state. Continuous mode OFF."); 
             break;
     }
 }
 
-void No2x4State::resetSteps() {
-    no2x4Step = 0;
-    no2x4HomingSubStep = 0;
+void ReturningNo2x4State::resetSteps() {
+    returningNo2x4Step = 0;
+    returningNo2x4HomingSubStep = 0;
     cylinderActionTime = 0;
     waitingForCylinder = false;
 } 

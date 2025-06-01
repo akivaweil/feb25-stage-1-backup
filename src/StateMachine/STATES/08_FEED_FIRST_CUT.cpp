@@ -25,7 +25,7 @@ void FeedFirstCutState::onExit(StateManager& stateManager) {
 }
 
 void FeedFirstCutState::executeStep(StateManager& stateManager) {
-    FastAccelStepper* positionMotor = stateManager.getPositionMotor();
+    FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     extern const float FEED_TRAVEL_DISTANCE;
     extern const int FEED_MOTOR_STEPS_PER_INCH;
 
@@ -37,15 +37,15 @@ void FeedFirstCutState::executeStep(StateManager& stateManager) {
             break;
 
         case MOVE_TO_NEGATIVE_ONE:
-            if (positionMotor && !positionMotor->isRunning()) {
-                movePositionMotorToPosition(-1.0);
-                Serial.println("FeedFirstCut: Moving position motor to -1 inch");
+            if (feedMotor && !feedMotor->isRunning()) {
+                moveFeedMotorToPosition(-1.0);
+                Serial.println("FeedFirstCut: Moving feed motor to -1 inch");
                 advanceToNextStep(stateManager);
             }
             break;
 
         case EXTEND_FEED_CLAMP_RETRACT_SECURE:
-            if (positionMotor && !positionMotor->isRunning()) {
+            if (feedMotor && !feedMotor->isRunning()) {
                 //! STEP 3: EXTEND FEED CLAMP AND RETRACT SECURE WOOD CLAMP
                 extendFeedClamp();
                 retract2x4SecureClamp();
@@ -63,15 +63,15 @@ void FeedFirstCutState::executeStep(StateManager& stateManager) {
             break;
 
         case MOVE_TO_TRAVEL_DISTANCE:
-            if (positionMotor && !positionMotor->isRunning()) {
-                movePositionMotorToPosition(FEED_TRAVEL_DISTANCE);
-                Serial.println("FeedFirstCut: Moving position motor to travel distance");
+            if (feedMotor && !feedMotor->isRunning()) {
+                moveFeedMotorToPosition(FEED_TRAVEL_DISTANCE);
+                Serial.println("FeedFirstCut: Moving feed motor to travel distance");
                 advanceToNextStep(stateManager);
             }
             break;
 
         case FIRST_RUN_COMPLETE:
-            if (positionMotor && !positionMotor->isRunning()) {
+            if (feedMotor && !feedMotor->isRunning()) {
                 Serial.println("FeedFirstCut: First run complete, starting second run");
                 advanceToNextStep(stateManager);
             }
@@ -84,15 +84,15 @@ void FeedFirstCutState::executeStep(StateManager& stateManager) {
             break;
 
         case MOVE_TO_NEGATIVE_TWO:
-            if (positionMotor && !positionMotor->isRunning()) {
-                movePositionMotorToPosition(-2.0);
-                Serial.println("FeedFirstCut: Moving position motor to -2 inch (second run)");
+            if (feedMotor && !feedMotor->isRunning()) {
+                moveFeedMotorToPosition(-2.0);
+                Serial.println("FeedFirstCut: Moving feed motor to -2 inch (second run)");
                 advanceToNextStep(stateManager);
             }
             break;
 
         case EXTEND_FEED_CLAMP_RETRACT_SECURE_SECOND:
-            if (positionMotor && !positionMotor->isRunning()) {
+            if (feedMotor && !feedMotor->isRunning()) {
                 //! STEP 9: EXTEND FEED CLAMP AND RETRACT SECURE WOOD CLAMP (SECOND RUN)
                 extendFeedClamp();
                 retract2x4SecureClamp();
@@ -110,15 +110,15 @@ void FeedFirstCutState::executeStep(StateManager& stateManager) {
             break;
 
         case MOVE_TO_TRAVEL_DISTANCE_MINUS_2_75:
-            if (positionMotor && !positionMotor->isRunning()) {
-                movePositionMotorToPosition(FEED_TRAVEL_DISTANCE - 2.75);
-                Serial.println("FeedFirstCut: Moving position motor to travel distance minus 2.75 inches");
+            if (feedMotor && !feedMotor->isRunning()) {
+                moveFeedMotorToPosition(FEED_TRAVEL_DISTANCE - 2.75);
+                Serial.println("FeedFirstCut: Moving feed motor to travel distance minus 2.75 inches");
                 advanceToNextStep(stateManager);
             }
             break;
 
         case CHECK_START_CYCLE_SWITCH:
-            if (positionMotor && !positionMotor->isRunning()) {
+            if (feedMotor && !feedMotor->isRunning()) {
                 Serial.println("FeedFirstCut: Checking start cycle switch for next state");
                 
                 // Check the start cycle switch state

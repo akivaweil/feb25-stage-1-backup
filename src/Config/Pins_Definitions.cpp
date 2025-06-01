@@ -31,7 +31,7 @@ const int FEED_MOTOR_HOME_SWITCH = 16;
 // Control switches (Active HIGH - input pulldown)
 const int RELOAD_SWITCH = 6;
 const int START_CYCLE_SWITCH = 5;
-const int MANUAL_FEED_SWITCH = 7;         // Manual wood feed control
+const int MANUAL_FEED_SWITCH = 41;         // Manual wood feed control
 
 // Sensors (Active LOW - input pullup)
 const int _2x4_PRESENT_SENSOR = 10;

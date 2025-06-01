@@ -25,7 +25,7 @@ void FeedWoodFwdOneState::onExit(StateManager& stateManager) {
 }
 
 void FeedWoodFwdOneState::executeStep(StateManager& stateManager) {
-    FastAccelStepper* positionMotor = stateManager.getPositionMotor();
+    FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     extern const float FEED_TRAVEL_DISTANCE;
 
     switch (currentStep) {
@@ -36,15 +36,15 @@ void FeedWoodFwdOneState::executeStep(StateManager& stateManager) {
             break;
 
         case MOVE_POSITION_MOTOR_TO_ZERO:
-            if (positionMotor && !positionMotor->isRunning()) {
-                movePositionMotorToHome();
-                Serial.println("FeedWoodFwdOne: Moving position motor to 0");
+            if (feedMotor && !feedMotor->isRunning()) {
+                moveFeedMotorToHome();
+                Serial.println("FeedWoodFwdOne: Moving feed motor to 0");
                 advanceToNextStep(stateManager);
             }
             break;
 
         case EXTEND_FEED_CLAMP_RETRACT_SECURE:
-            if (positionMotor && !positionMotor->isRunning()) {
+            if (feedMotor && !feedMotor->isRunning()) {
                 //! STEP 3: EXTEND FEED CLAMP AND RETRACT SECURE WOOD CLAMP
                 extendFeedClamp();
                 retract2x4SecureClamp();
@@ -62,15 +62,15 @@ void FeedWoodFwdOneState::executeStep(StateManager& stateManager) {
             break;
 
         case MOVE_TO_TRAVEL_DISTANCE:
-            if (positionMotor && !positionMotor->isRunning()) {
-                movePositionMotorToPosition(FEED_TRAVEL_DISTANCE);
-                Serial.println("FeedWoodFwdOne: Moving position motor to travel distance");
+            if (feedMotor && !feedMotor->isRunning()) {
+                moveFeedMotorToPosition(FEED_TRAVEL_DISTANCE);
+                Serial.println("FeedWoodFwdOne: Moving feed motor to travel distance");
                 advanceToNextStep(stateManager);
             }
             break;
 
         case CHECK_START_CYCLE_SWITCH:
-            if (positionMotor && !positionMotor->isRunning()) {
+            if (feedMotor && !feedMotor->isRunning()) {
                 Serial.println("FeedWoodFwdOne: Checking start cycle switch for next state");
                 
                 // Check the start cycle switch state

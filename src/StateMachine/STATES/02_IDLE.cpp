@@ -75,31 +75,20 @@ void IdleState::handleReloadModeLogic(StateManager& stateManager) {
 }
 
 void IdleState::checkFirstCutConditions(StateManager& stateManager) {
-    // Check for pushwood forward switch press AND 2x4 sensor HIGH
+    // Check for pushwood forward switch press and 2x4 sensor state
     extern Bounce pushwoodForwardSwitch;
-    extern Bounce fixPositionSwitch;
     extern const int _2x4_PRESENT_SENSOR;
     bool pushwoodPressed = pushwoodForwardSwitch.rose();
-    bool fixPositionPressed = fixPositionSwitch.rose();
     bool _2x4SensorHigh = (digitalRead(_2x4_PRESENT_SENSOR) == HIGH);
     bool _2x4SensorLow = (digitalRead(_2x4_PRESENT_SENSOR) == LOW);
     
     if (pushwoodPressed && _2x4SensorHigh) {
-        Serial.println("Idle: Pushwood forward switch pressed with 2x4 sensor HIGH - transitioning to FEED_FIRST_CUT");
+        Serial.println("Idle: Manual feed switch pressed with 2x4 sensor HIGH - transitioning to FEED_FIRST_CUT");
         stateManager.changeState(FEED_FIRST_CUT);
-    }
-    else if (fixPositionPressed && _2x4SensorHigh) {
-        Serial.println("Idle: Fix position button pressed with 2x4 sensor HIGH - transitioning to FEED_FIRST_CUT");
-        stateManager.changeState(FEED_FIRST_CUT);
-    }
-    else if (fixPositionPressed && _2x4SensorLow) {
-        Serial.println("Idle: Fix position button pressed with 2x4 sensor LOW - transitioning to FEED_WOOD_FWD_ONE");
-        stateManager.changeState(FEED_WOOD_FWD_ONE);
     }
     else if (pushwoodPressed && _2x4SensorLow) {
-        Serial.println("Idle: Pushwood forward switch pressed with 2x4 sensor LOW - executing pushwood forward action");
-        // TODO: Add pushwood forward action here (what should this do?)
-        // For now, just log the action
+        Serial.println("Idle: Manual feed switch pressed with 2x4 sensor LOW - transitioning to FEED_WOOD_FWD_ONE");
+        stateManager.changeState(FEED_WOOD_FWD_ONE);
     }
 }
 
