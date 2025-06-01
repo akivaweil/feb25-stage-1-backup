@@ -16,82 +16,109 @@ void ReturningYes2x4State::execute(StateManager& stateManager) {
 void ReturningYes2x4State::onEnter(StateManager& stateManager) {
     Serial.println("Entering RETURNING_YES_2x4 state");
     
-    // Configure motors for return operation
-    configureCutMotorForReturn();
+    // Initialize RETURNING_YES_2x4 sequence from CUTTING_state logic
+    Serial.println("RETURNING_YES_2x4 state - Wood sensor reads LOW. Starting RETURNING_YES_2x4 Sequence (simultaneous return).");
     configureFeedMotorForReturn();
     
-    // Start cut motor return to home
+    retractFeedClamp(); 
+    retract2x4SecureClamp(); 
+    Serial.println("Feed and 2x4 Secure clamps disengaged for simultaneous return.");
+
+    // Set flag to indicate we're in RETURNING_YES_2x4 return mode - enable homing sensor check
+    extern bool cutMotorInReturningYes2x4Return; // From main.cpp
+    cutMotorInReturningYes2x4Return = true;
     moveCutMotorToHome();
-    Serial.println("Cut motor moving to home position");
+    moveFeedMotorToHome();
     
-    // Start feed motor return to post-cut home
-    moveFeedMotorToPostCutHome();
-    
-    // Reset step counters
+    // Initialize step tracking
     returningYes2x4SubStep = 0;
 }
 
 void ReturningYes2x4State::onExit(StateManager& stateManager) {
-    // Reset all step counters when exiting state
+    Serial.println("Exiting RETURNING_YES_2x4 state");
     resetSteps();
 }
 
 void ReturningYes2x4State::handleReturningYes2x4Sequence(StateManager& stateManager) {
     FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     FastAccelStepper* cutMotor = stateManager.getCutMotor();
+    extern const float FEED_TRAVEL_DISTANCE; // From main.cpp
+    extern bool cutMotorInReturningYes2x4Return; // From main.cpp
     
-    // Check if both motors have finished their return movements
-    bool cutMotorFinished = (cutMotor && !cutMotor->isRunning());
-    bool feedMotorFinished = (feedMotor && !feedMotor->isRunning());
-    
+    // This step handles the completion of the "RETURNING_YES_2x4 Sequence".
     switch (returningYes2x4SubStep) {
-        case 0: // Wait for both motors to finish returning
-            if (cutMotorFinished && feedMotorFinished) {
-                Serial.println("Both motors finished returning. Extending feed clamp and starting feed motor homing sequence.");
+        case 0: // Wait for feed motor to home
+            if (feedMotor && !feedMotor->isRunning()) {
+                Serial.println("RETURNING_YES_2x4 Step 0: Feed motor has returned home. Engaging feed clamp.");
+                extendFeedClamp();
+                Serial.println("Feed clamp engaged (feed motor home).");
+                returningYes2x4SubStep = 1;
+            }
+            break;
+
+        case 1: // Wait for cut motor to home, then proceed with original logic
+            if (cutMotor && !cutMotor->isRunning()) {
+                Serial.println("RETURNING_YES_2x4 Step 1: Cut motor has returned home.");
+                // Clear the RETURNING_YES_2x4 return flag since cut motor has stopped
+                cutMotorInReturningYes2x4Return = false;
+
+                // Check the cut motor homing switch. If not detected, transition to ERROR.
+                bool sensorDetectedHome = false;
+                Serial.println("Checking cut motor position switch after simultaneous return.");
+                for (int i = 0; i < 3; i++) { 
+                    delay(30);  
+                    stateManager.getCutHomingSwitch()->update();
+                    Serial.print("Cut position switch read attempt "); Serial.print(i+1); Serial.print(": "); Serial.println(stateManager.getCutHomingSwitch()->read());
+                    if (stateManager.getCutHomingSwitch()->read() == HIGH) {
+                        sensorDetectedHome = true;
+                        if (cutMotor) cutMotor->setCurrentPosition(0); 
+                        Serial.println("Cut motor position switch detected HIGH. Position recalibrated to 0.");
+                        break; 
+                    }
+                }
+
+                if (!sensorDetectedHome) {
+                    // Homing failed, transition to ERROR state.
+                    Serial.println("ERROR: Cut motor position switch did not detect home after simultaneous return!");
+                    stopCutMotor();
+                    extend2x4SecureClamp(); 
+                    turnRedLedOn();
+                    turnYellowLedOff(); 
+                    stateManager.changeState(ERROR);
+                    stateManager.setErrorStartTime(millis());
+                    resetSteps();
+                } else {
+                    // Homing successful, proceed with next steps.
+                    retract2x4SecureClamp();
+                    Serial.println("2x4 secure clamp retracted after successful cut motor home detection.");
+
+                    Serial.println("Cut motor position switch confirmed home. Proceeding to move feed motor to final travel position.");
+                    configureFeedMotorForNormalOperation();
+                    moveFeedMotorToPosition(FEED_TRAVEL_DISTANCE);
+                    returningYes2x4SubStep = 2; // Move to feed motor homing sequence
+                }
+            }
+            break;
+            
+        case 2: // Wait for feed motor to reach final position, then start homing sequence
+            if (feedMotor && !feedMotor->isRunning()) {
+                Serial.println("RETURNING_YES_2x4 Step 2: Feed motor at final position. Starting end-of-cycle feed motor homing sequence.");
                 
                 //! ************************************************************************
-                //! STEP 1: EXTEND FEED CLAMP AND RETRACT 2X4 SECURE CLAMP AND START FEED MOTOR HOMING SEQUENCE
+                //! STEP: RETRACT FEED CLAMP AND START FEED MOTOR HOMING SEQUENCE
                 //! ************************************************************************
-                extendFeedClamp(); // Equivalent to old extendPositionClamp() when position motor homed
-                retract2x4SecureClamp(); // Equivalent to old retractWoodSecureClamp() when cut motor homed
-                Serial.println("Feed clamp extended and 2x4 secure clamp retracted. Starting feed motor homing sequence...");
+                retractFeedClamp();
+                Serial.println("Feed clamp retracted. Starting feed motor homing sequence...");
                 
                 // Transition to feed motor homing sequence
-                returningYes2x4SubStep = 1;
+                returningYes2x4SubStep = 3;
                 feedHomingSubStep = 0; // Initialize homing substep
-                Serial.println("Transitioning to feed motor homing sequence.");
+                Serial.println("Transitioning to feed motor homing sequence."); 
             }
             break;
             
-        case 1: // Handle feed motor homing sequence
+        case 3: // Feed Motor Homing Sequence
             handleReturningYes2x4FeedMotorHoming(stateManager);
-            break;
-            
-        case 2: // Homing complete - check for continuous mode or finish cycle
-            Serial.println("RETURNING_YES_2x4 sequence complete.");
-            extend2x4SecureClamp();
-            Serial.println("2x4 secure clamp extended."); 
-            turnYellowLedOff();
-            stateManager.setCuttingCycleInProgress(false);
-            
-            // Check if start cycle switch is active for continuous operation
-            if (stateManager.getStartCycleSwitch()->read() == HIGH && stateManager.getStartSwitchSafe()) {
-                Serial.println("Start cycle switch is active - continuing with another cut cycle.");
-                // Prepare for next cycle
-                extendFeedClamp(); // Equivalent to old extendPositionClamp() for continuous mode
-                extend2x4SecureClamp();
-                extendRotationClamp(); // Extend rotation clamp for next cutting cycle
-                configureCutMotorForCutting(); // Ensure cut motor is set to proper cutting speed
-                turnYellowLedOn();
-                stateManager.setCuttingCycleInProgress(true);
-                stateManager.changeState(CUTTING);
-                resetSteps();
-                Serial.println("Transitioning to CUTTING state for continuous operation.");
-            } else {
-                Serial.println("Cycle complete. Transitioning to IDLE state.");
-                stateManager.changeState(IDLE);
-                resetSteps();
-            }
             break;
     }
 }
@@ -105,7 +132,7 @@ void ReturningYes2x4State::handleReturningYes2x4FeedMotorHoming(StateManager& st
     // Non-blocking feed motor homing sequence
     switch (feedHomingSubStep) {
         case 0: // Start homing - move toward home switch
-            Serial.println("Feed Motor Homing Step 0: Moving toward home switch.");
+            Serial.println("RETURNING_YES_2x4 Feed Motor Homing Step 0: Moving toward home switch.");
             if (feedMotor) {
                 feedMotor->setSpeedInHz((uint32_t)FEED_MOTOR_HOMING_SPEED);
                 feedMotor->moveTo(10000 * FEED_MOTOR_STEPS_PER_INCH); // Large positive move toward switch
@@ -116,7 +143,7 @@ void ReturningYes2x4State::handleReturningYes2x4FeedMotorHoming(StateManager& st
         case 1: // Wait for home switch to trigger
             stateManager.getFeedHomingSwitch()->update();
             if (stateManager.getFeedHomingSwitch()->read() == HIGH) {
-                Serial.println("Feed Motor Homing Step 1: Home switch triggered. Stopping motor.");
+                Serial.println("RETURNING_YES_2x4 Feed Motor Homing Step 1: Home switch triggered. Stopping motor.");
                 if (feedMotor) {
                     feedMotor->stopMove();
                     feedMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
@@ -128,7 +155,7 @@ void ReturningYes2x4State::handleReturningYes2x4FeedMotorHoming(StateManager& st
             
         case 2: // Wait for motor to stop, then move to -0.2 inch from switch
             if (feedMotor && !feedMotor->isRunning()) {
-                Serial.println("Feed Motor Homing Step 2: Moving to -0.2 inch from home switch to establish working zero.");
+                Serial.println("RETURNING_YES_2x4 Feed Motor Homing Step 2: Moving to -0.2 inch from home switch to establish working zero.");
                 feedMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH - 0.1 * FEED_MOTOR_STEPS_PER_INCH);
                 feedHomingSubStep = 3;
             }
@@ -136,7 +163,7 @@ void ReturningYes2x4State::handleReturningYes2x4FeedMotorHoming(StateManager& st
             
         case 3: // Wait for positioning move to complete, then set new zero
             if (feedMotor && !feedMotor->isRunning()) {
-                Serial.println("Feed Motor Homing Step 3: Setting new working zero position.");
+                Serial.println("RETURNING_YES_2x4 Feed Motor Homing Step 3: Setting new working zero position.");
                 feedMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH); // Set this position as the new zero
                 Serial.println("Feed motor homed: 0.2 inch from switch set as position 0.");
                 
@@ -145,9 +172,29 @@ void ReturningYes2x4State::handleReturningYes2x4FeedMotorHoming(StateManager& st
             }
             break;
             
-        case 4: // Homing complete
-            Serial.println("Feed Motor Homing Step 4: Homing sequence complete.");
-            returningYes2x4SubStep = 2; // Move to completion step
+        case 4: // Homing complete - check for continuous mode or finish cycle
+            Serial.println("RETURNING_YES_2x4 Feed Motor Homing Step 4: Homing sequence complete.");
+            extend2x4SecureClamp(); 
+            Serial.println("2x4 secure clamp engaged."); 
+            turnYellowLedOff();
+            stateManager.setCuttingCycleInProgress(false);
+            
+            // Check if start cycle switch is active for continuous operation
+            if (stateManager.getStartCycleSwitch()->read() == HIGH && stateManager.getStartSwitchSafe()) {
+                Serial.println("Start cycle switch is active - continuing with another cut cycle.");
+                // Prepare for next cycle
+                extendFeedClamp();
+                configureCutMotorForCutting(); // Ensure cut motor is set to proper cutting speed
+                turnYellowLedOn();
+                stateManager.setCuttingCycleInProgress(true);
+                stateManager.changeState(CUTTING);
+                resetSteps();
+                Serial.println("Transitioning to CUTTING state for continuous operation.");
+            } else {
+                Serial.println("Cycle complete. Transitioning to IDLE state.");
+                stateManager.changeState(IDLE);
+                resetSteps();
+            }
             break;
     }
 }

@@ -117,40 +117,30 @@ void CuttingState::handleCuttingStep2(StateManager& stateManager) {
         lastDebugTime = millis();
     }
     
-    // Check if rotation clamp should be activated based on cut motor position
-    if (cutMotor && cutMotor->isRunning() && !rotationClampActivatedThisCycle) {
-        // Calculate clamp activation position: travel distance minus clamp early activation offset
-        float clampActivationPositionInches = CUT_TRAVEL_DISTANCE - ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES;
-        long clampActivationPositionSteps = clampActivationPositionInches * CUT_MOTOR_STEPS_PER_INCH;
-        long currentPosition = cutMotor->getCurrentPosition();
-        
-        if (currentPosition >= clampActivationPositionSteps) {
-            Serial.print("*** ACTIVATING ROTATION CLAMP *** Position: ");
-            Serial.print((float)currentPosition / CUT_MOTOR_STEPS_PER_INCH);
-            Serial.print(" inches, Activation threshold: ");
-            Serial.print(clampActivationPositionInches);
-            Serial.println(" inches");
-            retractRotationClamp(); // Retract clamp when reaching activation position
-            rotationClampActivatedThisCycle = true;
-            Serial.print("Cutting Step 2: Cut motor reached ");
-            Serial.print(clampActivationPositionInches);
-            Serial.println(" inches - retracting rotation clamp early.");
-        }
+    // Early Rotation Clamp Activation (matching old catcher clamp logic)
+    if (!rotationClampActivatedThisCycle && cutMotor &&
+        cutMotor->getCurrentPosition() >= ((CUT_TRAVEL_DISTANCE - ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES) * CUT_MOTOR_STEPS_PER_INCH)) {
+        Serial.print("*** ACTIVATING ROTATION CLAMP *** Position: ");
+        Serial.print((float)cutMotor->getCurrentPosition() / CUT_MOTOR_STEPS_PER_INCH);
+        Serial.print(" inches, Activation threshold: ");
+        Serial.print(CUT_TRAVEL_DISTANCE - ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES);
+        Serial.println(" inches");
+        extendRotationClamp(); // FIXED: Extend clamp when reaching activation position (matching old catcher clamp logic)
+        rotationClampActivatedThisCycle = true;
+        Serial.print("Cutting Step 2: Cut motor reached ");
+        Serial.print(CUT_TRAVEL_DISTANCE - ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES);
+        Serial.println(" inches - extending rotation clamp early.");
     }
     
-    // Check if servo should be activated based on cut motor position
-    if (cutMotor && cutMotor->isRunning() && !rotationServoIsActiveAndTiming) {
-        // Calculate servo activation position: travel distance minus servo early activation offset
-        float servoActivationPositionInches = CUT_TRAVEL_DISTANCE - ROTATION_SERVO_EARLY_ACTIVATION_OFFSET_INCHES;
-        long servoActivationPositionSteps = servoActivationPositionInches * CUT_MOTOR_STEPS_PER_INCH;
-        long currentPosition = cutMotor->getCurrentPosition();
-        
-        if (currentPosition >= servoActivationPositionSteps) {
-            activateRotationServo();
-            Serial.print("Cutting Step 2: Cut motor reached ");
-            Serial.print(servoActivationPositionInches);
-            Serial.println(" inches - activating rotation servo early.");
-        }
+    // Early Rotation Servo Activation (matching old catcher servo logic)
+    if (!rotationServoActivatedThisCycle && cutMotor &&
+        cutMotor->getCurrentPosition() >= ((CUT_TRAVEL_DISTANCE - ROTATION_SERVO_EARLY_ACTIVATION_OFFSET_INCHES) * CUT_MOTOR_STEPS_PER_INCH)) {
+        Serial.println("Cutting Step 2: Activating Rotation Servo (early).");
+        activateRotationServo();
+        rotationServoActivatedThisCycle = true;
+        Serial.print("Cutting Step 2: Cut motor reached ");
+        Serial.print(CUT_TRAVEL_DISTANCE - ROTATION_SERVO_EARLY_ACTIVATION_OFFSET_INCHES);
+        Serial.println(" inches - activating rotation servo early.");
     }
     
     // Check if motor finished moving to cut position

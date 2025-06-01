@@ -48,10 +48,11 @@ void IdleState::execute(StateManager& stateManager) {
 }
 
 void IdleState::onEnter(StateManager& stateManager) {
-    // Maintain clamp states: secure wood clamp extended, feed clamp retracted
+    // Maintain clamp states: secure wood clamp extended, feed clamp retracted, rotation clamp retracted
     extend2x4SecureClamp();
     retractFeedClamp();
-    Serial.println("Idle: Secure wood clamp extended, feed clamp retracted");
+    retractRotationClamp(); // Ensure rotation clamp is retracted in IDLE state
+    Serial.println("Idle: Secure wood clamp extended, feed clamp retracted, rotation clamp retracted");
 }
 
 void IdleState::handleReloadModeLogic(StateManager& stateManager) {
@@ -114,7 +115,6 @@ void IdleState::checkStartConditions(StateManager& stateManager) {
         
         extendFeedClamp();
         extend2x4SecureClamp();
-        extendRotationClamp(); // Extend rotation clamp at start of cutting cycle
         
         if (!_2x4Present) {
             turnBlueLedOn();
