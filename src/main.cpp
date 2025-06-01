@@ -106,6 +106,7 @@ void setup() {
   pinMode(WOOD_SUCTION_CONFIRM_SENSOR, INPUT_PULLUP);
   
   pinMode(ROTATION_CLAMP, OUTPUT);
+  pinMode(FEED_CLAMP, OUTPUT);
   pinMode(_2x4_SECURE_CLAMP, OUTPUT);
   
   pinMode(STATUS_LED_RED, OUTPUT);
