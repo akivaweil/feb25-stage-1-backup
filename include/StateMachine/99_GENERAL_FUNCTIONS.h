@@ -121,7 +121,7 @@ extern bool startSwitchSafe;
 extern unsigned long lastBlinkTime;
 extern unsigned long lastErrorBlinkTime;
 extern unsigned long errorStartTime;
-extern unsigned long positionMoveStartTime;
+extern unsigned long feedMoveStartTime;
 
 // LED states for blinking
 extern bool blinkState;
@@ -182,7 +182,7 @@ void moveFeedMotorToHome();
 void moveFeedMotorToPostCutHome();  // New function for post-cut positioning
 void moveFeedMotorToPosition(float targetPositionInches);
 void stopCutMotor();
-void stopPositionMotor();
+void stopFeedMotor();
 void homeCutMotorBlocking(Bounce& homingSwitch, unsigned long timeout);
 void homeFeedMotorBlocking(Bounce& homingSwitch);
 void moveFeedMotorToInitialAfterHoming();
