@@ -19,13 +19,12 @@ enum SystemState {
   STARTUP,
   HOMING,
   IDLE,
-  FIRSTCUT,
-  PUSHWOOD_FORWARD,
+  FEED_FIRST_CUT,
+  FEED_WOOD_FWD_ONE,
   CUTTING,
-  NOWOOD,
-  YESWOOD,
+  Yes_2x4,
+  No_2x4,
   RETURNING,
-  POSITIONING,
   ERROR,
   ERROR_RESET,
   SUCTION_ERROR_HOLD
@@ -41,31 +40,31 @@ extern const int FEED_MOTOR_HOME_SWITCH;
 extern const int RELOAD_SWITCH;
 extern const int START_CYCLE_SWITCH;
 extern const int MANUAL_FEED_SWITCH;
-extern const int WOOD_PRESENT_SENSOR;
+extern const int _2x4_PRESENT_SENSOR;
 extern const int WOOD_SUCTION_CONFIRM_SENSOR;
 extern const int FEED_CLAMP;
 extern const int WOOD_SECURE_CLAMP;
-extern const int CATCHER_CLAMP;
+extern const int ROTATION_CLAMP;
 extern const int TRANSFER_ARM_SIGNAL_PIN;
 extern const int STATUS_LED_RED;
 extern const int STATUS_LED_YELLOW;
 extern const int STATUS_LED_GREEN;
 extern const int STATUS_LED_BLUE;
 
-// Extern declarations for catcher servo pin
-extern const int CATCHER_SERVO_PIN;
+// Extern declarations for rotation servo pin
+extern const int ROTATION_SERVO_PIN;
 
-// Extern declarations for catcher servo position constants
-extern const int CATCHER_SERVO_HOME_POSITION;
-extern const int CATCHER_SERVO_ACTIVE_POSITION;
+// Extern declarations for rotation servo position constants
+extern const int ROTATION_SERVO_HOME_POSITION;
+extern const int ROTATION_SERVO_ACTIVE_POSITION;
 
 // Extern declarations for global variables from "Stage 1 Feb25.cpp"
 extern SystemState currentState;
-extern Servo catcherServo;
-extern unsigned long catcherServoActiveStartTime;
-extern bool catcherServoIsActiveAndTiming;
-extern unsigned long catcherClampExtendTime;
-extern bool catcherClampIsExtended;
+extern Servo rotationServo;
+extern unsigned long rotationServoActiveStartTime;
+extern bool rotationServoIsActiveAndTiming;
+extern unsigned long rotationClampExtendTime;
+extern bool rotationClampIsExtended;
 extern unsigned long signalTAStartTime; // For Transfer Arm signal
 extern bool signalTAActive; // For Transfer Arm signal
 
@@ -75,9 +74,9 @@ extern FastAccelStepper *positionMotor;
 
 // Extern declarations for motor configuration constants
 extern const int CUT_MOTOR_STEPS_PER_INCH;
-extern const int POSITION_MOTOR_STEPS_PER_INCH;
+extern const int FEED_MOTOR_STEPS_PER_INCH;
 extern const float CUT_TRAVEL_DISTANCE;
-extern const float POSITION_TRAVEL_DISTANCE;
+extern const float FEED_TRAVEL_DISTANCE;
 
 // Extern declarations for speed and acceleration settings
 extern const float CUT_MOTOR_NORMAL_SPEED;
@@ -85,21 +84,21 @@ extern const float CUT_MOTOR_NORMAL_ACCELERATION;
 extern const float CUT_MOTOR_RETURN_SPEED;
 extern const float CUT_MOTOR_HOMING_SPEED;
 
-extern const float POSITION_MOTOR_NORMAL_SPEED;
-extern const float POSITION_MOTOR_NORMAL_ACCELERATION;
-extern const float POSITION_MOTOR_RETURN_SPEED;
-extern const float POSITION_MOTOR_RETURN_ACCELERATION;
-extern const float POSITION_MOTOR_HOMING_SPEED;
+extern const float FEED_MOTOR_NORMAL_SPEED;
+extern const float FEED_MOTOR_NORMAL_ACCELERATION;
+extern const float FEED_MOTOR_RETURN_SPEED;
+extern const float FEED_MOTOR_RETURN_ACCELERATION;
+extern const float FEED_MOTOR_HOMING_SPEED;
 
 // Additional constants
 extern const float CUT_MOTOR_INCREMENTAL_MOVE_INCHES;
 extern const float CUT_MOTOR_MAX_INCREMENTAL_MOVE_INCHES;
 extern const unsigned long CUT_HOME_TIMEOUT;
-extern const float CATCHER_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES;
+extern const float ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES;
 
 // Constants
-extern const unsigned long CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS;
-extern const unsigned long CATCHER_CLAMP_EXTEND_DURATION_MS;
+extern const unsigned long ROTATION_SERVO_ACTIVE_HOLD_DURATION_MS;
+extern const unsigned long ROTATION_CLAMP_EXTEND_DURATION_MS;
 extern const unsigned long TA_SIGNAL_DURATION; // Duration for TA signal
 
 // Switch objects
@@ -112,7 +111,7 @@ extern Bounce fixPositionSwitch;
 
 // System flags
 extern bool isReloadMode;
-extern bool woodPresent; // Read in main loop, used in conditions
+extern bool _2x4Present; // Read in main loop, used in conditions
 extern bool woodSuctionError;
 extern bool errorAcknowledged;
 extern bool cuttingCycleInProgress;
@@ -146,9 +145,9 @@ void extendFeedClamp();
 void retractFeedClamp();
 void extendWoodSecureClamp();
 void retractWoodSecureClamp();
-void extendCatcherClamp();
-void retractCatcherClamp();
-void handleCatcherClampRetract(); // Point 4
+void extendRotationClamp();
+void retractRotationClamp();
+void handleRotationClampRetract(); // Point 4
 
 //* ************************************************************************
 //* *************************** LED FUNCTIONS ******************************
@@ -181,7 +180,7 @@ void moveCutMotorToCut();
 void moveCutMotorToHome();
 void movePositionMotorToTravel();
 void movePositionMotorToHome();
-void movePositionMotorToYesWoodHome();  // New function for YES_WOOD mode
+void movePositionMotorToYes2x4Home();  // New function for Yes_2x4 mode
 void movePositionMotorToPosition(float targetPositionInches);
 void stopCutMotor();
 void stopPositionMotor();
@@ -206,8 +205,8 @@ void handleStartSwitchContinuousMode(); // Continuous mode from main loop
 // Point 3: Complex conditional logic
 bool shouldStartCycle();
 // Point 4
-void activateCatcherServo();
-void handleCatcherServoReturn();
+void activateRotationServo();
+void handleRotationServoReturn();
 
 //* ************************************************************************
 //* ************************* ERROR STATE FUNCTIONS ************************

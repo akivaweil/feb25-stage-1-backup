@@ -9,7 +9,7 @@
 // Step 1: Blink blue LED to indicate homing in progress.
 // Step 2: Home the cut motor (blocking). If fails, it might retry or transition to ERROR (currently retries).
 // Step 3: If cut motor homed, home the position motor (blocking). Retract feed clamp before homing.
-// Step 4: If position motor homed, move position motor to POSITION_TRAVEL_DISTANCE (blocking). Re-extend feed clamp.
+// Step 4: If position motor homed, move position motor to FEED_TRAVEL_DISTANCE (blocking). Re-extend feed clamp.
 // Step 5: If all homing and initial positioning are complete, set isHomed flag to true.
 // Step 6: Turn off blue LED, turn on green LED.
 // Step 7: Ensure servo is at 2 degrees.
@@ -58,10 +58,10 @@ void HomingState::execute(StateManager& stateManager) {
         Serial.println("Feed clamp re-extended.");
         movePositionMotorToTravel();
         while(stateManager.getPositionMotor()->isRunning()){
-            // Wait for position motor to reach POSITION_TRAVEL_DISTANCE
+            // Wait for position motor to reach FEED_TRAVEL_DISTANCE
         }
         positionMotorMoved = true;
-        Serial.println("Position motor moved to POSITION_TRAVEL_DISTANCE (blocking complete).");
+        Serial.println("Position motor moved to FEED_TRAVEL_DISTANCE (blocking complete).");
     } else {
         Serial.println("Homing sequence complete. System ready."); 
         cutMotorHomed = false; 
@@ -75,7 +75,7 @@ void HomingState::execute(StateManager& stateManager) {
         turnGreenLedOn();
 
         // Set initial servo position via function call
-        handleCatcherServoReturn();
+        handleRotationServoReturn();
         stateManager.changeState(IDLE);
     }
 } 

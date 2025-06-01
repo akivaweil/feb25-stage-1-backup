@@ -65,26 +65,26 @@ void CuttingState::execute(StateManager& stateManager) {
 void CuttingState::handleCuttingStep0(StateManager& stateManager) {
     Serial.println("Cutting Step 0: Starting cut motion."); 
     moveCutMotorToCut();
-    catcherClampActivatedThisCycle = false; // Reset for this cut cycle
+    rotationClampActivatedThisCycle = false; // Reset for this cut cycle
     cuttingStep = 1;
 }
 
 void CuttingState::handleCuttingStep1(StateManager& stateManager) {
-    // CUTTING (Step 1): Delay 1000ms, activate catcher servo for 3 seconds, then check WAS_WOOD_SUCTIONED_SENSOR
+    // CUTTING (Step 1): Delay 1000ms, activate rotation servo for 3 seconds, then check WAS_WOOD_SUCTIONED_SENSOR
     extern const int WOOD_SUCTION_CONFIRM_SENSOR; // From main.cpp
-    extern const unsigned long CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS; // From main.cpp
+    extern const unsigned long ROTATION_SERVO_ACTIVE_HOLD_DURATION_MS; // From main.cpp
     
     if (stepStartTime == 0) {
         stepStartTime = millis();
-        Serial.println("Cutting Step 1: Delaying 1000ms then activating catcher servo.");
+        Serial.println("Cutting Step 1: Delaying 1000ms then activating rotation servo.");
     }
 
-    if (millis() - stepStartTime >= 1000 && !catcherServoIsActiveAndTiming) {
-        activateCatcherServo(); // The function sets timing flags
-        Serial.println("Cutting Step 1: Catcher servo activated for 3 seconds.");
+    if (millis() - stepStartTime >= 1000 && !rotationServoIsActiveAndTiming) {
+        activateRotationServo(); // The function sets timing flags
+        Serial.println("Cutting Step 1: Rotation servo activated for 3 seconds.");
     }
 
-    if (catcherServoIsActiveAndTiming && millis() - stepStartTime >= 1000 + CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS) {
+    if (rotationServoIsActiveAndTiming && millis() - stepStartTime >= 1000 + ROTATION_SERVO_ACTIVE_HOLD_DURATION_MS) {
         if (digitalRead(WOOD_SUCTION_CONFIRM_SENSOR) == LOW) { // LOW means NO SUCTION (Error condition)
             Serial.println("Cutting Step 1: WAS_WOOD_SUCTIONED_SENSOR is LOW (No Suction). Error detected. Transitioning to SUCTION_ERROR_HOLD state.");
             stateManager.changeState(SUCTION_ERROR_HOLD);
@@ -103,7 +103,7 @@ void CuttingState::handleCuttingStep1(StateManager& stateManager) {
 
 void CuttingState::handleCuttingStep2(StateManager& stateManager) {
     FastAccelStepper* cutMotor = stateManager.getCutMotor();
-    extern const int WOOD_PRESENT_SENSOR; // From main.cpp
+    extern const int _2x4_PRESENT_SENSOR; // From main.cpp
     
     // Check if motor finished moving to cut position
     if (cutMotor && !cutMotor->isRunning()) {
@@ -111,17 +111,15 @@ void CuttingState::handleCuttingStep2(StateManager& stateManager) {
         sendSignalToTA(); // Signal to Transfer Arm
         configureCutMotorForReturn();
 
-        int sensorValue = digitalRead(WOOD_PRESENT_SENSOR);
-        bool noWoodDetected = (sensorValue == HIGH);
+        int sensorValue = digitalRead(_2x4_PRESENT_SENSOR);
+        bool no2x4Detected = (sensorValue == HIGH);
         
-        if (noWoodDetected) {
-            Serial.println("Cutting Step 2: NO_WOOD state - Wood sensor reads HIGH. Transitioning to NOWOOD state.");
-            stateManager.changeState(NOWOOD);
-            resetSteps();
+        if (no2x4Detected) {
+            Serial.println("Cutting Step 2: No_2x4 state - 2x4 sensor reads HIGH. Transitioning to No_2x4 state.");
+            stateManager.changeState(No_2x4);
         } else {
-            Serial.println("Cutting Step 2: YES_WOOD state - Wood sensor reads LOW. Transitioning to YESWOOD state.");
-            stateManager.changeState(YESWOOD);
-            resetSteps();
+            Serial.println("Cutting Step 2: Yes_2x4 state - 2x4 sensor reads LOW. Transitioning to Yes_2x4 state.");
+            stateManager.changeState(Yes_2x4);
         }
     }
 }
@@ -147,7 +145,7 @@ void CuttingState::handleCuttingStep4(StateManager& stateManager) {
     extern const float CUT_MOTOR_INCREMENTAL_MOVE_INCHES; // From main.cpp
     extern const float CUT_MOTOR_MAX_INCREMENTAL_MOVE_INCHES; // From main.cpp
     extern const int CUT_MOTOR_STEPS_PER_INCH; // From main.cpp
-    extern const float POSITION_TRAVEL_DISTANCE; // From main.cpp
+    extern const float FEED_TRAVEL_DISTANCE; // From main.cpp
     
     if (positionMotor && !positionMotor->isRunning()) {
         retractFeedClamp();
@@ -192,7 +190,7 @@ void CuttingState::handleCuttingStep4(StateManager& stateManager) {
             } else {
                 Serial.println("Cut motor position switch confirmed home. Moving position motor to final position.");
                 cutMotorIncrementalMoveTotalInches = 0.0; // Reset on success
-                movePositionMotorToPosition(POSITION_TRAVEL_DISTANCE);
+                movePositionMotorToPosition(FEED_TRAVEL_DISTANCE);
                 cuttingStep = 5; 
             }
         }
@@ -219,17 +217,17 @@ void CuttingState::handleCuttingStep5(StateManager& stateManager) {
 
 void CuttingState::handleCuttingStep8_PositionMotorHomingSequence(StateManager& stateManager) {
     FastAccelStepper* positionMotor = stateManager.getPositionMotor();
-    extern const float POSITION_MOTOR_HOMING_SPEED; // From main.cpp
-    extern const float POSITION_TRAVEL_DISTANCE; // From main.cpp
-    extern const int POSITION_MOTOR_STEPS_PER_INCH; // From main.cpp
+    extern const float FEED_MOTOR_HOMING_SPEED; // From main.cpp
+    extern const float FEED_TRAVEL_DISTANCE; // From main.cpp
+    extern const int FEED_MOTOR_STEPS_PER_INCH; // From main.cpp
     
     // Non-blocking position motor homing sequence
     switch (cuttingSubStep8) {
         case 0: // Start homing - move toward home switch
             Serial.println("Position Motor Homing Step 8.0: Moving toward home switch.");
             if (positionMotor) {
-                positionMotor->setSpeedInHz((uint32_t)POSITION_MOTOR_HOMING_SPEED);
-                positionMotor->moveTo(10000 * POSITION_MOTOR_STEPS_PER_INCH); // Large positive move toward switch
+                positionMotor->setSpeedInHz((uint32_t)FEED_MOTOR_HOMING_SPEED);
+                positionMotor->moveTo(10000 * FEED_MOTOR_STEPS_PER_INCH); // Large positive move toward switch
             }
             cuttingSubStep8 = 1;
             break;
@@ -240,7 +238,7 @@ void CuttingState::handleCuttingStep8_PositionMotorHomingSequence(StateManager& 
                 Serial.println("Position Motor Homing Step 8.1: Home switch triggered. Stopping motor.");
                 if (positionMotor) {
                     positionMotor->stopMove();
-                    positionMotor->setCurrentPosition(POSITION_TRAVEL_DISTANCE * POSITION_MOTOR_STEPS_PER_INCH);
+                    positionMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
                 }
                 Serial.println("Position motor hit home switch.");
                 cuttingSubStep8 = 2;
@@ -250,7 +248,7 @@ void CuttingState::handleCuttingStep8_PositionMotorHomingSequence(StateManager& 
         case 2: // Wait for motor to stop, then move to -0.2 inch from switch
             if (positionMotor && !positionMotor->isRunning()) {
                 Serial.println("Position Motor Homing Step 8.2: Moving to -0.2 inch from home switch to establish working zero.");
-                positionMotor->moveTo(POSITION_TRAVEL_DISTANCE * POSITION_MOTOR_STEPS_PER_INCH - 0.1 * POSITION_MOTOR_STEPS_PER_INCH);
+                positionMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH - 0.1 * FEED_MOTOR_STEPS_PER_INCH);
                 cuttingSubStep8 = 3;
             }
             break;
@@ -258,7 +256,7 @@ void CuttingState::handleCuttingStep8_PositionMotorHomingSequence(StateManager& 
         case 3: // Wait for positioning move to complete, then set new zero
             if (positionMotor && !positionMotor->isRunning()) {
                 Serial.println("Position Motor Homing Step 8.3: Setting new working zero position.");
-                positionMotor->setCurrentPosition(POSITION_TRAVEL_DISTANCE * POSITION_MOTOR_STEPS_PER_INCH); // Set this position as the new zero
+                positionMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH); // Set this position as the new zero
                 Serial.println("Position motor homed: 0.2 inch from switch set as position 0.");
                 
                 configurePositionMotorForNormalOperation();
@@ -327,8 +325,8 @@ void CuttingState::resetSteps() {
     signalStartTime = 0;
     signalActive = false;
     homePositionErrorDetected = false;
-    catcherClampActivatedThisCycle = false;
-    catcherServoActivatedThisCycle = false;
+    rotationClampActivatedThisCycle = false;
+    rotationServoActivatedThisCycle = false;
     cutMotorIncrementalMoveTotalInches = 0.0;
     cuttingSubStep8 = 0; // Reset position motor homing substep
 } 

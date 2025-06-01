@@ -7,16 +7,28 @@
 //* ************************************************************************
 // Handles the idle state, awaiting user input or automatic cycle start.
 // Maintains secure wood clamp extended and feed clamp retracted.
-// Checks for pushwood forward switch press to transition to FirstCut state.
+// Checks for pushwood forward switch press to transition to FeedFirstCut state.
 // If not in reload mode:
 //   Step 1: Turn on green LED to indicate system is idle.
-//   Step 2: Check for pushwood forward switch press AND wood sensor high to start FirstCut.
-//   Step 3: Check for start cycle conditions:
+//   Step 2: Check for pushwood forward switch press AND 2x4 sensor high to start FeedFirstCut.
+//           - AND Reload mode is not active.
+//           - AND Start cycle switch safety is not active.
+//           - AND Wood suction error is not present.
+//
+//   Additional behavior:
+//   Step 3: Check for fix position button press and 2x4 sensor state:
+//           - If high, transition to FeedFirstCut state.
+//           - If low, transition to FeedWoodFwdOne state.
+//
+//   Loop maintenance:
+//           - Ensure position and wood secure clamps are engaged.
+//           - If no 2x4 is detected, turn on blue LED for NO_WOOD mode indication.
+//   Step 4: Check for start cycle conditions:
 //           - Start switch just flipped ON (rising edge).
 //           - OR Continuous mode active AND not already in a cutting cycle.
 //           - AND Wood suction error is not present.
 //           - AND Start switch is safe to use (wasn't ON at startup or has been cycled).
-//   Step 4: If start conditions met:
+//   Step 5: If start conditions met:
 //           - Turn off green LED, turn on yellow LED.
 //           - Set cuttingCycleInProgress flag to true.
 //           - Transition to CUTTING state.
@@ -28,7 +40,7 @@ void IdleState::execute(StateManager& stateManager) {
     // Handle reload mode logic first
     handleReloadModeLogic(stateManager);
     
-    // Check for FirstCut conditions if not in reload mode
+    // Check for FeedFirstCut conditions if not in reload mode
     if (!stateManager.getIsReloadMode()) {
         checkFirstCutConditions(stateManager);
         checkStartConditions(stateManager);
@@ -63,29 +75,29 @@ void IdleState::handleReloadModeLogic(StateManager& stateManager) {
 }
 
 void IdleState::checkFirstCutConditions(StateManager& stateManager) {
-    // Check for pushwood forward switch press AND wood sensor HIGH
+    // Check for pushwood forward switch press AND 2x4 sensor HIGH
     extern Bounce pushwoodForwardSwitch;
     extern Bounce fixPositionSwitch;
-    extern const int WOOD_PRESENT_SENSOR;
+    extern const int _2x4_PRESENT_SENSOR;
     bool pushwoodPressed = pushwoodForwardSwitch.rose();
     bool fixPositionPressed = fixPositionSwitch.rose();
-    bool woodSensorHigh = (digitalRead(WOOD_PRESENT_SENSOR) == HIGH);
-    bool woodSensorLow = (digitalRead(WOOD_PRESENT_SENSOR) == LOW);
+    bool _2x4SensorHigh = (digitalRead(_2x4_PRESENT_SENSOR) == HIGH);
+    bool _2x4SensorLow = (digitalRead(_2x4_PRESENT_SENSOR) == LOW);
     
-    if (pushwoodPressed && woodSensorHigh) {
-        Serial.println("Idle: Pushwood forward switch pressed with wood sensor HIGH - transitioning to FIRSTCUT");
-        stateManager.changeState(FIRSTCUT);
+    if (pushwoodPressed && _2x4SensorHigh) {
+        Serial.println("Idle: Pushwood forward switch pressed with 2x4 sensor HIGH - transitioning to FEED_FIRST_CUT");
+        stateManager.changeState(FEED_FIRST_CUT);
     }
-    else if (fixPositionPressed && woodSensorHigh) {
-        Serial.println("Idle: Fix position button pressed with wood sensor HIGH - transitioning to FIRSTCUT");
-        stateManager.changeState(FIRSTCUT);
+    else if (fixPositionPressed && _2x4SensorHigh) {
+        Serial.println("Idle: Fix position button pressed with 2x4 sensor HIGH - transitioning to FEED_FIRST_CUT");
+        stateManager.changeState(FEED_FIRST_CUT);
     }
-    else if (fixPositionPressed && woodSensorLow) {
-        Serial.println("Idle: Fix position button pressed with wood sensor LOW - transitioning to PUSHWOOD_FORWARD");
-        stateManager.changeState(PUSHWOOD_FORWARD);
+    else if (fixPositionPressed && _2x4SensorLow) {
+        Serial.println("Idle: Fix position button pressed with 2x4 sensor LOW - transitioning to FEED_WOOD_FWD_ONE");
+        stateManager.changeState(FEED_WOOD_FWD_ONE);
     }
-    else if (pushwoodPressed && woodSensorLow) {
-        Serial.println("Idle: Pushwood forward switch pressed with wood sensor LOW - executing pushwood forward action");
+    else if (pushwoodPressed && _2x4SensorLow) {
+        Serial.println("Idle: Pushwood forward switch pressed with 2x4 sensor LOW - executing pushwood forward action");
         // TODO: Add pushwood forward action here (what should this do?)
         // For now, just log the action
     }
@@ -99,7 +111,7 @@ void IdleState::checkStartConditions(StateManager& stateManager) {
     bool cuttingCycleInProgress = stateManager.getCuttingCycleInProgress();
     bool woodSuctionError = stateManager.getWoodSuctionError();
     bool startSwitchSafe = stateManager.getStartSwitchSafe();
-    bool woodPresent = stateManager.getWoodPresent();
+    bool _2x4Present = stateManager.get2x4Present();
     
     if (((startCycleRose || (continuousModeActive && !cuttingCycleInProgress)) 
         && !woodSuctionError) && startSwitchSafe) {
@@ -114,7 +126,7 @@ void IdleState::checkStartConditions(StateManager& stateManager) {
         extendFeedClamp();
         extendWoodSecureClamp();
         
-        if (!woodPresent) {
+        if (!_2x4Present) {
             turnBlueLedOn();
         }
     }

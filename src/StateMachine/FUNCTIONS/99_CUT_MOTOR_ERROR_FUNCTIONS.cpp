@@ -72,11 +72,11 @@ CutMotorHomeErrorResult createWarningOnlyResult(const String& message) {
 //! REAL-TIME HOME SENSOR MONITORING SYSTEM
 // ========================================================================
 
-//! REAL-TIME CUT MOTOR HOME DETECTION DURING YES-WOOD RETURN
+//! REAL-TIME CUT MOTOR HOME DETECTION DURING Yes_2x4 RETURN
 //! This function provides continuous monitoring of the cut motor home sensor
-//! during YES_WOOD return sequences, implementing controlled deceleration
+//! during Yes_2x4 return sequences, implementing controlled deceleration
 //! instead of abrupt stops for reliable sensor engagement.
-void performCutMotorRealTimeHomeSensorCheck(FastAccelStepper* cutMotor, Bounce& cutHomingSwitch, bool& cutMotorInYesWoodReturn) {
+void performCutMotorRealTimeHomeSensorCheck(FastAccelStepper* cutMotor, Bounce& cutHomingSwitch, bool& cutMotorInYes2x4Return) {
     
     //! STATE MACHINE FOR CONTROLLED HOME DETECTION
     static enum {
@@ -92,15 +92,15 @@ void performCutMotorRealTimeHomeSensorCheck(FastAccelStepper* cutMotor, Bounce& 
     const float DECELERATION_DISTANCE_INCHES = 0.2; // Maximum 0.2 inch deceleration distance
     const unsigned long SENSOR_VERIFICATION_DELAY_MS = 30; // 30ms sensor stabilization delay
     
-    //! ONLY ACTIVE DURING YES_WOOD RETURN SEQUENCES
-    if (cutMotorInYesWoodReturn && cutMotor) {
+    //! ONLY ACTIVE DURING Yes_2x4 RETURN SEQUENCES
+    if (cutMotorInYes2x4Return && cutMotor) {
         switch (realTimeCheckState) {
             
             //! MONITORING PHASE - Watch for home sensor activation during movement
             case MONITORING:
                 if (cutMotor->isRunning() && cutHomingSwitch.read() == HIGH) {
                     //! HOME SENSOR DETECTED DURING MOVEMENT!
-                    Serial.println("REAL-TIME DETECTION: Cut motor hit homing sensor during YES_WOOD return - beginning controlled deceleration...");
+                    Serial.println("REAL-TIME DETECTION: Cut motor hit homing sensor during Yes_2x4 return - beginning controlled deceleration...");
                     
                     //! Calculate safe target position for controlled stop
                     // Move further toward home (more negative) to ensure sensor is firmly pressed
@@ -152,22 +152,22 @@ void performCutMotorRealTimeHomeSensorCheck(FastAccelStepper* cutMotor, Bounce& 
                 if (cutHomingSwitch.read() == HIGH) {
                     //! SUCCESSFUL HOME DETECTION WITH STABLE CONTACT
                     cutMotor->setCurrentPosition(0); // Recalibrate position to home
-                    cutMotorInYesWoodReturn = false;  // Clear the YES_WOOD return flag
+                    cutMotorInYes2x4Return = false;  // Clear the Yes_2x4 return flag
                     Serial.println("SUCCESS: Home sensor verified as stable after 30ms delay.");
-                    Serial.println("Cut motor position recalibrated to 0, YES_WOOD return flag cleared.");
+                    Serial.println("Cut motor position recalibrated to 0, Yes_2x4 return flag cleared.");
                 } else {
                     //! FALSE TRIGGER OR INSUFFICIENT CONTACT
                     Serial.println("WARNING: Home sensor not active after 30ms verification delay.");
                     Serial.println("This was likely a false trigger or insufficient contact. Motor will continue movement.");
-                    //? Note: cutMotorInYesWoodReturn flag remains true so movement can continue
+                    //? Note: cutMotorInYes2x4Return flag remains true so movement can continue
                 }
                 realTimeCheckState = MONITORING; // Return to monitoring state
                 break;
         }
     } else {
-        //! RESET STATE MACHINE when not in YES_WOOD return mode
+        //! RESET STATE MACHINE when not in Yes_2x4 return mode
         if (realTimeCheckState != MONITORING) {
-            Serial.println("Real-time check state reset - exiting YES_WOOD return mode");
+            Serial.println("Real-time check state reset - exiting Yes_2x4 return mode");
             realTimeCheckState = MONITORING;
         }
     }

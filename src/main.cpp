@@ -22,11 +22,11 @@
 // Pin definitions and configuration constants are now in Config/ header files
 
 // Timing variables (constants moved to Config/system_config.h)
-unsigned long catcherServoActiveStartTime = 0;
-bool catcherServoIsActiveAndTiming = false;
+unsigned long rotationServoActiveStartTime = 0;
+bool rotationServoIsActiveAndTiming = false;
 
-unsigned long catcherClampExtendTime = 0;
-bool catcherClampIsExtended = false;
+unsigned long rotationClampExtendTime = 0;
+bool rotationClampIsExtended = false;
 
 // SystemStates Enum is now in Functions.h
 SystemState currentState = STARTUP;
@@ -42,7 +42,7 @@ FastAccelStepper *cutMotor = NULL;
 FastAccelStepper *positionMotor = NULL;
 
 // Servo object
-Servo catcherServo;
+Servo rotationServo;
 
 // Bounce objects for debouncing switches
 Bounce cutHomingSwitch = Bounce();
@@ -55,7 +55,7 @@ Bounce fixPositionSwitch = Bounce();
 // System flags
 bool isHomed = false;
 bool isReloadMode = false;
-bool woodPresent = false;
+bool _2x4Present = false;
 bool woodSuctionError = false;
 bool errorAcknowledged = false;
 bool cuttingCycleInProgress = false;
@@ -76,8 +76,8 @@ bool errorBlinkState = false;
 unsigned long signalTAStartTime = 0; // For Transfer Arm signal
 bool signalTAActive = false;      // For Transfer Arm signal
 
-// New flag to track cut motor return during YES_WOOD mode
-bool cutMotorInYesWoodReturn = false;
+// New flag to track cut motor return during Yes_2x4 mode
+bool cutMotorInYes2x4Return = false;
 
 // Additional variables needed by states - declarations moved to above
 
@@ -104,12 +104,11 @@ void setup() {
   pinMode(MANUAL_FEED_SWITCH, INPUT_PULLDOWN);
   pinMode(FEED_POSITION_LOCK_BUTTON, INPUT_PULLDOWN);
   
-  pinMode(WOOD_PRESENT_SENSOR, INPUT_PULLUP);
+  pinMode(_2x4_PRESENT_SENSOR, INPUT_PULLUP);
   pinMode(WOOD_SUCTION_CONFIRM_SENSOR, INPUT_PULLUP);
   
-  pinMode(FEED_CLAMP, OUTPUT);
+  pinMode(ROTATION_CLAMP, OUTPUT);
   pinMode(WOOD_SECURE_CLAMP, OUTPUT);
-  pinMode(CATCHER_CLAMP, OUTPUT);
   
   pinMode(STATUS_LED_RED, OUTPUT);
   pinMode(STATUS_LED_YELLOW, OUTPUT);
@@ -122,7 +121,7 @@ void setup() {
   //! Initialize clamps and LEDs
   extendFeedClamp();
   extendWoodSecureClamp();
-  retractCatcherClamp();
+  retractRotationClamp();
   allLedsOff();
   turnBlueLedOn();
   
@@ -167,8 +166,8 @@ void setup() {
   }
   
   //! Initialize servo
-  catcherServo.setTimerWidth(14);
-  catcherServo.attach(CATCHER_SERVO_PIN);
+  rotationServo.setTimerWidth(14);
+  rotationServo.attach(ROTATION_SERVO_PIN);
   
   //! Configure initial state
   currentState = STARTUP;

@@ -23,8 +23,8 @@ private:
     unsigned long signalStartTime = 0;
     bool signalActive = false;
     bool homePositionErrorDetected = false;
-    bool catcherClampActivatedThisCycle = false;
-    bool catcherServoActivatedThisCycle = false;
+    bool rotationClampActivatedThisCycle = false;
+    bool rotationServoActivatedThisCycle = false;
     float cutMotorIncrementalMoveTotalInches = 0.0;
     int cuttingSubStep8 = 0; // For position motor homing sequence
     

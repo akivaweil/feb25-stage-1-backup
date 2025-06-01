@@ -37,7 +37,7 @@ CutMotorHomeErrorResult createWarningOnlyResult(const String& message);
 void performCutMotorRealTimeHomeSensorCheck(
     FastAccelStepper* cutMotor, 
     Bounce& cutHomingSwitch, 
-    bool& cutMotorInYesWoodReturn
+    bool& cutMotorInYes2x4Return
 );
 
 // Home error detection with slow recovery capability

@@ -20,7 +20,7 @@ extern const int FEED_MOTOR_DIR_PIN;    // Direction control for feed motor
 //* ************************ SERVO PINS ***********************************
 //* ************************************************************************
 // Servo control pins
-extern const int CATCHER_SERVO_PIN;
+extern const int ROTATION_SERVO_PIN;
 
 //* ************************************************************************
 //* ************************ SWITCH & SENSOR PINS ************************
@@ -36,7 +36,7 @@ extern const int MANUAL_FEED_SWITCH;         // Manual wood feed control
 extern const int FEED_POSITION_LOCK_BUTTON;  // Lock wood feed position
 
 // Sensors (Active LOW - input pullup)
-extern const int WOOD_PRESENT_SENSOR;
+extern const int _2x4_PRESENT_SENSOR;
 extern const int WOOD_SUCTION_CONFIRM_SENSOR;  // Confirms wood is secured by suction
 
 //* ************************************************************************
@@ -45,7 +45,7 @@ extern const int WOOD_SUCTION_CONFIRM_SENSOR;  // Confirms wood is secured by su
 // Pneumatic clamp control pins (HIGH = extend, LOW = retract)
 extern const int FEED_CLAMP;      // Clamps wood during feed positioning
 extern const int WOOD_SECURE_CLAMP;    // Secures wood during cutting
-extern const int CATCHER_CLAMP;        // Clamps cut pieces in catcher
+extern const int ROTATION_CLAMP;        // Clamps cut pieces for rotation
 
 //* ************************************************************************
 //* ************************ SIGNAL PINS **********************************
