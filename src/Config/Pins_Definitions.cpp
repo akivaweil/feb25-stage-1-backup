@@ -10,53 +10,52 @@
 //* ************************ MOTOR PINS ***********************************
 //* ************************************************************************
 // Stepper motor control pins
-const int CUT_MOTOR_PULSE_PIN = 12;
-const int CUT_MOTOR_DIR_PIN = 11;
-const int POSITION_MOTOR_PULSE_PIN = 17;
-const int POSITION_MOTOR_DIR_PIN = 18;
+const int CUT_MOTOR_STEP_PIN = 12;         // Step pulse signal for cutting motor
+const int CUT_MOTOR_DIR_PIN = 11;          // Direction control for cutting motor
+const int FEED_MOTOR_STEP_PIN = 17;   // Step pulse signal for feed motor (pushes wood forward for angled cuts)
+const int FEED_MOTOR_DIR_PIN = 18;    // Direction control for feed motor
 
 //* ************************************************************************
 //* ************************ SERVO PINS ***********************************
 //* ************************************************************************
 // Servo control pins
-const int CATCHER_SERVO_PIN = 14;
+const int ROTATION_SERVO_PIN = 14;
 
 //* ************************************************************************
 //* ************************ SWITCH & SENSOR PINS ************************
 //* ************************************************************************
 // Homing switches (Active HIGH - input pulldown)
-const int CUT_MOTOR_HOMING_SWITCH = 3;
-const int POSITION_MOTOR_HOMING_SWITCH = 16;
+const int CUT_MOTOR_HOME_SWITCH = 3;
+const int FEED_MOTOR_HOME_SWITCH = 16;
 
 // Control switches (Active HIGH - input pulldown)
 const int RELOAD_SWITCH = 6;
 const int START_CYCLE_SWITCH = 5;
-const int PUSHWOOD_FORWARD_SWITCH = 7;
-const int FIX_POSITION_BUTTON = 41;
+const int MANUAL_FEED_SWITCH = 41;         // Manual wood feed control
 
 // Sensors (Active LOW - input pullup)
-const int WOOD_SENSOR = 10;
-const int WAS_WOOD_SUCTIONED_SENSOR = 39;
+const int _2x4_PRESENT_SENSOR = 10;
+const int WOOD_SUCTION_CONFIRM_SENSOR = 39;  // Confirms wood is secured by suction
 
 //* ************************************************************************
 //* ************************ CLAMP PINS ***********************************
 //* ************************************************************************
-// Pneumatic clamp control pins
-const int POSITION_CLAMP = 36;
-const int WOOD_SECURE_CLAMP = 48;
-const int CATCHER_CLAMP_PIN = 42;
+// Pneumatic clamp control pins (HIGH = extend, LOW = retract)
+const int FEED_CLAMP = 36;         // Clamps wood during feed positioning
+const int _2x4_SECURE_CLAMP = 48;       // Secures 2x4 during cutting
+const int ROTATION_CLAMP = 42;          // Clamps cut pieces for rotation
 
 //* ************************************************************************
 //* ************************ SIGNAL PINS **********************************
 //* ************************************************************************
 // Communication pins for external systems
-const int TA_SIGNAL_OUT_PIN = 8;  // Transfer Arm signal
+const int TRANSFER_ARM_SIGNAL_PIN = 8;  // Signal to Transfer Arm system
 
 //* ************************************************************************
 //* ************************ LED PINS *************************************
 //* ************************************************************************
 // Status indication LEDs
-const int RED_LED = 47;
-const int YELLOW_LED = 21;
-const int GREEN_LED = 37;
-const int BLUE_LED = 19; 
+const int STATUS_LED_RED = 47;      // Error/fault indication
+const int STATUS_LED_YELLOW = 21;   // Warning/caution indication
+const int STATUS_LED_GREEN = 37;    // Ready/operation OK indication
+const int STATUS_LED_BLUE = 19;     // Process active indication 

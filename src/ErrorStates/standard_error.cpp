@@ -10,14 +10,14 @@ extern void turnRedLedOff();
 extern void turnYellowLedOn();
 extern void turnYellowLedOff();
 extern void stopCutMotor();
-extern void stopPositionMotor();
+extern void stopFeedMotor();
 
 //* ************************************************************************
 //* ***************************** ERROR ************************************
 //* ************************************************************************
 // Handles system error states.
 // Step 1: Blink red and yellow LEDs to indicate an error.
-// Step 2: Ensure cut and position motors are stopped.
+// Step 2: Ensure cut and feed motors are stopped.
 // Step 3: Wait for the reload switch to be pressed (rising edge) to acknowledge the error.
 // Step 4: Once error is acknowledged, transition to ERROR_RESET state.
 void handleStandardErrorState() {
@@ -31,7 +31,7 @@ void handleStandardErrorState() {
     
     // Keep motors stopped
     stopCutMotor();
-    stopPositionMotor();
+    stopFeedMotor();
     
     // Wait for reload switch to acknowledge error
     if (errorAcknowledged) {

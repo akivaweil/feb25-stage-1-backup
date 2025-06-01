@@ -17,9 +17,9 @@ public:
 private:
     // Static variables for homing sequence tracking
     bool cutMotorHomed = false;
-    bool positionMotorHomed = false;
-    bool positionMotorMoved = false;
-    bool positionHomingPhaseInitiated = false;
+    bool feedMotorHomed = false;
+    bool feedMotorMoved = false;
+    bool feedHomingPhaseInitiated = false;
     unsigned long blinkTimer = 0;
 };
 

@@ -16,7 +16,7 @@ extern void turnBlueLedOff();
 //* ********************* SUCTION ERROR HOLD *******************************
 //* ************************************************************************
 // Handles waiting for user to reset a wood suction error via cycle switch.
-// This state is entered from CUTTING (Step 1) if the WAS_WOOD_SUCTIONED_SENSOR indicates an error (LOW).
+// This state is entered from CUTTING (Step 1) if the WOOD_SUCTION_CONFIRM_SENSOR indicates an error (LOW).
 // Step 1: Slowly blink the red LED (e.g., every 1.5 seconds).
 // Step 2: Ensure yellow, green, and blue LEDs are off.
 // Step 3: Monitor the start cycle switch.
@@ -30,7 +30,7 @@ void handleSuctionErrorHoldState() {
     static unsigned long lastSuctionErrorBlinkTime = 0;
     static bool suctionErrorBlinkState = false;
 
-    // Blink RED_LED every 1.5 seconds
+    // Blink STATUS_LED_RED every 1.5 seconds
     if (millis() - lastSuctionErrorBlinkTime >= 1500) {
         lastSuctionErrorBlinkTime = millis();
         suctionErrorBlinkState = !suctionErrorBlinkState;

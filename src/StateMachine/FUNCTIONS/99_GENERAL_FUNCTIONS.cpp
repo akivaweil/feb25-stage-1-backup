@@ -18,21 +18,21 @@
 
 void sendSignalToTA() {
   // Set the signal pin HIGH to trigger Transfer Arm (active HIGH)
-  digitalWrite(TA_SIGNAL_OUT_PIN, HIGH);
+  digitalWrite(TRANSFER_ARM_SIGNAL_PIN, HIGH);
   signalTAStartTime = millis();
   signalTAActive = true;
-  Serial.println("Signal sent to Transfer Arm (TA)");
+  Serial.println("TA Signal activated (HIGH).");
 
   // Only activate servo if it hasn't been activated early
-  if (!catcherServoIsActiveAndTiming) {
-    catcherServo.write(CATCHER_SERVO_ACTIVE_POSITION);
-    catcherServoActiveStartTime = millis();
-    catcherServoIsActiveAndTiming = true;
-    Serial.print("Catcher servo moved to ");
-    Serial.print(CATCHER_SERVO_ACTIVE_POSITION);
+  if (!rotationServoIsActiveAndTiming) {
+    rotationServo.write(ROTATION_SERVO_ACTIVE_POSITION);
+    rotationServoActiveStartTime = millis();
+    rotationServoIsActiveAndTiming = true;
+    Serial.print("Rotation servo moved to ");
+    Serial.print(ROTATION_SERVO_ACTIVE_POSITION);
     Serial.println(" degrees with TA signal.");
   } else {
-    Serial.println("Catcher servo already activated early - skipping normal activation.");
+    Serial.println("Rotation servo already activated early - skipping normal activation.");
   }
 }
 
@@ -40,40 +40,46 @@ void sendSignalToTA() {
 //* ************************* CLAMP FUNCTIONS ******************************
 //* ************************************************************************
 // Contains functions for controlling various clamps.
-// Clamp Logic: LOW = engaged (extended), HIGH = disengaged (retracted)
-// Catcher Clamp Logic: HIGH = engaged (extended), LOW = disengaged (retracted)
+// Clamp Logic: LOW = extended, HIGH = retracted
+// Rotation Clamp Logic: HIGH = extended, LOW = retracted
 
-void extendPositionClamp() {
-  digitalWrite(POSITION_CLAMP, LOW); // Engaged
-  Serial.println("Position Clamp Extended (Engaged)");
+void extendFeedClamp() {
+    // Feed clamp extends when LOW (inversed logic)
+    digitalWrite(FEED_CLAMP, LOW); // Extended
+    Serial.println("Feed Clamp Extended");
 }
 
-void retractPositionClamp() {
-  digitalWrite(POSITION_CLAMP, HIGH); // Disengaged
-  Serial.println("Position Clamp Retracted (Disengaged)");
+void retractFeedClamp() {
+    // Feed clamp retracts when HIGH (inversed logic)
+    digitalWrite(FEED_CLAMP, HIGH); // Retracted
+    Serial.println("Feed Clamp Retracted");
 }
 
-void extendWoodSecureClamp() {
-  digitalWrite(WOOD_SECURE_CLAMP, LOW); // Engaged
-  Serial.println("Wood Secure Clamp Extended (Engaged)");
+void extend2x4SecureClamp() {
+    // 2x4 secure clamp extends when LOW (inversed logic)
+    digitalWrite(_2x4_SECURE_CLAMP, LOW); // Extended
+    Serial.println("2x4 Secure Clamp Extended");
 }
 
-void retractWoodSecureClamp() {
-  digitalWrite(WOOD_SECURE_CLAMP, HIGH); // Disengaged
-  Serial.println("Wood Secure Clamp Retracted (Disengaged)");
+void retract2x4SecureClamp() {
+    // 2x4 secure clamp retracts when HIGH (inversed logic)
+    digitalWrite(_2x4_SECURE_CLAMP, HIGH); // Retracted
+    Serial.println("2x4 Secure Clamp Retracted");
 }
 
-void extendCatcherClamp() {
-  digitalWrite(CATCHER_CLAMP_PIN, HIGH); // Engaged (Reversed Logic)
-  catcherClampEngageTime = millis();
-  catcherClampIsEngaged = true;
-  Serial.println("Catcher Clamp Extended (Engaged)");
+void extendRotationClamp() {
+    // Rotation clamp extends when HIGH
+    digitalWrite(ROTATION_CLAMP, HIGH); // Extended 
+    rotationClampExtendTime = millis();
+    rotationClampIsExtended = true;
+    Serial.println("Rotation Clamp Extended");
 }
 
-void retractCatcherClamp() {
-  digitalWrite(CATCHER_CLAMP_PIN, LOW); // Disengaged (Reversed Logic)
-  catcherClampIsEngaged = false; // Assuming we want to clear the flag when explicitly retracting
-  Serial.println("Catcher Clamp Retracted (Disengaged)");
+void retractRotationClamp() {
+    // Rotation clamp retracts when LOW
+    digitalWrite(ROTATION_CLAMP, LOW); // Retracted 
+    rotationClampIsExtended = false; // Assuming we want to clear the flag when explicitly retracting
+    Serial.println("Rotation Clamp Retracted");
 }
 
 //* ************************************************************************
@@ -83,10 +89,10 @@ void retractCatcherClamp() {
 
 void turnRedLedOn() {
   static bool lastRedLedState = false;
-  digitalWrite(RED_LED, HIGH);
-  digitalWrite(YELLOW_LED, LOW);
-  digitalWrite(GREEN_LED, LOW);
-  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(STATUS_LED_RED, HIGH);
+  digitalWrite(STATUS_LED_YELLOW, LOW);
+  digitalWrite(STATUS_LED_GREEN, LOW);
+  digitalWrite(STATUS_LED_BLUE, LOW);
   if (!lastRedLedState) {
     Serial.println("Red LED ON");
     lastRedLedState = true;
@@ -95,7 +101,7 @@ void turnRedLedOn() {
 
 void turnRedLedOff() {
   static bool lastRedLedState = true;
-  digitalWrite(RED_LED, LOW);
+  digitalWrite(STATUS_LED_RED, LOW);
   if (lastRedLedState) {
     Serial.println("Red LED OFF");
     lastRedLedState = false;
@@ -104,10 +110,10 @@ void turnRedLedOff() {
 
 void turnYellowLedOn() {
   static bool lastYellowLedState = false;
-  digitalWrite(YELLOW_LED, HIGH);
-  digitalWrite(RED_LED, LOW);
-  digitalWrite(GREEN_LED, LOW);
-  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(STATUS_LED_YELLOW, HIGH);
+  digitalWrite(STATUS_LED_RED, LOW);
+  digitalWrite(STATUS_LED_GREEN, LOW);
+  digitalWrite(STATUS_LED_BLUE, LOW);
   if (!lastYellowLedState) {
     Serial.println("Yellow LED ON");
     lastYellowLedState = true;
@@ -116,7 +122,7 @@ void turnYellowLedOn() {
 
 void turnYellowLedOff() {
   static bool lastYellowLedState = true;
-  digitalWrite(YELLOW_LED, LOW);
+  digitalWrite(STATUS_LED_YELLOW, LOW);
   if (lastYellowLedState) {
     Serial.println("Yellow LED OFF");
     lastYellowLedState = false;
@@ -125,10 +131,10 @@ void turnYellowLedOff() {
 
 void turnGreenLedOn() {
   static bool lastGreenLedState = false;
-  digitalWrite(GREEN_LED, HIGH);
-  digitalWrite(RED_LED, LOW);
-  digitalWrite(YELLOW_LED, LOW);
-  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(STATUS_LED_GREEN, HIGH);
+  digitalWrite(STATUS_LED_RED, LOW);
+  digitalWrite(STATUS_LED_YELLOW, LOW);
+  digitalWrite(STATUS_LED_BLUE, LOW);
   if (!lastGreenLedState) {
     Serial.println("Green LED ON");
     lastGreenLedState = true;
@@ -137,7 +143,7 @@ void turnGreenLedOn() {
 
 void turnGreenLedOff() {
   static bool lastGreenLedState = true;
-  digitalWrite(GREEN_LED, LOW);
+  digitalWrite(STATUS_LED_GREEN, LOW);
   if (lastGreenLedState) {
     Serial.println("Green LED OFF");
     lastGreenLedState = false;
@@ -146,10 +152,10 @@ void turnGreenLedOff() {
 
 void turnBlueLedOn() {
   static bool lastBlueLedState = false;
-  digitalWrite(BLUE_LED, HIGH);
-  digitalWrite(RED_LED, LOW);
-  digitalWrite(GREEN_LED, LOW);
-  digitalWrite(YELLOW_LED, LOW);
+  digitalWrite(STATUS_LED_BLUE, HIGH);
+  digitalWrite(STATUS_LED_RED, LOW);
+  digitalWrite(STATUS_LED_GREEN, LOW);
+  digitalWrite(STATUS_LED_YELLOW, LOW);
   if (!lastBlueLedState) {
     Serial.println("Blue LED ON");
     lastBlueLedState = true;
@@ -158,7 +164,7 @@ void turnBlueLedOn() {
 
 void turnBlueLedOff() {
   static bool lastBlueLedState = true;
-  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(STATUS_LED_BLUE, LOW);
   if (lastBlueLedState) {
     Serial.println("Blue LED OFF");
     lastBlueLedState = false;
@@ -219,17 +225,17 @@ void configureCutMotorForReturn() {
     }
 }
 
-void configurePositionMotorForNormalOperation() {
-    if (positionMotor) {
-        positionMotor->setSpeedInHz((uint32_t)POSITION_MOTOR_NORMAL_SPEED);
-        positionMotor->setAcceleration((uint32_t)POSITION_MOTOR_NORMAL_ACCELERATION);
+void configureFeedMotorForNormalOperation() {
+    if (feedMotor) {
+        feedMotor->setSpeedInHz((uint32_t)FEED_MOTOR_NORMAL_SPEED);
+        feedMotor->setAcceleration((uint32_t)FEED_MOTOR_NORMAL_ACCELERATION);
     }
 }
 
-void configurePositionMotorForReturn() {
-    if (positionMotor) {
-        positionMotor->setSpeedInHz((uint32_t)POSITION_MOTOR_RETURN_SPEED);
-        positionMotor->setAcceleration((uint32_t)POSITION_MOTOR_RETURN_ACCELERATION);
+void configureFeedMotorForReturn() {
+    if (feedMotor) {
+        feedMotor->setSpeedInHz((uint32_t)FEED_MOTOR_RETURN_SPEED);
+        feedMotor->setAcceleration((uint32_t)FEED_MOTOR_RETURN_ACCELERATION);
     }
 }
 
@@ -245,21 +251,21 @@ void moveCutMotorToHome() {
     }
 }
 
-void movePositionMotorToTravel() {
-    if (positionMotor) {
-        positionMotor->moveTo(POSITION_TRAVEL_DISTANCE * POSITION_MOTOR_STEPS_PER_INCH);
+void moveFeedMotorToTravel() {
+    if (feedMotor) {
+        feedMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
     }
 }
 
-void movePositionMotorToHome() {
-    if (positionMotor) {
-        positionMotor->moveTo(0);
+void moveFeedMotorToHome() {
+    if (feedMotor) {
+        feedMotor->moveTo(0);
     }
 }
 
-void movePositionMotorToPosition(float targetPositionInches) {
-    if (positionMotor) {
-        positionMotor->moveTo(targetPositionInches * POSITION_MOTOR_STEPS_PER_INCH);
+void moveFeedMotorToPosition(float targetPositionInches) {
+    if (feedMotor) {
+        feedMotor->moveTo(targetPositionInches * FEED_MOTOR_STEPS_PER_INCH);
     }
 }
 
@@ -269,9 +275,9 @@ void stopCutMotor() {
     }
 }
 
-void stopPositionMotor() {
-    if (positionMotor) {
-        positionMotor->stopMove();
+void stopFeedMotor() {
+    if (feedMotor) {
+        feedMotor->stopMove();
     }
 }
 
@@ -295,42 +301,42 @@ void homeCutMotorBlocking(Bounce& homingSwitch, unsigned long timeout) {
     Serial.println("Cut motor homed.");
 }
 
-// Basic blocking homing function for Position Motor - can be expanded
-void homePositionMotorBlocking(Bounce& homingSwitch) {
-    if (!positionMotor) return;
+// Basic blocking homing function for Feed Motor - can be expanded
+void homeFeedMotorBlocking(Bounce& homingSwitch) {
+    if (!feedMotor) return;
     
     // Step 1: Move toward home switch until it triggers
-    positionMotor->setSpeedInHz((uint32_t)POSITION_MOTOR_HOMING_SPEED);
-    positionMotor->moveTo(10000 * POSITION_MOTOR_STEPS_PER_INCH);
+    feedMotor->setSpeedInHz((uint32_t)FEED_MOTOR_HOMING_SPEED);
+    feedMotor->moveTo(10000 * FEED_MOTOR_STEPS_PER_INCH);
 
     while (homingSwitch.read() != HIGH) {
         homingSwitch.update();
     }
-    positionMotor->stopMove();
-    positionMotor->setCurrentPosition(POSITION_TRAVEL_DISTANCE * POSITION_MOTOR_STEPS_PER_INCH);
-    Serial.println("Position motor hit home switch.");
+    feedMotor->stopMove();
+    feedMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
+    Serial.println("Feed motor hit home switch.");
     
     // Step 2: Move to -1 inch from home switch to establish working zero
-    Serial.println("Moving position motor to -1 inch from home switch...");
-    positionMotor->moveTo(POSITION_TRAVEL_DISTANCE * POSITION_MOTOR_STEPS_PER_INCH - 1.0 * POSITION_MOTOR_STEPS_PER_INCH);
+    Serial.println("Moving feed motor to -1 inch from home switch...");
+    feedMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH - 0.3 * FEED_MOTOR_STEPS_PER_INCH);
     
     // Wait for move to complete
-    while (positionMotor->isRunning()) {
+    while (feedMotor->isRunning()) {
         // Wait for move to finish
     }
     
     // Step 3: Set this position (-0.5 inch from switch) as the new zero
-    positionMotor->setCurrentPosition(POSITION_TRAVEL_DISTANCE * POSITION_MOTOR_STEPS_PER_INCH);
-    Serial.println("Position motor homed: 1 inch from switch set as position 0.");
+    feedMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
+    Serial.println("Feed motor homed: 1 inch from switch set as position 0.");
     
-    configurePositionMotorForNormalOperation();
+    configureFeedMotorForNormalOperation();
 }
 
-void movePositionMotorToInitialAfterHoming() {
-    if (positionMotor) {
-        configurePositionMotorForNormalOperation();
-        movePositionMotorToHome();
-        while(positionMotor->isRunning()){
+void moveFeedMotorToInitialAfterHoming() {
+    if (feedMotor) {
+        configureFeedMotorForNormalOperation();
+        moveFeedMotorToHome();
+        while(feedMotor->isRunning()){
         }
     }
 }
@@ -365,14 +371,14 @@ void handleReloadMode() {
         bool reloadSwitchOn = reloadSwitch.read() == HIGH;
         if (reloadSwitchOn && !isReloadMode) {
             isReloadMode = true;
-            retractPositionClamp();
-            retractWoodSecureClamp();
+            retractFeedClamp();
+            retract2x4SecureClamp();
             turnYellowLedOn();
             Serial.println("Entered reload mode");
         } else if (!reloadSwitchOn && isReloadMode) {
             isReloadMode = false;
-            extendPositionClamp();
-            extendWoodSecureClamp();
+            extendFeedClamp();
+            extend2x4SecureClamp();
             turnYellowLedOff();
             Serial.println("Exited reload mode, ready for operation");
         }
@@ -437,33 +443,47 @@ bool shouldStartCycle() {
             && !woodSuctionError && startSwitchSafe);
 }
 
-// Point 4: Catcher Servo Timing
-void handleCatcherServoReturn() {
-    // Move catcher servo to home position
-    catcherServo.write(CATCHER_SERVO_HOME_POSITION);
-    Serial.print("Catcher servo returned to home position (");
-    Serial.print(CATCHER_SERVO_HOME_POSITION);
+// Point 4: Rotation Servo Timing
+void activateRotationServo() {
+    // Activate rotation servo without sending TA signal
+    if (!rotationServoIsActiveAndTiming) {
+        rotationServo.write(ROTATION_SERVO_ACTIVE_POSITION);
+        rotationServoActiveStartTime = millis();
+        rotationServoIsActiveAndTiming = true;
+        Serial.print("Rotation servo activated to ");
+        Serial.print(ROTATION_SERVO_ACTIVE_POSITION);
+        Serial.println(" degrees.");
+    } else {
+        Serial.println("Rotation servo already active - skipping activation.");
+    }
+}
+
+void handleRotationServoReturn() {
+    // Move rotation servo to home position
+    rotationServo.write(ROTATION_SERVO_HOME_POSITION);
+    Serial.print("Rotation servo returned to home position (");
+    Serial.print(ROTATION_SERVO_HOME_POSITION);
     Serial.println(" degrees).");
 }
 
 void handleTASignalTiming() { 
   if (signalTAActive && millis() - signalTAStartTime >= TA_SIGNAL_DURATION) {
-    digitalWrite(TA_SIGNAL_OUT_PIN, LOW); // Return to inactive state (LOW)
+    digitalWrite(TRANSFER_ARM_SIGNAL_PIN, LOW); // Return to inactive state (LOW)
     signalTAActive = false;
     Serial.println("Signal to Transfer Arm (TA) completed"); 
   }
 }
 
-void handleCatcherClampDisengage() { // Point 4
-  if (catcherClampIsEngaged && (millis() - catcherClampEngageTime >= CATCHER_CLAMP_ENGAGE_DURATION_MS)) {
-    retractCatcherClamp();
-    Serial.println("Catcher Clamp disengaged after 1 second.");
-  }
+void handleRotationClampRetract() { // Point 4
+    if (rotationClampIsExtended && (millis() - rotationClampExtendTime >= ROTATION_CLAMP_EXTEND_DURATION_MS)) {
+        retractRotationClamp();
+        Serial.println("Rotation Clamp retracted after 1 second.");
+    }
 }
 
-void movePositionMotorToYesWoodHome() {
-    if (positionMotor) {
-        positionMotor->moveTo(0);
-        Serial.println("Position motor moving to YES_WOOD home position (0 inches)");
+void moveFeedMotorToPostCutHome() {
+    if (feedMotor) {
+        feedMotor->moveTo(0);
+        Serial.println("Feed motor moving to post-cut home position (0 inches)");
     }
 }

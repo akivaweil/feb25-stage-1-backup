@@ -8,8 +8,8 @@
 // Handles the homing sequence for all motors.
 // Step 1: Blink blue LED to indicate homing in progress.
 // Step 2: Home the cut motor (blocking). If fails, it might retry or transition to ERROR (currently retries).
-// Step 3: If cut motor homed, home the position motor (blocking). Disengage position clamp before homing.
-// Step 4: If position motor homed, move position motor to POSITION_TRAVEL_DISTANCE (blocking). Re-engage position clamp.
+// Step 3: If cut motor homed, home the feed motor (blocking). Retract feed clamp before homing.
+// Step 4: If feed motor homed, move feed motor to FEED_TRAVEL_DISTANCE (blocking). Re-extend feed clamp.
 // Step 5: If all homing and initial positioning are complete, set isHomed flag to true.
 // Step 6: Turn off blue LED, turn on green LED.
 // Step 7: Ensure servo is at 2 degrees.
@@ -18,9 +18,9 @@
 void HomingState::onEnter(StateManager& stateManager) {
     // Reset homing state variables when entering
     cutMotorHomed = false;
-    positionMotorHomed = false;
-    positionMotorMoved = false;
-    positionHomingPhaseInitiated = false;
+    feedMotorHomed = false;
+    feedMotorMoved = false;
+    feedHomingPhaseInitiated = false;
     blinkTimer = 0;
 }
 
@@ -43,30 +43,30 @@ void HomingState::execute(StateManager& stateManager) {
         } else {
             Serial.println("Cut motor homing failed or timed out. Retrying or error.");
         }
-    } else if (!positionMotorHomed) {
-        if (!positionHomingPhaseInitiated) {
-            Serial.println("Starting position motor homing phase (blocking)..."); 
-            retractPositionClamp(); 
-            Serial.println("Position clamp disengaged for homing."); 
-            positionHomingPhaseInitiated = true;
+    } else if (!feedMotorHomed) {
+        if (!feedHomingPhaseInitiated) {
+            Serial.println("Starting feed motor homing phase (blocking)..."); 
+            retractFeedClamp(); 
+            Serial.println("Feed clamp retracted for homing."); 
+            feedHomingPhaseInitiated = true;
         }
-        homePositionMotorBlocking(*stateManager.getPositionHomingSwitch());
-        positionMotorHomed = true; 
-        positionHomingPhaseInitiated = false; // Reset for next potential homing cycle
-    } else if (!positionMotorMoved) {
-        extendPositionClamp();
-        Serial.println("Position clamp re-engaged.");
-        movePositionMotorToTravel();
-        while(stateManager.getPositionMotor()->isRunning()){
-            // Wait for position motor to reach POSITION_TRAVEL_DISTANCE
+        homeFeedMotorBlocking(*stateManager.getFeedHomingSwitch());
+        feedMotorHomed = true; 
+        feedHomingPhaseInitiated = false; // Reset for next potential homing cycle
+    } else if (!feedMotorMoved) {
+        extendFeedClamp();
+        Serial.println("Feed clamp re-extended.");
+        moveFeedMotorToTravel();
+        while(stateManager.getFeedMotor()->isRunning()){
+            // Wait for feed motor to reach FEED_TRAVEL_DISTANCE
         }
-        positionMotorMoved = true;
-        Serial.println("Position motor moved to POSITION_TRAVEL_DISTANCE (blocking complete).");
+        feedMotorMoved = true;
+        Serial.println("Feed motor moved to FEED_TRAVEL_DISTANCE (blocking complete).");
     } else {
         Serial.println("Homing sequence complete. System ready."); 
         cutMotorHomed = false; 
-        positionMotorHomed = false;
-        positionMotorMoved = false;
+        feedMotorHomed = false;
+        feedMotorMoved = false;
         
         extern bool isHomed; // This is in main.cpp
         isHomed = true; 
@@ -75,7 +75,7 @@ void HomingState::execute(StateManager& stateManager) {
         turnGreenLedOn();
 
         // Set initial servo position via function call
-        handleCatcherServoReturn();
+        handleRotationServoReturn();
         stateManager.changeState(IDLE);
     }
 } 

@@ -28,22 +28,21 @@ public:
     
     // System resource access methods
     FastAccelStepper* getCutMotor() { return cutMotor; }
-    FastAccelStepper* getPositionMotor() { return positionMotor; }
-    Servo* getCatcherServo() { return &catcherServo; }
+    FastAccelStepper* getFeedMotor() { return feedMotor; }
+    Servo* getRotationServo() { return &rotationServo; }
     
     // Switch access methods
     Bounce* getCutHomingSwitch() { return &cutHomingSwitch; }
-    Bounce* getPositionHomingSwitch() { return &positionHomingSwitch; }
+    Bounce* getFeedHomingSwitch() { return &feedHomingSwitch; }
     Bounce* getReloadSwitch() { return &reloadSwitch; }
     Bounce* getStartCycleSwitch() { return &startCycleSwitch; }
-    Bounce* getFixPositionSwitch() { return &fixPositionSwitch; }
     
     // System flag access methods
     bool getIsReloadMode() const { return isReloadMode; }
     void setIsReloadMode(bool value) { isReloadMode = value; }
     
-    bool getWoodPresent() const { return woodPresent; }
-    void setWoodPresent(bool value) { woodPresent = value; }
+    bool get2x4Present() const { return _2x4Present; }
+    void set2x4Present(bool value) { _2x4Present = value; }
     
     bool getWoodSuctionError() const { return woodSuctionError; }
     void setWoodSuctionError(bool value) { woodSuctionError = value; }
@@ -77,18 +76,18 @@ public:
     bool getErrorBlinkState() const { return errorBlinkState; }
     void setErrorBlinkState(bool value) { errorBlinkState = value; }
     
-    // Catcher servo timing access
-    unsigned long getCatcherServoActiveStartTime() const { return catcherServoActiveStartTime; }
-    void setCatcherServoActiveStartTime(unsigned long value) { catcherServoActiveStartTime = value; }
+    // Rotation servo timing access
+    unsigned long getRotationServoActiveStartTime() const { return rotationServoActiveStartTime; }
+    void setRotationServoActiveStartTime(unsigned long value) { rotationServoActiveStartTime = value; }
     
-    bool getCatcherServoIsActiveAndTiming() const { return catcherServoIsActiveAndTiming; }
-    void setCatcherServoIsActiveAndTiming(bool value) { catcherServoIsActiveAndTiming = value; }
+    bool getRotationServoIsActiveAndTiming() const { return rotationServoIsActiveAndTiming; }
+    void setRotationServoIsActiveAndTiming(bool value) { rotationServoIsActiveAndTiming = value; }
     
-    unsigned long getCatcherClampEngageTime() const { return catcherClampEngageTime; }
-    void setCatcherClampEngageTime(unsigned long value) { catcherClampEngageTime = value; }
+    unsigned long getRotationClampExtendTime() const { return rotationClampExtendTime; }
+    void setRotationClampExtendTime(unsigned long value) { rotationClampExtendTime = value; }
     
-    bool getCatcherClampIsEngaged() const { return catcherClampIsEngaged; }
-    void setCatcherClampIsEngaged(bool value) { catcherClampIsEngaged = value; }
+    bool getRotationClampIsExtended() const { return rotationClampIsExtended; }
+    void setRotationClampIsExtended(bool value) { rotationClampIsExtended = value; }
     
     // Signal timing access
     unsigned long getSignalTAStartTime() const { return signalTAStartTime; }

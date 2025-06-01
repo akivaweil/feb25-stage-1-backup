@@ -22,11 +22,11 @@
 // Pin definitions and configuration constants are now in Config/ header files
 
 // Timing variables (constants moved to Config/system_config.h)
-unsigned long catcherServoActiveStartTime = 0;
-bool catcherServoIsActiveAndTiming = false;
+unsigned long rotationServoActiveStartTime = 0;
+bool rotationServoIsActiveAndTiming = false;
 
-unsigned long catcherClampEngageTime = 0;
-bool catcherClampIsEngaged = false;
+unsigned long rotationClampExtendTime = 0;
+bool rotationClampIsExtended = false;
 
 // SystemStates Enum is now in Functions.h
 SystemState currentState = STARTUP;
@@ -39,23 +39,22 @@ SystemState previousState = ERROR_RESET; // Initialize to a different state to e
 // Create motor objects
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *cutMotor = NULL;
-FastAccelStepper *positionMotor = NULL;
+FastAccelStepper *feedMotor = NULL;
 
 // Servo object
-Servo catcherServo;
+Servo rotationServo;
 
 // Bounce objects for debouncing switches
 Bounce cutHomingSwitch = Bounce();
-Bounce positionHomingSwitch = Bounce();
+Bounce feedHomingSwitch = Bounce();
 Bounce reloadSwitch = Bounce();
 Bounce startCycleSwitch = Bounce();
 Bounce pushwoodForwardSwitch = Bounce();
-Bounce fixPositionSwitch = Bounce();
 
 // System flags
 bool isHomed = false;
 bool isReloadMode = false;
-bool woodPresent = false;
+bool _2x4Present = false;
 bool woodSuctionError = false;
 bool errorAcknowledged = false;
 bool cuttingCycleInProgress = false;
@@ -66,7 +65,7 @@ bool startSwitchSafe = false;       // New flag to track if start switch is safe
 unsigned long lastBlinkTime = 0;
 unsigned long lastErrorBlinkTime = 0;
 unsigned long errorStartTime = 0;
-unsigned long positionMoveStartTime = 0;
+unsigned long feedMoveStartTime = 0;
 
 // LED states
 bool blinkState = false;
@@ -76,8 +75,8 @@ bool errorBlinkState = false;
 unsigned long signalTAStartTime = 0; // For Transfer Arm signal
 bool signalTAActive = false;      // For Transfer Arm signal
 
-// New flag to track cut motor return during YES_WOOD mode
-bool cutMotorInYesWoodReturn = false;
+// New flag to track cut motor return during RETURNING_YES_2x4 mode
+bool cutMotorInReturningYes2x4Return = false;
 
 // Additional variables needed by states - declarations moved to above
 
@@ -92,46 +91,45 @@ void setup() {
   setupOTA();
 
   //! Configure pin modes
-  pinMode(CUT_MOTOR_PULSE_PIN, OUTPUT);
+  pinMode(CUT_MOTOR_STEP_PIN, OUTPUT);
   pinMode(CUT_MOTOR_DIR_PIN, OUTPUT);
-  pinMode(POSITION_MOTOR_PULSE_PIN, OUTPUT);
-  pinMode(POSITION_MOTOR_DIR_PIN, OUTPUT);
+  pinMode(FEED_MOTOR_STEP_PIN, OUTPUT);
+  pinMode(FEED_MOTOR_DIR_PIN, OUTPUT);
   
-  pinMode(CUT_MOTOR_HOMING_SWITCH, INPUT_PULLDOWN);
-  pinMode(POSITION_MOTOR_HOMING_SWITCH, INPUT_PULLDOWN);
+  pinMode(CUT_MOTOR_HOME_SWITCH, INPUT_PULLDOWN);
+  pinMode(FEED_MOTOR_HOME_SWITCH, INPUT_PULLDOWN);
   pinMode(RELOAD_SWITCH, INPUT_PULLDOWN);
   pinMode(START_CYCLE_SWITCH, INPUT_PULLDOWN);
-  pinMode(PUSHWOOD_FORWARD_SWITCH, INPUT_PULLDOWN);
-  pinMode(FIX_POSITION_BUTTON, INPUT_PULLDOWN);
+  pinMode(MANUAL_FEED_SWITCH, INPUT_PULLDOWN);
   
-  pinMode(WOOD_SENSOR, INPUT_PULLUP);
-  pinMode(WAS_WOOD_SUCTIONED_SENSOR, INPUT_PULLUP);
+  pinMode(_2x4_PRESENT_SENSOR, INPUT_PULLUP);
+  pinMode(WOOD_SUCTION_CONFIRM_SENSOR, INPUT_PULLUP);
   
-  pinMode(POSITION_CLAMP, OUTPUT);
-  pinMode(WOOD_SECURE_CLAMP, OUTPUT);
-  pinMode(CATCHER_CLAMP_PIN, OUTPUT);
+  pinMode(ROTATION_CLAMP, OUTPUT);
+  pinMode(FEED_CLAMP, OUTPUT);
+  pinMode(_2x4_SECURE_CLAMP, OUTPUT);
   
-  pinMode(RED_LED, OUTPUT);
-  pinMode(YELLOW_LED, OUTPUT);
-  pinMode(GREEN_LED, OUTPUT);
-  pinMode(BLUE_LED, OUTPUT);
+  pinMode(STATUS_LED_RED, OUTPUT);
+  pinMode(STATUS_LED_YELLOW, OUTPUT);
+  pinMode(STATUS_LED_GREEN, OUTPUT);
+  pinMode(STATUS_LED_BLUE, OUTPUT);
   
-  pinMode(TA_SIGNAL_OUT_PIN, OUTPUT);
-  digitalWrite(TA_SIGNAL_OUT_PIN, LOW);
+  pinMode(TRANSFER_ARM_SIGNAL_PIN, OUTPUT);
+  digitalWrite(TRANSFER_ARM_SIGNAL_PIN, LOW);
   
   //! Initialize clamps and LEDs
-  extendPositionClamp();
-  extendWoodSecureClamp();
-  retractCatcherClamp();
+  extendFeedClamp();
+  extend2x4SecureClamp();
+  retractRotationClamp();
   allLedsOff();
   turnBlueLedOn();
   
   //! Configure switch debouncing
-  cutHomingSwitch.attach(CUT_MOTOR_HOMING_SWITCH);
+  cutHomingSwitch.attach(CUT_MOTOR_HOME_SWITCH);
   cutHomingSwitch.interval(3);
   
-  positionHomingSwitch.attach(POSITION_MOTOR_HOMING_SWITCH);
-  positionHomingSwitch.interval(5);
+  feedHomingSwitch.attach(FEED_MOTOR_HOME_SWITCH);
+  feedHomingSwitch.interval(5);
   
   reloadSwitch.attach(RELOAD_SWITCH);
   reloadSwitch.interval(10);
@@ -139,16 +137,13 @@ void setup() {
   startCycleSwitch.attach(START_CYCLE_SWITCH);
   startCycleSwitch.interval(20);
   
-  pushwoodForwardSwitch.attach(PUSHWOOD_FORWARD_SWITCH);
+  pushwoodForwardSwitch.attach(MANUAL_FEED_SWITCH);
   pushwoodForwardSwitch.interval(20);
-  
-  fixPositionSwitch.attach(FIX_POSITION_BUTTON);
-  fixPositionSwitch.interval(20);
   
   //! Initialize motors
   engine.init();
 
-  cutMotor = engine.stepperConnectToPin(CUT_MOTOR_PULSE_PIN);
+  cutMotor = engine.stepperConnectToPin(CUT_MOTOR_STEP_PIN);
   if (cutMotor) {
     cutMotor->setDirectionPin(CUT_MOTOR_DIR_PIN);
     configureCutMotorForCutting();
@@ -157,18 +152,18 @@ void setup() {
     Serial.println("Failed to init cutMotor");
   }
 
-  positionMotor = engine.stepperConnectToPin(POSITION_MOTOR_PULSE_PIN);
-  if (positionMotor) {
-    positionMotor->setDirectionPin(POSITION_MOTOR_DIR_PIN);
-    configurePositionMotorForNormalOperation();
-    positionMotor->setCurrentPosition(0);
+  feedMotor = engine.stepperConnectToPin(FEED_MOTOR_STEP_PIN);
+  if (feedMotor) {
+    feedMotor->setDirectionPin(FEED_MOTOR_DIR_PIN);
+    configureFeedMotorForNormalOperation();
+    feedMotor->setCurrentPosition(0);
   } else {
-    Serial.println("Failed to init positionMotor");
+    Serial.println("Failed to init feedMotor");
   }
   
   //! Initialize servo
-  catcherServo.setTimerWidth(14);
-  catcherServo.attach(CATCHER_SERVO_PIN);
+  rotationServo.setTimerWidth(14);
+  rotationServo.attach(ROTATION_SERVO_PIN);
   
   //! Configure initial state
   currentState = STARTUP;

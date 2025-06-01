@@ -10,24 +10,24 @@
 //* ************************************************************************
 //* ************************ SERVO CONFIGURATION **************************
 //* ************************************************************************
-// Catcher servo position settings
-extern const int CATCHER_SERVO_HOME_POSITION;     // Home position (degrees)
-extern const int CATCHER_SERVO_ACTIVE_POSITION;   // Position when activated (degrees)
+// Rotation servo position settings
+extern const int ROTATION_SERVO_HOME_POSITION;     // Home position (degrees)
+extern const int ROTATION_SERVO_ACTIVE_POSITION;   // Position when activated (degrees)
 
 //* ************************************************************************
 //* ************************ MOTOR CONFIGURATION **************************
 //* ************************************************************************
 // Motor step calculations and travel distances
 extern const int CUT_MOTOR_STEPS_PER_INCH;  // 4x increase from 38
-extern const int POSITION_MOTOR_STEPS_PER_INCH; // Steps per inch for position motor
+extern const int FEED_MOTOR_STEPS_PER_INCH; // Steps per inch for feed motor
 extern const float CUT_TRAVEL_DISTANCE; // inches
-extern const float POSITION_TRAVEL_DISTANCE; // inches
+extern const float FEED_TRAVEL_DISTANCE; // inches
 extern const float CUT_MOTOR_INCREMENTAL_MOVE_INCHES; // Inches for incremental reverse
 extern const float CUT_MOTOR_MAX_INCREMENTAL_MOVE_INCHES; // Max inches for incremental reverse before error
 
 // Motor homing direction constants
 extern const int CUT_HOMING_DIRECTION;
-extern const int POSITION_HOMING_DIRECTION;
+extern const int FEED_HOMING_DIRECTION;
 
 //* ************************************************************************
 //* ************************ CUT MOTOR SPEED SETTINGS ********************
@@ -43,25 +43,25 @@ extern const float CUT_MOTOR_RETURN_SPEED;     // Speed for returning after a cu
 extern const float CUT_MOTOR_HOMING_SPEED;      // Speed for homing the cut motor (steps/sec)
 
 //* ************************************************************************
-//* ************************ POSITION MOTOR SPEED SETTINGS ***************
+//* ************************ FEED MOTOR SPEED SETTINGS *******************
 //* ************************************************************************
-// Normal Positioning Operation (Positioning State / Parts of Cutting State)
-extern const float POSITION_MOTOR_NORMAL_SPEED;    // Speed for normal positioning moves (steps/sec)
-extern const float POSITION_MOTOR_NORMAL_ACCELERATION; // Acceleration for normal positioning (steps/sec^2)
+// Normal Feed Operation (Feed State / Parts of Cutting State)
+extern const float FEED_MOTOR_NORMAL_SPEED;    // Speed for normal feed moves (steps/sec)
+extern const float FEED_MOTOR_NORMAL_ACCELERATION; // Acceleration for normal feed (steps/sec^2)
 
 // Return to Home/Start (Returning State / End of Cutting State / Homing after initial move)
-extern const float POSITION_MOTOR_RETURN_SPEED;    // Speed for returning to home or start position (steps/sec)
-extern const float POSITION_MOTOR_RETURN_ACCELERATION; // Acceleration for return moves (steps/sec^2)
+extern const float FEED_MOTOR_RETURN_SPEED;    // Speed for returning to home or start position (steps/sec)
+extern const float FEED_MOTOR_RETURN_ACCELERATION; // Acceleration for return moves (steps/sec^2)
 
 // Homing Operation (Homing State)
-extern const float POSITION_MOTOR_HOMING_SPEED;     // Speed for homing the position motor (steps/sec)
+extern const float FEED_MOTOR_HOMING_SPEED;     // Speed for homing the feed motor (steps/sec)
 
 //* ************************************************************************
 //* ************************ TIMING CONFIGURATION *************************
 //* ************************************************************************
 // Servo timing configuration
-extern const unsigned long CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS; // Time servo stays active
-extern const unsigned long CATCHER_CLAMP_ENGAGE_DURATION_MS; // Time clamp stays engaged
+extern const unsigned long ROTATION_SERVO_ACTIVE_HOLD_DURATION_MS; // Time servo stays active
+extern const unsigned long ROTATION_CLAMP_EXTEND_DURATION_MS; // Time clamp stays extended
 
 // Cut motor homing timeout
 extern const unsigned long CUT_HOME_TIMEOUT; // 5 seconds timeout
@@ -72,10 +72,10 @@ extern const unsigned long TA_SIGNAL_DURATION; // Duration for Transfer Arm sign
 //* ************************************************************************
 //* ************************ OPERATIONAL CONSTANTS ***********************
 //* ************************************************************************
-// Catcher clamp early activation offset
-extern const float CATCHER_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES;
+// Rotation clamp early activation offset
+extern const float ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES;
 
-// Catcher servo early activation offset
-extern const float CATCHER_SERVO_EARLY_ACTIVATION_OFFSET_INCHES;
+// Rotation servo early activation offset
+extern const float ROTATION_SERVO_EARLY_ACTIVATION_OFFSET_INCHES;
 
 #endif // SYSTEM_CONFIG_H 
