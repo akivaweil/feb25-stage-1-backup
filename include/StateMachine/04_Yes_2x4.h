@@ -1,32 +1,32 @@
-#ifndef YES_2X4_STATE_H
-#define YES_2X4_STATE_H
+#ifndef RETURNING_YES_2X4_STATE_H
+#define RETURNING_YES_2X4_STATE_H
 
 #include "BaseState.h"
 
 //* ************************************************************************
-//* ************************** YES 2X4 STATE *******************************
+//* ************************ RETURNING YES 2X4 STATE **********************
 //* ************************************************************************
-// Handles the Yes_2x4 cutting sequence when wood is detected.
+// Handles the RETURNING_YES_2x4 cutting sequence when wood is detected.
 // This state manages the simultaneous return process for wood that triggers the wood sensor.
 
-class Yes2x4State : public BaseState {
+class ReturningYes2x4State : public BaseState {
 public:
     void execute(StateManager& stateManager) override;
     void onEnter(StateManager& stateManager) override;
     void onExit(StateManager& stateManager) override;
-    SystemState getStateType() const override { return Yes_2x4; }
+    SystemState getStateType() const override { return RETURNING_YES_2x4; }
 
 private:
-    // Yes_2x4 sequence tracking
-    int yes2x4SubStep = 0;
-    int positionHomingSubStep = 0; // For position motor homing sequence
+    // RETURNING_YES_2x4 sequence tracking
+    int returningYes2x4SubStep = 0;
+    int feedHomingSubStep = 0; // For feed motor homing sequence
     
-    // Helper methods for Yes_2x4 sequence
-    void handleYes2x4Sequence(StateManager& stateManager);
-    void handleYes2x4PositionMotorHoming(StateManager& stateManager);
+    // Helper methods for RETURNING_YES_2x4 sequence
+    void handleReturningYes2x4Sequence(StateManager& stateManager);
+    void handleReturningYes2x4FeedMotorHoming(StateManager& stateManager);
     
     // Reset all step counters
     void resetSteps();
 };
 
-#endif // YES_2X4_STATE_H 
+#endif // RETURNING_YES_2X4_STATE_H 

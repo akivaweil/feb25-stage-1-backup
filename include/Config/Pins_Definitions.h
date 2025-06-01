@@ -33,7 +33,6 @@ extern const int FEED_MOTOR_HOME_SWITCH;
 extern const int RELOAD_SWITCH;
 extern const int START_CYCLE_SWITCH;
 extern const int MANUAL_FEED_SWITCH;         // Manual wood feed control
-extern const int FEED_POSITION_LOCK_BUTTON;  // Lock wood feed position
 
 // Sensors (Active LOW - input pullup)
 extern const int _2x4_PRESENT_SENSOR;
@@ -44,7 +43,7 @@ extern const int WOOD_SUCTION_CONFIRM_SENSOR;  // Confirms wood is secured by su
 //* ************************************************************************
 // Pneumatic clamp control pins (HIGH = extend, LOW = retract)
 extern const int FEED_CLAMP;      // Clamps wood during feed positioning
-extern const int WOOD_SECURE_CLAMP;    // Secures wood during cutting
+extern const int _2x4_SECURE_CLAMP;    // Secures 2x4 during cutting
 extern const int ROTATION_CLAMP;        // Clamps cut pieces for rotation
 
 //* ************************************************************************

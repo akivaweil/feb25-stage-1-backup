@@ -55,16 +55,16 @@ void retractFeedClamp() {
     Serial.println("Feed Clamp Retracted");
 }
 
-void extendWoodSecureClamp() {
-    // Wood secure clamp extends when LOW (inversed logic)
-    digitalWrite(WOOD_SECURE_CLAMP, LOW); // Extended
-    Serial.println("Wood Secure Clamp Extended");
+void extend2x4SecureClamp() {
+    // 2x4 secure clamp extends when LOW (inversed logic)
+    digitalWrite(_2x4_SECURE_CLAMP, LOW); // Extended
+    Serial.println("2x4 Secure Clamp Extended");
 }
 
-void retractWoodSecureClamp() {
-    // Wood secure clamp retracts when HIGH (inversed logic)
-    digitalWrite(WOOD_SECURE_CLAMP, HIGH); // Retracted
-    Serial.println("Wood Secure Clamp Retracted");
+void retract2x4SecureClamp() {
+    // 2x4 secure clamp retracts when HIGH (inversed logic)
+    digitalWrite(_2x4_SECURE_CLAMP, HIGH); // Retracted
+    Serial.println("2x4 Secure Clamp Retracted");
 }
 
 void extendRotationClamp() {
@@ -225,17 +225,17 @@ void configureCutMotorForReturn() {
     }
 }
 
-void configurePositionMotorForNormalOperation() {
-    if (positionMotor) {
-        positionMotor->setSpeedInHz((uint32_t)FEED_MOTOR_NORMAL_SPEED);
-        positionMotor->setAcceleration((uint32_t)FEED_MOTOR_NORMAL_ACCELERATION);
+void configureFeedMotorForNormalOperation() {
+    if (feedMotor) {
+        feedMotor->setSpeedInHz((uint32_t)FEED_MOTOR_NORMAL_SPEED);
+        feedMotor->setAcceleration((uint32_t)FEED_MOTOR_NORMAL_ACCELERATION);
     }
 }
 
-void configurePositionMotorForReturn() {
-    if (positionMotor) {
-        positionMotor->setSpeedInHz((uint32_t)FEED_MOTOR_RETURN_SPEED);
-        positionMotor->setAcceleration((uint32_t)FEED_MOTOR_RETURN_ACCELERATION);
+void configureFeedMotorForReturn() {
+    if (feedMotor) {
+        feedMotor->setSpeedInHz((uint32_t)FEED_MOTOR_RETURN_SPEED);
+        feedMotor->setAcceleration((uint32_t)FEED_MOTOR_RETURN_ACCELERATION);
     }
 }
 
@@ -251,21 +251,21 @@ void moveCutMotorToHome() {
     }
 }
 
-void movePositionMotorToTravel() {
-    if (positionMotor) {
-        positionMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
+void moveFeedMotorToTravel() {
+    if (feedMotor) {
+        feedMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
     }
 }
 
-void movePositionMotorToHome() {
-    if (positionMotor) {
-        positionMotor->moveTo(0);
+void moveFeedMotorToHome() {
+    if (feedMotor) {
+        feedMotor->moveTo(0);
     }
 }
 
-void movePositionMotorToPosition(float targetPositionInches) {
-    if (positionMotor) {
-        positionMotor->moveTo(targetPositionInches * FEED_MOTOR_STEPS_PER_INCH);
+void moveFeedMotorToPosition(float targetPositionInches) {
+    if (feedMotor) {
+        feedMotor->moveTo(targetPositionInches * FEED_MOTOR_STEPS_PER_INCH);
     }
 }
 
@@ -275,9 +275,9 @@ void stopCutMotor() {
     }
 }
 
-void stopPositionMotor() {
-    if (positionMotor) {
-        positionMotor->stopMove();
+void stopFeedMotor() {
+    if (feedMotor) {
+        feedMotor->stopMove();
     }
 }
 
@@ -301,42 +301,42 @@ void homeCutMotorBlocking(Bounce& homingSwitch, unsigned long timeout) {
     Serial.println("Cut motor homed.");
 }
 
-// Basic blocking homing function for Position Motor - can be expanded
-void homePositionMotorBlocking(Bounce& homingSwitch) {
-    if (!positionMotor) return;
+// Basic blocking homing function for Feed Motor - can be expanded
+void homeFeedMotorBlocking(Bounce& homingSwitch) {
+    if (!feedMotor) return;
     
     // Step 1: Move toward home switch until it triggers
-    positionMotor->setSpeedInHz((uint32_t)FEED_MOTOR_HOMING_SPEED);
-    positionMotor->moveTo(10000 * FEED_MOTOR_STEPS_PER_INCH);
+    feedMotor->setSpeedInHz((uint32_t)FEED_MOTOR_HOMING_SPEED);
+    feedMotor->moveTo(10000 * FEED_MOTOR_STEPS_PER_INCH);
 
     while (homingSwitch.read() != HIGH) {
         homingSwitch.update();
     }
-    positionMotor->stopMove();
-    positionMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
-    Serial.println("Position motor hit home switch.");
+    feedMotor->stopMove();
+    feedMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
+    Serial.println("Feed motor hit home switch.");
     
     // Step 2: Move to -1 inch from home switch to establish working zero
-    Serial.println("Moving position motor to -1 inch from home switch...");
-    positionMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH - 1.0 * FEED_MOTOR_STEPS_PER_INCH);
+    Serial.println("Moving feed motor to -1 inch from home switch...");
+    feedMotor->moveTo(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH - 1.0 * FEED_MOTOR_STEPS_PER_INCH);
     
     // Wait for move to complete
-    while (positionMotor->isRunning()) {
+    while (feedMotor->isRunning()) {
         // Wait for move to finish
     }
     
     // Step 3: Set this position (-0.5 inch from switch) as the new zero
-    positionMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
-    Serial.println("Position motor homed: 1 inch from switch set as position 0.");
+    feedMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
+    Serial.println("Feed motor homed: 1 inch from switch set as position 0.");
     
-    configurePositionMotorForNormalOperation();
+    configureFeedMotorForNormalOperation();
 }
 
-void movePositionMotorToInitialAfterHoming() {
-    if (positionMotor) {
-        configurePositionMotorForNormalOperation();
-        movePositionMotorToHome();
-        while(positionMotor->isRunning()){
+void moveFeedMotorToInitialAfterHoming() {
+    if (feedMotor) {
+        configureFeedMotorForNormalOperation();
+        moveFeedMotorToHome();
+        while(feedMotor->isRunning()){
         }
     }
 }
@@ -372,13 +372,13 @@ void handleReloadMode() {
         if (reloadSwitchOn && !isReloadMode) {
             isReloadMode = true;
             retractFeedClamp();
-            retractWoodSecureClamp();
+            retract2x4SecureClamp();
             turnYellowLedOn();
             Serial.println("Entered reload mode");
         } else if (!reloadSwitchOn && isReloadMode) {
             isReloadMode = false;
             extendFeedClamp();
-            extendWoodSecureClamp();
+            extend2x4SecureClamp();
             turnYellowLedOff();
             Serial.println("Exited reload mode, ready for operation");
         }
@@ -481,9 +481,9 @@ void handleRotationClampRetract() { // Point 4
     }
 }
 
-void movePositionMotorToYes2x4Home() {
-    if (positionMotor) {
-        positionMotor->moveTo(0);
-        Serial.println("Position motor moving to Yes_2x4 home position (0 inches)");
+void moveFeedMotorToPostCutHome() {
+    if (feedMotor) {
+        feedMotor->moveTo(0);
+        Serial.println("Feed motor moving to post-cut home position (0 inches)");
     }
 }

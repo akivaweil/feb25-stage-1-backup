@@ -32,7 +32,6 @@ const int FEED_MOTOR_HOME_SWITCH = 16;
 const int RELOAD_SWITCH = 6;
 const int START_CYCLE_SWITCH = 5;
 const int MANUAL_FEED_SWITCH = 7;         // Manual wood feed control
-const int FEED_POSITION_LOCK_BUTTON = 41; // Lock wood feed position
 
 // Sensors (Active LOW - input pullup)
 const int _2x4_PRESENT_SENSOR = 10;
@@ -43,7 +42,7 @@ const int WOOD_SUCTION_CONFIRM_SENSOR = 39;  // Confirms wood is secured by suct
 //* ************************************************************************
 // Pneumatic clamp control pins (HIGH = extend, LOW = retract)
 const int FEED_CLAMP = 36;         // Clamps wood during feed positioning
-const int WOOD_SECURE_CLAMP = 48;       // Secures wood during cutting
+const int _2x4_SECURE_CLAMP = 48;       // Secures 2x4 during cutting
 const int ROTATION_CLAMP = 42;          // Clamps cut pieces for rotation
 
 //* ************************************************************************

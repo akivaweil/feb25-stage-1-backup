@@ -27,8 +27,8 @@ static IdleState idleState;
 static FeedFirstCutState feedFirstCutState;
 static FeedWoodFwdOneState feedWoodFwdOneState;
 static CuttingState cuttingState;
-static Yes2x4State yes2x4State;
-static No2x4State no2x4State;
+static ReturningYes2x4State returningYes2x4State;
+static ReturningNo2x4State returningNo2x4State;
 
 StateManager::StateManager() : previousState(ERROR_RESET) {
     // Constructor - previousState initialized to different state to ensure first print
@@ -61,11 +61,11 @@ void StateManager::execute() {
         case CUTTING:
             cuttingState.execute(*this);
             break;
-        case Yes_2x4:
-            yes2x4State.execute(*this);
+        case RETURNING_YES_2x4:
+            returningYes2x4State.execute(*this);
             break;
-        case No_2x4:
-            no2x4State.execute(*this);
+        case RETURNING_NO_2x4:
+            returningNo2x4State.execute(*this);
             break;
         case ERROR:
             handleStandardErrorState();
@@ -89,8 +89,8 @@ void StateManager::changeState(SystemState newState) {
             case FEED_FIRST_CUT: feedFirstCutState.onExit(*this); break;
             case FEED_WOOD_FWD_ONE: feedWoodFwdOneState.onExit(*this); break;
             case CUTTING: cuttingState.onExit(*this); break;
-            case Yes_2x4: yes2x4State.onExit(*this); break;
-            case No_2x4: no2x4State.onExit(*this); break;
+            case RETURNING_YES_2x4: returningYes2x4State.onExit(*this); break;
+            case RETURNING_NO_2x4: returningNo2x4State.onExit(*this); break;
             // Error states don't have onExit handlers
             default: break;
         }
@@ -106,8 +106,8 @@ void StateManager::changeState(SystemState newState) {
             case FEED_FIRST_CUT: feedFirstCutState.onEnter(*this); break;
             case FEED_WOOD_FWD_ONE: feedWoodFwdOneState.onEnter(*this); break;
             case CUTTING: cuttingState.onEnter(*this); break;
-            case Yes_2x4: yes2x4State.onEnter(*this); break;
-            case No_2x4: no2x4State.onEnter(*this); break;
+            case RETURNING_YES_2x4: returningYes2x4State.onEnter(*this); break;
+            case RETURNING_NO_2x4: returningNo2x4State.onEnter(*this); break;
             // Error states don't have onEnter handlers
             default: break;
         }
@@ -120,8 +120,8 @@ void StateManager::changeState(SystemState newState) {
             case FEED_FIRST_CUT: Serial.println("FEED_FIRST_CUT"); break;
             case FEED_WOOD_FWD_ONE: Serial.println("FEED_WOOD_FWD_ONE"); break;
             case CUTTING: Serial.println("CUTTING"); break;
-            case Yes_2x4: Serial.println("Yes_2x4"); break;
-            case No_2x4: Serial.println("No_2x4"); break;
+            case RETURNING_YES_2x4: Serial.println("RETURNING_YES_2x4"); break;
+            case RETURNING_NO_2x4: Serial.println("RETURNING_NO_2x4"); break;
             case ERROR: Serial.println("ERROR"); break;
             case ERROR_RESET: Serial.println("ERROR_RESET"); break;
             case SUCTION_ERROR_HOLD: Serial.println("SUCTION_ERROR_HOLD"); break;
@@ -139,8 +139,8 @@ void StateManager::printStateChange() {
             case FEED_FIRST_CUT: Serial.println("FEED_FIRST_CUT"); break;
             case FEED_WOOD_FWD_ONE: Serial.println("FEED_WOOD_FWD_ONE"); break;
             case CUTTING: Serial.println("CUTTING"); break;
-            case Yes_2x4: Serial.println("Yes_2x4"); break;
-            case No_2x4: Serial.println("No_2x4"); break;
+            case RETURNING_YES_2x4: Serial.println("RETURNING_YES_2x4"); break;
+            case RETURNING_NO_2x4: Serial.println("RETURNING_NO_2x4"); break;
             case ERROR: Serial.println("ERROR"); break;
             case ERROR_RESET: Serial.println("ERROR_RESET"); break;
             case SUCTION_ERROR_HOLD: Serial.println("SUCTION_ERROR_HOLD"); break;
@@ -153,21 +153,20 @@ void StateManager::printStateChange() {
 void StateManager::updateSwitches() {
     // Update all debounced switches - moved from main loop
     cutHomingSwitch.update();
-    positionHomingSwitch.update();
+    feedHomingSwitch.update();
     reloadSwitch.update();
     startCycleSwitch.update();
     pushwoodForwardSwitch.update();
-    fixPositionSwitch.update();
 }
 
 void StateManager::handleCommonOperations() {
     // Update all switches first
     updateSwitches();
     
-    // Check for cut motor hitting home sensor during Yes_2x4 return
-    extern bool cutMotorInYes2x4Return; // This global flag is still in main.cpp
-    if (cutMotorInYes2x4Return && cutMotor && cutMotor->isRunning() && cutHomingSwitch.read() == HIGH) {
-        Serial.println("Cut motor hit homing sensor during Yes_2x4 return - stopping immediately!");
+    // Check for cut motor hitting home sensor during RETURNING_YES_2x4 return
+    extern bool cutMotorInReturningYes2x4Return; // This global flag is still in main.cpp
+    if (cutMotorInReturningYes2x4Return && cutMotor && cutMotor->isRunning() && cutHomingSwitch.read() == HIGH) {
+        Serial.println("Cut motor hit homing sensor during RETURNING_YES_2x4 return - stopping immediately!");
         cutMotor->forceStopAndNewPosition(0);  // Stop immediately and set position to 0
     }
 

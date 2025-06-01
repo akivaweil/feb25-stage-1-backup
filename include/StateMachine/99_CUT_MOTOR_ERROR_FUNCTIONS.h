@@ -58,7 +58,7 @@ void executeCutMotorErrorStateTransition(
     int& fixPositionStep,
     int& fixPositionSubStep2,
     unsigned long& errorStartTime,
-    bool shouldExtendWoodSecureClamp = true
+    bool shouldExtend2x4SecureClamp = true
 );
 
 // Utility function to log the results of error detection

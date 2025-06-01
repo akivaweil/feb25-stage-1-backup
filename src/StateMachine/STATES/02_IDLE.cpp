@@ -49,7 +49,7 @@ void IdleState::execute(StateManager& stateManager) {
 
 void IdleState::onEnter(StateManager& stateManager) {
     // Maintain clamp states: secure wood clamp extended, feed clamp retracted
-    extendWoodSecureClamp();
+    extend2x4SecureClamp();
     retractFeedClamp();
     Serial.println("Idle: Secure wood clamp extended, feed clamp retracted");
 }
@@ -63,12 +63,12 @@ void IdleState::handleReloadModeLogic(StateManager& stateManager) {
         // Enter reload mode
         stateManager.setIsReloadMode(true);
         retractFeedClamp(); // Retract feed clamp
-        retractWoodSecureClamp(); // Retract wood secure clamp
+        retract2x4SecureClamp(); // Retract 2x4 secure clamp
         turnBlueLedOn();     // Turn on blue LED for reload mode
     } else if (!reloadSwitchOn && isReloadMode) {
         // Exit reload mode
         stateManager.setIsReloadMode(false);
-        extendWoodSecureClamp(); // Re-extend wood secure clamp
+        extend2x4SecureClamp(); // Re-extend 2x4 secure clamp
         retractFeedClamp();   // Keep feed clamp retracted (idle state default)
         turnBlueLedOff();       // Turn off blue LED
     }
@@ -124,7 +124,7 @@ void IdleState::checkStartConditions(StateManager& stateManager) {
         configureCutMotorForCutting();
         
         extendFeedClamp();
-        extendWoodSecureClamp();
+        extend2x4SecureClamp();
         
         if (!_2x4Present) {
             turnBlueLedOn();

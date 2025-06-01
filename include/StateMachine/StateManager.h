@@ -28,15 +28,14 @@ public:
     
     // System resource access methods
     FastAccelStepper* getCutMotor() { return cutMotor; }
-    FastAccelStepper* getPositionMotor() { return positionMotor; }
+    FastAccelStepper* getFeedMotor() { return feedMotor; }
     Servo* getRotationServo() { return &rotationServo; }
     
     // Switch access methods
     Bounce* getCutHomingSwitch() { return &cutHomingSwitch; }
-    Bounce* getPositionHomingSwitch() { return &positionHomingSwitch; }
+    Bounce* getFeedHomingSwitch() { return &feedHomingSwitch; }
     Bounce* getReloadSwitch() { return &reloadSwitch; }
     Bounce* getStartCycleSwitch() { return &startCycleSwitch; }
-    Bounce* getFixPositionSwitch() { return &fixPositionSwitch; }
     
     // System flag access methods
     bool getIsReloadMode() const { return isReloadMode; }

@@ -39,18 +39,17 @@ SystemState previousState = ERROR_RESET; // Initialize to a different state to e
 // Create motor objects
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *cutMotor = NULL;
-FastAccelStepper *positionMotor = NULL;
+FastAccelStepper *feedMotor = NULL;
 
 // Servo object
 Servo rotationServo;
 
 // Bounce objects for debouncing switches
 Bounce cutHomingSwitch = Bounce();
-Bounce positionHomingSwitch = Bounce();
+Bounce feedHomingSwitch = Bounce();
 Bounce reloadSwitch = Bounce();
 Bounce startCycleSwitch = Bounce();
 Bounce pushwoodForwardSwitch = Bounce();
-Bounce fixPositionSwitch = Bounce();
 
 // System flags
 bool isHomed = false;
@@ -66,7 +65,7 @@ bool startSwitchSafe = false;       // New flag to track if start switch is safe
 unsigned long lastBlinkTime = 0;
 unsigned long lastErrorBlinkTime = 0;
 unsigned long errorStartTime = 0;
-unsigned long positionMoveStartTime = 0;
+unsigned long feedMoveStartTime = 0;
 
 // LED states
 bool blinkState = false;
@@ -76,8 +75,8 @@ bool errorBlinkState = false;
 unsigned long signalTAStartTime = 0; // For Transfer Arm signal
 bool signalTAActive = false;      // For Transfer Arm signal
 
-// New flag to track cut motor return during Yes_2x4 mode
-bool cutMotorInYes2x4Return = false;
+// New flag to track cut motor return during RETURNING_YES_2x4 mode
+bool cutMotorInReturningYes2x4Return = false;
 
 // Additional variables needed by states - declarations moved to above
 
@@ -102,13 +101,12 @@ void setup() {
   pinMode(RELOAD_SWITCH, INPUT_PULLDOWN);
   pinMode(START_CYCLE_SWITCH, INPUT_PULLDOWN);
   pinMode(MANUAL_FEED_SWITCH, INPUT_PULLDOWN);
-  pinMode(FEED_POSITION_LOCK_BUTTON, INPUT_PULLDOWN);
   
   pinMode(_2x4_PRESENT_SENSOR, INPUT_PULLUP);
   pinMode(WOOD_SUCTION_CONFIRM_SENSOR, INPUT_PULLUP);
   
   pinMode(ROTATION_CLAMP, OUTPUT);
-  pinMode(WOOD_SECURE_CLAMP, OUTPUT);
+  pinMode(_2x4_SECURE_CLAMP, OUTPUT);
   
   pinMode(STATUS_LED_RED, OUTPUT);
   pinMode(STATUS_LED_YELLOW, OUTPUT);
@@ -120,7 +118,7 @@ void setup() {
   
   //! Initialize clamps and LEDs
   extendFeedClamp();
-  extendWoodSecureClamp();
+  extend2x4SecureClamp();
   retractRotationClamp();
   allLedsOff();
   turnBlueLedOn();
@@ -129,8 +127,8 @@ void setup() {
   cutHomingSwitch.attach(CUT_MOTOR_HOME_SWITCH);
   cutHomingSwitch.interval(3);
   
-  positionHomingSwitch.attach(FEED_MOTOR_HOME_SWITCH);
-  positionHomingSwitch.interval(5);
+  feedHomingSwitch.attach(FEED_MOTOR_HOME_SWITCH);
+  feedHomingSwitch.interval(5);
   
   reloadSwitch.attach(RELOAD_SWITCH);
   reloadSwitch.interval(10);
@@ -140,9 +138,6 @@ void setup() {
   
   pushwoodForwardSwitch.attach(MANUAL_FEED_SWITCH);
   pushwoodForwardSwitch.interval(20);
-  
-  fixPositionSwitch.attach(FEED_POSITION_LOCK_BUTTON);
-  fixPositionSwitch.interval(20);
   
   //! Initialize motors
   engine.init();
@@ -156,13 +151,13 @@ void setup() {
     Serial.println("Failed to init cutMotor");
   }
 
-  positionMotor = engine.stepperConnectToPin(FEED_MOTOR_STEP_PIN);
-  if (positionMotor) {
-    positionMotor->setDirectionPin(FEED_MOTOR_DIR_PIN);
-    configurePositionMotorForNormalOperation();
-    positionMotor->setCurrentPosition(0);
+  feedMotor = engine.stepperConnectToPin(FEED_MOTOR_STEP_PIN);
+  if (feedMotor) {
+    feedMotor->setDirectionPin(FEED_MOTOR_DIR_PIN);
+    configureFeedMotorForNormalOperation();
+    feedMotor->setCurrentPosition(0);
   } else {
-    Serial.println("Failed to init positionMotor");
+    Serial.println("Failed to init feedMotor");
   }
   
   //! Initialize servo

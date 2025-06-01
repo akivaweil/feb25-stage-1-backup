@@ -47,8 +47,8 @@ void FeedWoodFwdOneState::executeStep(StateManager& stateManager) {
             if (positionMotor && !positionMotor->isRunning()) {
                 //! STEP 3: EXTEND FEED CLAMP AND RETRACT SECURE WOOD CLAMP
                 extendFeedClamp();
-                retractWoodSecureClamp();
-                Serial.println("FeedWoodFwdOne: Feed clamp extended, secure wood clamp retracted");
+                retract2x4SecureClamp();
+                Serial.println("FeedWoodFwdOne: Feed clamp extended, secure 2x4 clamp retracted");
                 stepStartTime = millis();
                 advanceToNextStep(stateManager);
             }

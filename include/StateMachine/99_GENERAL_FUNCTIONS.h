@@ -22,8 +22,8 @@ enum SystemState {
   FEED_FIRST_CUT,
   FEED_WOOD_FWD_ONE,
   CUTTING,
-  Yes_2x4,
-  No_2x4,
+  RETURNING_YES_2x4,
+  RETURNING_NO_2x4,
   RETURNING,
   ERROR,
   ERROR_RESET,
@@ -43,7 +43,7 @@ extern const int MANUAL_FEED_SWITCH;
 extern const int _2x4_PRESENT_SENSOR;
 extern const int WOOD_SUCTION_CONFIRM_SENSOR;
 extern const int FEED_CLAMP;
-extern const int WOOD_SECURE_CLAMP;
+extern const int _2x4_SECURE_CLAMP;
 extern const int ROTATION_CLAMP;
 extern const int TRANSFER_ARM_SIGNAL_PIN;
 extern const int STATUS_LED_RED;
@@ -70,7 +70,7 @@ extern bool signalTAActive; // For Transfer Arm signal
 
 // Extern declarations for motor objects
 extern FastAccelStepper *cutMotor;
-extern FastAccelStepper *positionMotor;
+extern FastAccelStepper *feedMotor;
 
 // Extern declarations for motor configuration constants
 extern const int CUT_MOTOR_STEPS_PER_INCH;
@@ -103,11 +103,10 @@ extern const unsigned long TA_SIGNAL_DURATION; // Duration for TA signal
 
 // Switch objects
 extern Bounce cutHomingSwitch;
-extern Bounce positionHomingSwitch;
+extern Bounce feedHomingSwitch;
 extern Bounce reloadSwitch;
 extern Bounce startCycleSwitch;
 extern Bounce pushwoodForwardSwitch;
-extern Bounce fixPositionSwitch;
 
 // System flags
 extern bool isReloadMode;
@@ -143,8 +142,8 @@ void handleTASignalTiming(); // Handles timing for TA signal
 // Contains functions for controlling various clamps.
 void extendFeedClamp();
 void retractFeedClamp();
-void extendWoodSecureClamp();
-void retractWoodSecureClamp();
+void extend2x4SecureClamp();
+void retract2x4SecureClamp();
 void extendRotationClamp();
 void retractRotationClamp();
 void handleRotationClampRetract(); // Point 4
@@ -174,19 +173,19 @@ void handleSuctionErrorLedBlink(unsigned long& lastBlinkTimeRef, bool& blinkStat
 
 void configureCutMotorForCutting();
 void configureCutMotorForReturn();
-void configurePositionMotorForNormalOperation();
-void configurePositionMotorForReturn();
+void configureFeedMotorForNormalOperation();
+void configureFeedMotorForReturn();
 void moveCutMotorToCut();
 void moveCutMotorToHome();
-void movePositionMotorToTravel();
-void movePositionMotorToHome();
-void movePositionMotorToYes2x4Home();  // New function for Yes_2x4 mode
-void movePositionMotorToPosition(float targetPositionInches);
+void moveFeedMotorToTravel();
+void moveFeedMotorToHome();
+void moveFeedMotorToPostCutHome();  // New function for post-cut positioning
+void moveFeedMotorToPosition(float targetPositionInches);
 void stopCutMotor();
 void stopPositionMotor();
 void homeCutMotorBlocking(Bounce& homingSwitch, unsigned long timeout);
-void homePositionMotorBlocking(Bounce& homingSwitch);
-void movePositionMotorToInitialAfterHoming();
+void homeFeedMotorBlocking(Bounce& homingSwitch);
+void moveFeedMotorToInitialAfterHoming();
 // Point 3: Complex conditional logic
 bool checkAndRecalibrateCutMotorHome(int attempts);
 

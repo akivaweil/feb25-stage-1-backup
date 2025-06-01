@@ -43,10 +43,10 @@ void No2x4State::handleNo2x4Sequence(StateManager& stateManager) {
     
     if (no2x4Step == 0) { // First time entering this specific No_2x4 logic path
         //! ************************************************************************
-        //! STEP 0: INITIATE POSITION MOTOR TO HOME & RETRACT WOOD SECURE CLAMP
+        //! STEP 0: INITIATE POSITION MOTOR TO HOME & RETRACT 2x4 SECURE CLAMP
         //! ************************************************************************
-        Serial.println("No_2x4 Step 0: Initiating position motor to home & retracting wood secure clamp.");
-        retractWoodSecureClamp();
+        Serial.println("No_2x4 Step 0: Initiating position motor to home & retracting 2x4 secure clamp.");
+        retract2x4SecureClamp();
         if (positionMotor) {
             if (positionMotor->getCurrentPosition() != 0 || positionMotor->isRunning()) {
                 positionMotor->moveTo(0);
@@ -280,10 +280,10 @@ void No2x4State::handleNo2x4PositionMotorHoming(StateManager& stateManager) {
             //! ************************************************************************
             Serial.println("No_2x4 Position Motor Homing Step 9.4: Homing sequence complete.");
             
-            retractWoodSecureClamp(); 
-            Serial.println("Wood secure clamp retracted (final check in No_2x4).");
-            extendWoodSecureClamp();
-            Serial.println("Wood secure clamp extended.");
+            retract2x4SecureClamp(); 
+            Serial.println("2x4 secure clamp retracted (final check in No_2x4).");
+            extend2x4SecureClamp();
+            Serial.println("2x4 secure clamp extended.");
             turnYellowLedOff();
             turnBlueLedOn(); 
 

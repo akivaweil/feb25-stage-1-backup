@@ -48,7 +48,7 @@ void FeedFirstCutState::executeStep(StateManager& stateManager) {
             if (positionMotor && !positionMotor->isRunning()) {
                 //! STEP 3: EXTEND FEED CLAMP AND RETRACT SECURE WOOD CLAMP
                 extendFeedClamp();
-                retractWoodSecureClamp();
+                retract2x4SecureClamp();
                 Serial.println("FeedFirstCut: Feed clamp extended, secure wood clamp retracted");
                 stepStartTime = millis();
                 advanceToNextStep(stateManager);
@@ -95,7 +95,7 @@ void FeedFirstCutState::executeStep(StateManager& stateManager) {
             if (positionMotor && !positionMotor->isRunning()) {
                 //! STEP 9: EXTEND FEED CLAMP AND RETRACT SECURE WOOD CLAMP (SECOND RUN)
                 extendFeedClamp();
-                retractWoodSecureClamp();
+                retract2x4SecureClamp();
                 Serial.println("FeedFirstCut: Feed clamp extended, secure wood clamp retracted (second run)");
                 stepStartTime = millis();
                 advanceToNextStep(stateManager);

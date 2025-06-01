@@ -26,7 +26,7 @@ private:
     bool rotationClampActivatedThisCycle = false;
     bool rotationServoActivatedThisCycle = false;
     float cutMotorIncrementalMoveTotalInches = 0.0;
-    int cuttingSubStep8 = 0; // For position motor homing sequence
+    int cuttingSubStep8 = 0; // For feed motor homing sequence
     
     // Helper methods for different cutting phases
     void handleCuttingStep0(StateManager& stateManager);
@@ -35,7 +35,7 @@ private:
     void handleCuttingStep3(StateManager& stateManager);
     void handleCuttingStep4(StateManager& stateManager);
     void handleCuttingStep5(StateManager& stateManager);
-    void handleCuttingStep8_PositionMotorHomingSequence(StateManager& stateManager);
+    void handleCuttingStep8_FeedMotorHomingSequence(StateManager& stateManager);
     
     // Helper method for home position error
     void handleHomePositionError(StateManager& stateManager);

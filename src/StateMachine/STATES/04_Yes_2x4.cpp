@@ -21,8 +21,8 @@ void Yes2x4State::onEnter(StateManager& stateManager) {
     configurePositionMotorForReturn();
     
     retractFeedClamp(); 
-    retractWoodSecureClamp(); 
-    Serial.println("Position and Wood Secure clamps retracted for simultaneous return.");
+    retract2x4SecureClamp(); 
+    Serial.println("Position and 2x4 Secure clamps retracted for simultaneous return.");
 
     // Set flag to indicate we're in Yes_2x4 return mode - enable homing sensor check
     extern bool cutMotorInYes2x4Return; // From main.cpp
@@ -87,7 +87,7 @@ void Yes2x4State::handleYes2x4Sequence(StateManager& stateManager) {
                     // Homing failed, transition to ERROR state.
                     Serial.println("ERROR: Cut motor position switch did not detect home after simultaneous return!");
                     stopCutMotor();
-                    extendWoodSecureClamp(); 
+                    extend2x4SecureClamp(); 
                     turnRedLedOn();
                     turnYellowLedOff(); 
                     stateManager.changeState(ERROR);
@@ -95,8 +95,8 @@ void Yes2x4State::handleYes2x4Sequence(StateManager& stateManager) {
                     resetSteps();
                 } else {
                     // Homing successful, proceed with next steps.
-                    retractWoodSecureClamp();
-                    Serial.println("Wood secure clamp retracted after successful cut motor home detection.");
+                    retract2x4SecureClamp();
+                    Serial.println("2x4 secure clamp retracted after successful cut motor home detection.");
 
                     Serial.println("Cut motor position switch confirmed home. Proceeding to move position motor to final travel position.");
                     configurePositionMotorForNormalOperation();
@@ -201,8 +201,8 @@ void Yes2x4State::handleYes2x4PositionMotorHoming(StateManager& stateManager) {
             //! STEP 3.4: HOMING COMPLETE - CHECK FOR CONTINUOUS MODE OR FINISH CYCLE
             //! ************************************************************************
             Serial.println("Yes_2x4 Position Motor Homing Step 4: Homing sequence complete.");
-            extendWoodSecureClamp(); 
-            Serial.println("Wood secure clamp extended."); 
+            extend2x4SecureClamp(); 
+            Serial.println("2x4 secure clamp extended."); 
             turnYellowLedOff();
             stateManager.setCuttingCycleInProgress(false);
             
