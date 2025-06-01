@@ -2,7 +2,7 @@
 #define ERROR_RESET_H
 
 #include <Arduino.h>
-#include "Functions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
 
 // Function declarations for error reset state functionality
 void handleErrorResetState();

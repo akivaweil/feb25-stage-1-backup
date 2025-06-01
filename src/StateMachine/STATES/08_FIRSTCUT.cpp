@@ -1,6 +1,6 @@
-#include "StateMachine/FirstCutState.h"
+#include "StateMachine/08_FIRSTCUT.h"
 #include "StateMachine/StateManager.h"
-#include "Functions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ************************ FIRST CUT STATE ******************************
@@ -12,7 +12,7 @@
 // 1. Retract the position clamp
 // 2. Move the position motor to -2
 // 3. Extend the position clamp and retract the secure wood clamp
-// 4. Wait 300ms
+// 4. Wait 200ms
 // 5. Move the position motor to POSITION_TRAVEL_DISTANCE
 // 6. Start a cutting cycle by switching to cutting state
 
@@ -49,7 +49,7 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                movePositionMotorToPosition(-2.0);
+                movePositionMotorToPosition(-1.0);
                 Serial.println("FirstCut: Moving position motor to -1 inch");
             }
             
@@ -72,16 +72,16 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             advanceToNextStep(stateManager);
             break;
             
-        case WAIT_300MS:
+        case WAIT_200MS:
             //! ************************************************************************
-            //! STEP 4: WAIT 300MS
+            //! STEP 4: WAIT 200MS
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                Serial.println("FirstCut: Waiting 300ms");
+                Serial.println("FirstCut: Waiting 200ms");
             }
             
-            if (millis() - stepStartTime >= 300) {
+            if (millis() - stepStartTime >= 200) {
                 advanceToNextStep(stateManager);
             }
             break;
@@ -128,7 +128,7 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                movePositionMotorToPosition(POSITION_TRAVEL_DISTANCE - 2.75);
+                movePositionMotorToPosition(POSITION_TRAVEL_DISTANCE - 3.6);
                 Serial.println("FirstCut: Moving position motor to -2 inch (second run)");
             }
             
@@ -151,23 +151,23 @@ void FirstCutState::executeStep(StateManager& stateManager) {
             advanceToNextStep(stateManager);
             break;
             
-        case WAIT_300MS_SECOND:
+        case WAIT_200MS_SECOND:
             //! ************************************************************************
-            //! STEP 10: WAIT 300MS (SECOND RUN)
+            //! STEP 10: WAIT 200MS (SECOND RUN)
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                Serial.println("FirstCut: Waiting 300ms (second run)");
+                Serial.println("FirstCut: Waiting 200ms (second run)");
             }
             
-            if (millis() - stepStartTime >= 300) {
+            if (millis() - stepStartTime >= 200) {
                 advanceToNextStep(stateManager);
             }
             break;
             
         case MOVE_TO_TRAVEL_DISTANCE_MINUS_275:
             //! ************************************************************************
-            //! STEP 11: MOVE POSITION MOTOR TO POSITION_TRAVEL_DISTANCE - 2.75
+            //! STEP 11: MOVE POSITION MOTOR TO POSITION_TRAVEL_DISTANCE
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
@@ -218,9 +218,9 @@ void FirstCutState::advanceToNextStep(StateManager& stateManager) {
             currentStep = EXTEND_POSITION_CLAMP_RETRACT_SECURE;
             break;
         case EXTEND_POSITION_CLAMP_RETRACT_SECURE:
-            currentStep = WAIT_300MS;
+        currentStep = WAIT_200MS;
             break;
-        case WAIT_300MS:
+        case WAIT_200MS:
             currentStep = MOVE_TO_TRAVEL_DISTANCE;
             break;
         case MOVE_TO_TRAVEL_DISTANCE:
@@ -236,9 +236,9 @@ void FirstCutState::advanceToNextStep(StateManager& stateManager) {
             currentStep = EXTEND_POSITION_CLAMP_RETRACT_SECURE_SECOND;
             break;
         case EXTEND_POSITION_CLAMP_RETRACT_SECURE_SECOND:
-            currentStep = WAIT_300MS_SECOND;
+            currentStep = WAIT_200MS_SECOND;
             break;
-        case WAIT_300MS_SECOND:
+        case WAIT_200MS_SECOND:
             currentStep = MOVE_TO_TRAVEL_DISTANCE_MINUS_275;
             break;
         case MOVE_TO_TRAVEL_DISTANCE_MINUS_275:

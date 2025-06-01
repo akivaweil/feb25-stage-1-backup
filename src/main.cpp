@@ -3,15 +3,15 @@
 #include <FastAccelStepper.h>
 #include <esp_system.h>
 #include <ESP32Servo.h>
-#include "Config/pin_definitions.h"
-#include "Config/system_config.h"
+#include "Config/Pins_Definitions.h"
+#include "Config/Config.h"
 #include "OTAUpdater/ota_updater.h"
-#include "Functions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
 #include "StateMachine/StateManager.h"
 #include "ErrorStates/standard_error.h"
 #include "ErrorStates/error_reset.h"
 #include "ErrorStates/suction_error_hold.h"
-#include "CutMotorHomeErrorHandler.h"
+#include "StateMachine/99_CUT_MOTOR_ERROR_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ************************ AUTOMATED TABLE SAW **************************

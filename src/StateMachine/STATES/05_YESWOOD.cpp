@@ -1,7 +1,7 @@
-#include "StateMachine/YesWoodState.h"
+#include "StateMachine/05_YESWOOD.h"
 #include "StateMachine/StateManager.h"
-#include "Functions.h"
-#include "Config/pin_definitions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "Config/Pins_Definitions.h"
 
 //* ************************************************************************
 //* ************************** YES WOOD STATE ******************************

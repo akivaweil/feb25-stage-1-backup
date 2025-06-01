@@ -13,7 +13,7 @@
 // 1. Retract the position clamp
 // 2. Move the position motor to 0
 // 3. Extend the position clamp and retract the secure wood clamp
-// 4. Wait 300ms
+// 4. Wait 200ms
 // 5. Move the position motor to POSITION_TRAVEL_DISTANCE
 
 class PushwoodForwardState : public BaseState {
@@ -28,7 +28,7 @@ private:
         RETRACT_POSITION_CLAMP,
         MOVE_TO_ZERO,
         EXTEND_POSITION_CLAMP_RETRACT_SECURE,
-        WAIT_300MS,
+        WAIT_200MS,
         MOVE_TO_TRAVEL_DISTANCE,
         COMPLETE
     };

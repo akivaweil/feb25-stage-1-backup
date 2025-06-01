@@ -1,6 +1,6 @@
-#include "StateMachine/HomingState.h"
+#include "StateMachine/01_HOMING.h"
 #include "StateMachine/StateManager.h"
-#include "Functions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ************************** HOMING STATE ********************************

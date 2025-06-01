@@ -1,6 +1,6 @@
-#include "StateMachine/PushwoodForwardState.h"
+#include "StateMachine/07_PUSHWOODFORWARD.h"
 #include "StateMachine/StateManager.h"
-#include "Functions.h"
+#include "StateMachine/99_GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ********************* PUSHWOOD FORWARD STATE **************************
@@ -12,7 +12,7 @@
 // 1. Retract the position clamp
 // 2. Move the position motor to 0
 // 3. Extend the position clamp and retract the secure wood clamp
-// 4. Wait 300ms
+// 4. Wait 200ms
 // 5. Move the position motor to POSITION_TRAVEL_DISTANCE
 
 void PushwoodForwardState::execute(StateManager& stateManager) {
@@ -71,16 +71,16 @@ void PushwoodForwardState::executeStep(StateManager& stateManager) {
             advanceToNextStep(stateManager);
             break;
             
-        case WAIT_300MS:
+        case WAIT_200MS:
             //! ************************************************************************
-            //! STEP 4: WAIT 300MS
+            //! STEP 4: WAIT 200MS
             //! ************************************************************************
             if (stepStartTime == 0) {
                 stepStartTime = millis();
-                Serial.println("PushwoodForward: Waiting 300ms");
+                Serial.println("PushwoodForward: Waiting 200ms");
             }
             
-            if (millis() - stepStartTime >= 300) {
+            if (millis() - stepStartTime >= 200) {
                 advanceToNextStep(stateManager);
             }
             break;
@@ -138,9 +138,9 @@ void PushwoodForwardState::advanceToNextStep(StateManager& stateManager) {
             currentStep = EXTEND_POSITION_CLAMP_RETRACT_SECURE;
             break;
         case EXTEND_POSITION_CLAMP_RETRACT_SECURE:
-            currentStep = WAIT_300MS;
+            currentStep = WAIT_200MS;
             break;
-        case WAIT_300MS:
+        case WAIT_200MS:
             currentStep = MOVE_TO_TRAVEL_DISTANCE;
             break;
         case MOVE_TO_TRAVEL_DISTANCE:

@@ -1,14 +1,13 @@
 #include "StateMachine/StateManager.h"
-#include "StateMachine/StartupState.h"
-#include "StateMachine/HomingState.h"
-#include "StateMachine/IdleState.h"
-#include "StateMachine/FirstCutState.h"
-#include "StateMachine/PushwoodForwardState.h"
-#include "StateMachine/CuttingState.h"
-#include "StateMachine/NoWoodState.h"
-#include "StateMachine/YesWoodState.h"
-#include "StateMachine/ReturningState.h"
-#include "StateMachine/PositioningState.h"
+#include "StateMachine/00_STARTUP.h"
+#include "StateMachine/01_HOMING.h"
+#include "StateMachine/02_IDLE.h"
+#include "StateMachine/08_FIRSTCUT.h"
+#include "StateMachine/07_PUSHWOODFORWARD.h"
+#include "StateMachine/03_CUTTING.h"
+#include "StateMachine/04_NOWOOD.h"
+#include "StateMachine/05_YESWOOD.h"
+#include "StateMachine/06_POSITIONING.h"
 #include "ErrorStates/standard_error.h"
 #include "ErrorStates/error_reset.h"
 #include "ErrorStates/suction_error_hold.h"
@@ -31,7 +30,6 @@ static PushwoodForwardState pushwoodForwardState;
 static CuttingState cuttingState;
 static NoWoodState noWoodState;
 static YesWoodState yesWoodState;
-static ReturningState returningState;
 static PositioningState positioningState;
 
 StateManager::StateManager() : previousState(ERROR_RESET) {
@@ -95,7 +93,6 @@ void StateManager::changeState(SystemState newState) {
             case CUTTING: cuttingState.onExit(*this); break;
             case NOWOOD: noWoodState.onExit(*this); break;
             case YESWOOD: yesWoodState.onExit(*this); break;
-            case RETURNING: returningState.onExit(*this); break;
             case POSITIONING: positioningState.onExit(*this); break;
             // Error states don't have onExit handlers
             default: break;
@@ -114,7 +111,6 @@ void StateManager::changeState(SystemState newState) {
             case CUTTING: cuttingState.onEnter(*this); break;
             case NOWOOD: noWoodState.onEnter(*this); break;
             case YESWOOD: yesWoodState.onEnter(*this); break;
-            case RETURNING: returningState.onEnter(*this); break;
             case POSITIONING: positioningState.onEnter(*this); break;
             // Error states don't have onEnter handlers
             default: break;
@@ -149,7 +145,6 @@ void StateManager::printStateChange() {
             case CUTTING: Serial.println("CUTTING"); break;
             case NOWOOD: Serial.println("NOWOOD"); break;
             case YESWOOD: Serial.println("YESWOOD"); break;
-            case RETURNING: Serial.println("RETURNING"); break;
             case POSITIONING: Serial.println("POSITIONING"); break;
             case ERROR: Serial.println("ERROR"); break;
             case ERROR_RESET: Serial.println("ERROR_RESET"); break;
