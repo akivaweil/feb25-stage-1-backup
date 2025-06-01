@@ -69,7 +69,7 @@ void retract2x4SecureClamp() {
 
 void extendRotationClamp() {
     // Rotation clamp extends when HIGH
-    digitalWrite(ROTATION_CLAMP, LOW); // Extended (Reversed Logic)
+    digitalWrite(ROTATION_CLAMP, HIGH); // Extended 
     rotationClampExtendTime = millis();
     rotationClampIsExtended = true;
     Serial.println("Rotation Clamp Extended");
@@ -77,7 +77,7 @@ void extendRotationClamp() {
 
 void retractRotationClamp() {
     // Rotation clamp retracts when LOW
-    digitalWrite(ROTATION_CLAMP, HIGH); // Retracted (Reversed Logic)
+    digitalWrite(ROTATION_CLAMP, LOW); // Retracted 
     rotationClampIsExtended = false; // Assuming we want to clear the flag when explicitly retracting
     Serial.println("Rotation Clamp Retracted");
 }
