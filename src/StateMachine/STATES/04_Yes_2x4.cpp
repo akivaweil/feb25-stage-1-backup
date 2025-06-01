@@ -47,13 +47,14 @@ void ReturningYes2x4State::handleReturningYes2x4Sequence(StateManager& stateMana
     switch (returningYes2x4SubStep) {
         case 0: // Wait for both motors to finish returning
             if (cutMotorFinished && feedMotorFinished) {
-                Serial.println("Both motors finished returning. Starting feed motor homing sequence.");
+                Serial.println("Both motors finished returning. Extending feed clamp and starting feed motor homing sequence.");
                 
                 //! ************************************************************************
-                //! STEP 1: RETRACT FEED CLAMP AND START FEED MOTOR HOMING SEQUENCE
+                //! STEP 1: EXTEND FEED CLAMP AND RETRACT 2X4 SECURE CLAMP AND START FEED MOTOR HOMING SEQUENCE
                 //! ************************************************************************
-                retract2x4SecureClamp();
-                Serial.println("Feed clamp retracted. Starting feed motor homing sequence...");
+                extendFeedClamp(); // Equivalent to old extendPositionClamp() when position motor homed
+                retract2x4SecureClamp(); // Equivalent to old retractWoodSecureClamp() when cut motor homed
+                Serial.println("Feed clamp extended and 2x4 secure clamp retracted. Starting feed motor homing sequence...");
                 
                 // Transition to feed motor homing sequence
                 returningYes2x4SubStep = 1;
@@ -77,6 +78,7 @@ void ReturningYes2x4State::handleReturningYes2x4Sequence(StateManager& stateMana
             if (stateManager.getStartCycleSwitch()->read() == HIGH && stateManager.getStartSwitchSafe()) {
                 Serial.println("Start cycle switch is active - continuing with another cut cycle.");
                 // Prepare for next cycle
+                extendFeedClamp(); // Equivalent to old extendPositionClamp() for continuous mode
                 extend2x4SecureClamp();
                 extendRotationClamp(); // Extend rotation clamp for next cutting cycle
                 configureCutMotorForCutting(); // Ensure cut motor is set to proper cutting speed
