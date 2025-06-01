@@ -177,19 +177,16 @@ void StateManager::handleCommonOperations() {
     }
 
     // Handle servo return after hold duration at active position AND when WAS_WOOD_SUCTIONED_SENSOR reads HIGH
-    if (catcherServoIsActiveAndTiming && (millis() - catcherServoActiveStartTime >= CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS)) {
-        extern const int WAS_WOOD_SUCTIONED_SENSOR; // This is in main.cpp
-        if (digitalRead(WAS_WOOD_SUCTIONED_SENSOR) == HIGH) {
-            catcherServoIsActiveAndTiming = false;
-            handleCatcherServoReturn(); // Call function to return catcher servo to home position
+    if (catcherServoIsActiveAndTiming && millis() - catcherServoActiveStartTime >= CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS) {
+        extern const int WOOD_SUCTION_CONFIRM_SENSOR; // This is in main.cpp
+        if (digitalRead(WOOD_SUCTION_CONFIRM_SENSOR) == HIGH) {
+            // Return servo to home position
+            catcherServo.write(CATCHER_SERVO_HOME_POSITION);
             Serial.println("Servo timing completed AND WAS_WOOD_SUCTIONED_SENSOR is HIGH, returning catcher servo to home.");
+            catcherServoIsActiveAndTiming = false; // Clear flag
+            catcherServoIsReturningHome = true; // Set returning flag
         } else {
-            // Only log this message periodically to avoid flooding the serial monitor
-            static unsigned long lastLogTime = 0;
-            if (millis() - lastLogTime >= 500) { // Log every 500ms
-                Serial.println("Waiting for WAS_WOOD_SUCTIONED_SENSOR to read HIGH before returning catcher servo...");
-                lastLogTime = millis();
-            }
+            Serial.println("Waiting for WAS_WOOD_SUCTIONED_SENSOR to read HIGH before returning catcher servo...");
         }
     }
 
@@ -199,9 +196,9 @@ void StateManager::handleCommonOperations() {
         Serial.println("Catcher Clamp disengaged after 1 second.");
     }
 
-    // Read wood sensor (active LOW per explanation)
-    extern const int WOOD_SENSOR; // This is in main.cpp
-    woodPresent = (digitalRead(WOOD_SENSOR) == LOW);
+    // Wood sensor - Update global woodPresent flag
+    extern const int WOOD_PRESENT_SENSOR; // This is in main.cpp
+    woodPresent = (digitalRead(WOOD_PRESENT_SENSOR) == LOW);
     
     // Handle start switch safety check
     if (!startSwitchSafe && startCycleSwitch.fell()) {
@@ -220,11 +217,11 @@ void StateManager::handleCommonOperations() {
         continuousModeActive = startSwitchOn;
     }
     
-    // Handle signal timing independently of other operations
+    // Handle TA signal timeout after TA_SIGNAL_DURATION
     if (signalTAActive && millis() - signalTAStartTime >= TA_SIGNAL_DURATION) {
-        extern const int TA_SIGNAL_OUT_PIN; // This is in main.cpp
-        digitalWrite(TA_SIGNAL_OUT_PIN, LOW); // Return to inactive state (LOW)
+        extern const int TRANSFER_ARM_SIGNAL_PIN; // This is in main.cpp
+        digitalWrite(TRANSFER_ARM_SIGNAL_PIN, LOW); // Return to inactive state (LOW)
         signalTAActive = false;
-        Serial.println("Signal to Stage 1 to TA completed");
+        Serial.println("Signal to Transfer Arm (TA) timed out and reset to LOW"); 
     }
 } 

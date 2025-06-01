@@ -18,10 +18,10 @@
 
 void sendSignalToTA() {
   // Set the signal pin HIGH to trigger Transfer Arm (active HIGH)
-  digitalWrite(TA_SIGNAL_OUT_PIN, HIGH);
+  digitalWrite(TRANSFER_ARM_SIGNAL_PIN, HIGH);
   signalTAStartTime = millis();
   signalTAActive = true;
-  Serial.println("Signal sent to Transfer Arm (TA)");
+  Serial.println("TA Signal activated (HIGH).");
 
   // Only activate servo if it hasn't been activated early
   if (!catcherServoIsActiveAndTiming) {
@@ -44,34 +44,34 @@ void sendSignalToTA() {
 // Catcher Clamp Logic: HIGH = engaged (extended), LOW = disengaged (retracted)
 
 void extendPositionClamp() {
-  digitalWrite(POSITION_CLAMP, LOW); // Engaged
+  digitalWrite(WOOD_FEED_CLAMP_RELAY, LOW); // Engaged
   Serial.println("Position Clamp Extended (Engaged)");
 }
 
 void retractPositionClamp() {
-  digitalWrite(POSITION_CLAMP, HIGH); // Disengaged
+  digitalWrite(WOOD_FEED_CLAMP_RELAY, HIGH); // Disengaged
   Serial.println("Position Clamp Retracted (Disengaged)");
 }
 
 void extendWoodSecureClamp() {
-  digitalWrite(WOOD_SECURE_CLAMP, LOW); // Engaged
+  digitalWrite(WOOD_SECURE_CLAMP_RELAY, LOW); // Engaged
   Serial.println("Wood Secure Clamp Extended (Engaged)");
 }
 
 void retractWoodSecureClamp() {
-  digitalWrite(WOOD_SECURE_CLAMP, HIGH); // Disengaged
+  digitalWrite(WOOD_SECURE_CLAMP_RELAY, HIGH); // Disengaged
   Serial.println("Wood Secure Clamp Retracted (Disengaged)");
 }
 
 void extendCatcherClamp() {
-  digitalWrite(CATCHER_CLAMP_PIN, HIGH); // Engaged (Reversed Logic)
+  digitalWrite(CATCHER_CLAMP_RELAY, HIGH); // Engaged (Reversed Logic)
   catcherClampEngageTime = millis();
   catcherClampIsEngaged = true;
   Serial.println("Catcher Clamp Extended (Engaged)");
 }
 
 void retractCatcherClamp() {
-  digitalWrite(CATCHER_CLAMP_PIN, LOW); // Disengaged (Reversed Logic)
+  digitalWrite(CATCHER_CLAMP_RELAY, LOW); // Disengaged (Reversed Logic)
   catcherClampIsEngaged = false; // Assuming we want to clear the flag when explicitly retracting
   Serial.println("Catcher Clamp Retracted (Disengaged)");
 }
@@ -83,10 +83,10 @@ void retractCatcherClamp() {
 
 void turnRedLedOn() {
   static bool lastRedLedState = false;
-  digitalWrite(RED_LED, HIGH);
-  digitalWrite(YELLOW_LED, LOW);
-  digitalWrite(GREEN_LED, LOW);
-  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(STATUS_LED_RED, HIGH);
+  digitalWrite(STATUS_LED_YELLOW, LOW);
+  digitalWrite(STATUS_LED_GREEN, LOW);
+  digitalWrite(STATUS_LED_BLUE, LOW);
   if (!lastRedLedState) {
     Serial.println("Red LED ON");
     lastRedLedState = true;
@@ -95,7 +95,7 @@ void turnRedLedOn() {
 
 void turnRedLedOff() {
   static bool lastRedLedState = true;
-  digitalWrite(RED_LED, LOW);
+  digitalWrite(STATUS_LED_RED, LOW);
   if (lastRedLedState) {
     Serial.println("Red LED OFF");
     lastRedLedState = false;
@@ -104,10 +104,10 @@ void turnRedLedOff() {
 
 void turnYellowLedOn() {
   static bool lastYellowLedState = false;
-  digitalWrite(YELLOW_LED, HIGH);
-  digitalWrite(RED_LED, LOW);
-  digitalWrite(GREEN_LED, LOW);
-  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(STATUS_LED_YELLOW, HIGH);
+  digitalWrite(STATUS_LED_RED, LOW);
+  digitalWrite(STATUS_LED_GREEN, LOW);
+  digitalWrite(STATUS_LED_BLUE, LOW);
   if (!lastYellowLedState) {
     Serial.println("Yellow LED ON");
     lastYellowLedState = true;
@@ -116,7 +116,7 @@ void turnYellowLedOn() {
 
 void turnYellowLedOff() {
   static bool lastYellowLedState = true;
-  digitalWrite(YELLOW_LED, LOW);
+  digitalWrite(STATUS_LED_YELLOW, LOW);
   if (lastYellowLedState) {
     Serial.println("Yellow LED OFF");
     lastYellowLedState = false;
@@ -125,10 +125,10 @@ void turnYellowLedOff() {
 
 void turnGreenLedOn() {
   static bool lastGreenLedState = false;
-  digitalWrite(GREEN_LED, HIGH);
-  digitalWrite(RED_LED, LOW);
-  digitalWrite(YELLOW_LED, LOW);
-  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(STATUS_LED_GREEN, HIGH);
+  digitalWrite(STATUS_LED_RED, LOW);
+  digitalWrite(STATUS_LED_YELLOW, LOW);
+  digitalWrite(STATUS_LED_BLUE, LOW);
   if (!lastGreenLedState) {
     Serial.println("Green LED ON");
     lastGreenLedState = true;
@@ -137,7 +137,7 @@ void turnGreenLedOn() {
 
 void turnGreenLedOff() {
   static bool lastGreenLedState = true;
-  digitalWrite(GREEN_LED, LOW);
+  digitalWrite(STATUS_LED_GREEN, LOW);
   if (lastGreenLedState) {
     Serial.println("Green LED OFF");
     lastGreenLedState = false;
@@ -146,10 +146,10 @@ void turnGreenLedOff() {
 
 void turnBlueLedOn() {
   static bool lastBlueLedState = false;
-  digitalWrite(BLUE_LED, HIGH);
-  digitalWrite(RED_LED, LOW);
-  digitalWrite(GREEN_LED, LOW);
-  digitalWrite(YELLOW_LED, LOW);
+  digitalWrite(STATUS_LED_BLUE, HIGH);
+  digitalWrite(STATUS_LED_RED, LOW);
+  digitalWrite(STATUS_LED_GREEN, LOW);
+  digitalWrite(STATUS_LED_YELLOW, LOW);
   if (!lastBlueLedState) {
     Serial.println("Blue LED ON");
     lastBlueLedState = true;
@@ -158,7 +158,7 @@ void turnBlueLedOn() {
 
 void turnBlueLedOff() {
   static bool lastBlueLedState = true;
-  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(STATUS_LED_BLUE, LOW);
   if (lastBlueLedState) {
     Serial.println("Blue LED OFF");
     lastBlueLedState = false;
@@ -448,7 +448,7 @@ void handleCatcherServoReturn() {
 
 void handleTASignalTiming() { 
   if (signalTAActive && millis() - signalTAStartTime >= TA_SIGNAL_DURATION) {
-    digitalWrite(TA_SIGNAL_OUT_PIN, LOW); // Return to inactive state (LOW)
+    digitalWrite(TRANSFER_ARM_SIGNAL_PIN, LOW); // Return to inactive state (LOW)
     signalTAActive = false;
     Serial.println("Signal to Transfer Arm (TA) completed"); 
   }

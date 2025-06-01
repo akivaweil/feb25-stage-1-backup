@@ -70,77 +70,48 @@ void CuttingState::handleCuttingStep0(StateManager& stateManager) {
 }
 
 void CuttingState::handleCuttingStep1(StateManager& stateManager) {
-    // Modified to use >= as per original file content for cutMotor->getCurrentPosition()
-    FastAccelStepper* cutMotor = stateManager.getCutMotor();
-    extern const int CUT_MOTOR_STEPS_PER_INCH; // From main.cpp
-    extern const int WAS_WOOD_SUCTIONED_SENSOR; // From main.cpp
+    // CUTTING (Step 1): Delay 1000ms, activate catcher servo for 3 seconds, then check WAS_WOOD_SUCTIONED_SENSOR
+    extern const int WOOD_SUCTION_CONFIRM_SENSOR; // From main.cpp
+    extern const unsigned long CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS; // From main.cpp
     
-    if (cutMotor && cutMotor->getCurrentPosition() >= (1.0 * CUT_MOTOR_STEPS_PER_INCH)) {
-        Serial.println("Cutting Step 1: Cut motor at >= 1 inch, checking wood suction.");
-        if (digitalRead(WAS_WOOD_SUCTIONED_SENSOR) == LOW) { // LOW means NO SUCTION (Error condition)
-            Serial.println("Wood suction error detected! Waiting for cycle switch OFF then ON to reset.");
-            // Stop motors
-            if (cutMotor) cutMotor->forceStopAndNewPosition(cutMotor->getCurrentPosition());
-            FastAccelStepper* positionMotor = stateManager.getPositionMotor();
-            if (positionMotor) positionMotor->forceStopAndNewPosition(positionMotor->getCurrentPosition());
+    if (stepStartTime == 0) {
+        stepStartTime = millis();
+        Serial.println("Cutting Step 1: Delaying 1000ms then activating catcher servo.");
+    }
 
-            stateManager.setCuttingCycleInProgress(false);
+    if (millis() - stepStartTime >= 1000 && !catcherServoIsActiveAndTiming) {
+        activateCatcherServo(); // The function sets timing flags
+        Serial.println("Cutting Step 1: Catcher servo activated for 3 seconds.");
+    }
+
+    if (catcherServoIsActiveAndTiming && millis() - stepStartTime >= 1000 + CATCHER_SERVO_ACTIVE_HOLD_DURATION_MS) {
+        if (digitalRead(WOOD_SUCTION_CONFIRM_SENSOR) == LOW) { // LOW means NO SUCTION (Error condition)
+            Serial.println("Cutting Step 1: WAS_WOOD_SUCTIONED_SENSOR is LOW (No Suction). Error detected. Transitioning to SUCTION_ERROR_HOLD state.");
+            stateManager.changeState(SUCTION_ERROR_HOLD);
             resetSteps();
-
-            // Set LEDs for suction error state
-            turnRedLedOn();
-            turnYellowLedOff();
-            turnGreenLedOff();
-            turnBlueLedOff();
-
-            stateManager.changeState(SUCTION_ERROR_HOLD); // Transition to new error hold state
-        } else { // Sensor is HIGH, suction is OK
+            return;
+        } else {
+            Serial.println("Cutting Step 1: WAS_WOOD_SUCTIONED_SENSOR is HIGH (Suction OK). Advancing to Step 2.");
+            Serial.println("Cutting Step 1: Starting cut motor toward cut position.");
+            configureCutMotorForCutting();
+            moveCutMotorToCut();
             cuttingStep = 2;
-            Serial.println("Cutting Step 1: Wood suction OK (or not present). Proceeding to step 2.");
+            stepStartTime = 0; // Reset for next step
         }
     }
 }
 
 void CuttingState::handleCuttingStep2(StateManager& stateManager) {
     FastAccelStepper* cutMotor = stateManager.getCutMotor();
-    extern const int CUT_MOTOR_STEPS_PER_INCH; // From main.cpp
-    extern const float CUT_TRAVEL_DISTANCE; // From main.cpp
-    extern const float CATCHER_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES; // From main.cpp
-    extern const float CATCHER_SERVO_EARLY_ACTIVATION_OFFSET_INCHES; // From main.cpp
-    extern const int WOOD_SENSOR; // From main.cpp
+    extern const int WOOD_PRESENT_SENSOR; // From main.cpp
     
-    // Early Catcher Clamp Activation
-    if (!catcherClampActivatedThisCycle && cutMotor &&
-        cutMotor->getCurrentPosition() >= ((CUT_TRAVEL_DISTANCE - CATCHER_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES) * CUT_MOTOR_STEPS_PER_INCH)) {
-        Serial.println("Cutting Step 2: Activating Catcher Clamp (early).");
-        extendCatcherClamp(); // Engage Catcher Clamp
-        catcherClampActivatedThisCycle = true;
-    }
-
-    // Early Catcher Servo Activation
-    if (!catcherServoActivatedThisCycle && cutMotor &&
-        cutMotor->getCurrentPosition() >= ((CUT_TRAVEL_DISTANCE - CATCHER_SERVO_EARLY_ACTIVATION_OFFSET_INCHES) * CUT_MOTOR_STEPS_PER_INCH)) {
-        Serial.println("Cutting Step 2: Activating Catcher Servo (early).");
-        extern Servo catcherServo; // From main.cpp
-        extern unsigned long catcherServoActiveStartTime; // From main.cpp
-        extern bool catcherServoIsActiveAndTiming; // From main.cpp
-        extern const int CATCHER_SERVO_ACTIVE_POSITION; // From main.cpp
-        catcherServo.write(CATCHER_SERVO_ACTIVE_POSITION);
-        catcherServoActiveStartTime = millis();
-        catcherServoIsActiveAndTiming = true;
-        catcherServoActivatedThisCycle = true;
-        Serial.print("Catcher servo moved to ");
-        Serial.print(CATCHER_SERVO_ACTIVE_POSITION);
-        Serial.println(" degrees (early activation).");
-    }
-
-    // Check for full cut completion
+    // Check if motor finished moving to cut position
     if (cutMotor && !cutMotor->isRunning()) {
         Serial.println("Cutting Step 2: Cut fully complete."); 
         sendSignalToTA(); // Signal to Transfer Arm
         configureCutMotorForReturn();
 
-        int sensorValue = digitalRead(WOOD_SENSOR);
+        int sensorValue = digitalRead(WOOD_PRESENT_SENSOR);
         bool noWoodDetected = (sensorValue == HIGH);
         
         if (noWoodDetected) {

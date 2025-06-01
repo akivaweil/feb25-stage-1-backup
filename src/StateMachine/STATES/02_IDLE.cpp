@@ -66,11 +66,11 @@ void IdleState::checkFirstCutConditions(StateManager& stateManager) {
     // Check for pushwood forward switch press AND wood sensor HIGH
     extern Bounce pushwoodForwardSwitch;
     extern Bounce fixPositionSwitch;
-    extern const int WOOD_SENSOR;
+    extern const int WOOD_PRESENT_SENSOR;
     bool pushwoodPressed = pushwoodForwardSwitch.rose();
     bool fixPositionPressed = fixPositionSwitch.rose();
-    bool woodSensorHigh = (digitalRead(WOOD_SENSOR) == HIGH);
-    bool woodSensorLow = (digitalRead(WOOD_SENSOR) == LOW);
+    bool woodSensorHigh = (digitalRead(WOOD_PRESENT_SENSOR) == HIGH);
+    bool woodSensorLow = (digitalRead(WOOD_PRESENT_SENSOR) == LOW);
     
     if (pushwoodPressed && woodSensorHigh) {
         Serial.println("Idle: Pushwood forward switch pressed with wood sensor HIGH - transitioning to FIRSTCUT");

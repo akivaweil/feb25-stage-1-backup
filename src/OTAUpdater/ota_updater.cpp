@@ -45,27 +45,30 @@ void setupOTA() {
       }
       // NOTE: if updating SPIFFS, ensure SPIFFS is mounted via SPIFFS.begin()
       Serial.println("Start updating " + type);
-      // //! Optionally, add code here to stop motors or critical processes
-      // if (cutMotor) cutMotor->forceStopAndNewPosition(cutMotor->getCurrentPosition());
-      // if (positionMotor) positionMotor->forceStopAndNewPosition(positionMotor->getCurrentPosition());
-      // digitalWrite(RED_LED, HIGH); // Indicate OTA start
+      // digitalWrite(STATUS_LED_RED, HIGH); // Indicate OTA start
     })
     .onEnd([]() {
       Serial.println("\nEnd");
-      // digitalWrite(RED_LED, LOW); // Indicate OTA end
+      // digitalWrite(STATUS_LED_RED, LOW); // Indicate OTA end
     })
     .onProgress([](unsigned int progress, unsigned int total) {
       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
     })
     .onError([](ota_error_t error) {
       Serial.printf("Error[%u]: ", error);
-      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-      else if (error == OTA_END_ERROR) Serial.println("End Failed");
-      // digitalWrite(RED_LED, LOW); // Ensure error LED is off or use specific pattern
-      // digitalWrite(YELLOW_LED, HIGH); // Indicate OTA error
+      if (error == OTA_AUTH_ERROR) {
+        Serial.println("Auth Failed");
+      } else if (error == OTA_BEGIN_ERROR) {
+        Serial.println("Begin Failed");
+      } else if (error == OTA_CONNECT_ERROR) {
+        Serial.println("Connect Failed");
+      } else if (error == OTA_RECEIVE_ERROR) {
+        Serial.println("Receive Failed");
+      } else if (error == OTA_END_ERROR) {
+        Serial.println("End Failed");
+      }
+      // digitalWrite(STATUS_LED_RED, LOW); // Ensure error LED is off or use specific pattern
+      // digitalWrite(STATUS_LED_YELLOW, HIGH); // Indicate OTA error
     });
 
   ArduinoOTA.begin();

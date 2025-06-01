@@ -92,32 +92,32 @@ void setup() {
   setupOTA();
 
   //! Configure pin modes
-  pinMode(CUT_MOTOR_PULSE_PIN, OUTPUT);
+  pinMode(CUT_MOTOR_STEP_PIN, OUTPUT);
   pinMode(CUT_MOTOR_DIR_PIN, OUTPUT);
-  pinMode(POSITION_MOTOR_PULSE_PIN, OUTPUT);
-  pinMode(POSITION_MOTOR_DIR_PIN, OUTPUT);
+  pinMode(WOOD_FEED_MOTOR_STEP_PIN, OUTPUT);
+  pinMode(WOOD_FEED_MOTOR_DIR_PIN, OUTPUT);
   
-  pinMode(CUT_MOTOR_HOMING_SWITCH, INPUT_PULLDOWN);
-  pinMode(POSITION_MOTOR_HOMING_SWITCH, INPUT_PULLDOWN);
+  pinMode(CUT_MOTOR_HOME_SWITCH, INPUT_PULLDOWN);
+  pinMode(WOOD_FEED_MOTOR_HOME_SWITCH, INPUT_PULLDOWN);
   pinMode(RELOAD_SWITCH, INPUT_PULLDOWN);
   pinMode(START_CYCLE_SWITCH, INPUT_PULLDOWN);
-  pinMode(PUSHWOOD_FORWARD_SWITCH, INPUT_PULLDOWN);
-  pinMode(FIX_POSITION_BUTTON, INPUT_PULLDOWN);
+  pinMode(MANUAL_FEED_SWITCH, INPUT_PULLDOWN);
+  pinMode(FEED_POSITION_LOCK_BUTTON, INPUT_PULLDOWN);
   
-  pinMode(WOOD_SENSOR, INPUT_PULLUP);
-  pinMode(WAS_WOOD_SUCTIONED_SENSOR, INPUT_PULLUP);
+  pinMode(WOOD_PRESENT_SENSOR, INPUT_PULLUP);
+  pinMode(WOOD_SUCTION_CONFIRM_SENSOR, INPUT_PULLUP);
   
-  pinMode(POSITION_CLAMP, OUTPUT);
-  pinMode(WOOD_SECURE_CLAMP, OUTPUT);
-  pinMode(CATCHER_CLAMP_PIN, OUTPUT);
+  pinMode(WOOD_FEED_CLAMP_RELAY, OUTPUT);
+  pinMode(WOOD_SECURE_CLAMP_RELAY, OUTPUT);
+  pinMode(CATCHER_CLAMP_RELAY, OUTPUT);
   
-  pinMode(RED_LED, OUTPUT);
-  pinMode(YELLOW_LED, OUTPUT);
-  pinMode(GREEN_LED, OUTPUT);
-  pinMode(BLUE_LED, OUTPUT);
+  pinMode(STATUS_LED_RED, OUTPUT);
+  pinMode(STATUS_LED_YELLOW, OUTPUT);
+  pinMode(STATUS_LED_GREEN, OUTPUT);
+  pinMode(STATUS_LED_BLUE, OUTPUT);
   
-  pinMode(TA_SIGNAL_OUT_PIN, OUTPUT);
-  digitalWrite(TA_SIGNAL_OUT_PIN, LOW);
+  pinMode(TRANSFER_ARM_SIGNAL_PIN, OUTPUT);
+  digitalWrite(TRANSFER_ARM_SIGNAL_PIN, LOW);
   
   //! Initialize clamps and LEDs
   extendPositionClamp();
@@ -127,10 +127,10 @@ void setup() {
   turnBlueLedOn();
   
   //! Configure switch debouncing
-  cutHomingSwitch.attach(CUT_MOTOR_HOMING_SWITCH);
+  cutHomingSwitch.attach(CUT_MOTOR_HOME_SWITCH);
   cutHomingSwitch.interval(3);
   
-  positionHomingSwitch.attach(POSITION_MOTOR_HOMING_SWITCH);
+  positionHomingSwitch.attach(WOOD_FEED_MOTOR_HOME_SWITCH);
   positionHomingSwitch.interval(5);
   
   reloadSwitch.attach(RELOAD_SWITCH);
@@ -139,16 +139,16 @@ void setup() {
   startCycleSwitch.attach(START_CYCLE_SWITCH);
   startCycleSwitch.interval(20);
   
-  pushwoodForwardSwitch.attach(PUSHWOOD_FORWARD_SWITCH);
+  pushwoodForwardSwitch.attach(MANUAL_FEED_SWITCH);
   pushwoodForwardSwitch.interval(20);
   
-  fixPositionSwitch.attach(FIX_POSITION_BUTTON);
+  fixPositionSwitch.attach(FEED_POSITION_LOCK_BUTTON);
   fixPositionSwitch.interval(20);
   
   //! Initialize motors
   engine.init();
 
-  cutMotor = engine.stepperConnectToPin(CUT_MOTOR_PULSE_PIN);
+  cutMotor = engine.stepperConnectToPin(CUT_MOTOR_STEP_PIN);
   if (cutMotor) {
     cutMotor->setDirectionPin(CUT_MOTOR_DIR_PIN);
     configureCutMotorForCutting();
@@ -157,9 +157,9 @@ void setup() {
     Serial.println("Failed to init cutMotor");
   }
 
-  positionMotor = engine.stepperConnectToPin(POSITION_MOTOR_PULSE_PIN);
+  positionMotor = engine.stepperConnectToPin(WOOD_FEED_MOTOR_STEP_PIN);
   if (positionMotor) {
-    positionMotor->setDirectionPin(POSITION_MOTOR_DIR_PIN);
+    positionMotor->setDirectionPin(WOOD_FEED_MOTOR_DIR_PIN);
     configurePositionMotorForNormalOperation();
     positionMotor->setCurrentPosition(0);
   } else {

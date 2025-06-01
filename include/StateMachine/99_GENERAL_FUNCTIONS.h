@@ -32,25 +32,25 @@ enum SystemState {
 };
 
 // Extern declarations for Pin Definitions
-extern const int CUT_MOTOR_PULSE_PIN;
+extern const int CUT_MOTOR_STEP_PIN;
 extern const int CUT_MOTOR_DIR_PIN;
-extern const int POSITION_MOTOR_PULSE_PIN;
-extern const int POSITION_MOTOR_DIR_PIN;
-extern const int CUT_MOTOR_HOMING_SWITCH;
-extern const int POSITION_MOTOR_HOMING_SWITCH;
+extern const int WOOD_FEED_MOTOR_STEP_PIN;
+extern const int WOOD_FEED_MOTOR_DIR_PIN;
+extern const int CUT_MOTOR_HOME_SWITCH;
+extern const int WOOD_FEED_MOTOR_HOME_SWITCH;
 extern const int RELOAD_SWITCH;
 extern const int START_CYCLE_SWITCH;
-extern const int PUSHWOOD_FORWARD_SWITCH;
-extern const int WOOD_SENSOR;
-extern const int WAS_WOOD_SUCTIONED_SENSOR;
-extern const int POSITION_CLAMP;
-extern const int WOOD_SECURE_CLAMP;
-extern const int CATCHER_CLAMP_PIN;
-extern const int TA_SIGNAL_OUT_PIN;
-extern const int RED_LED;
-extern const int YELLOW_LED;
-extern const int GREEN_LED;
-extern const int BLUE_LED;
+extern const int MANUAL_FEED_SWITCH;
+extern const int WOOD_PRESENT_SENSOR;
+extern const int WOOD_SUCTION_CONFIRM_SENSOR;
+extern const int WOOD_FEED_CLAMP_RELAY;
+extern const int WOOD_SECURE_CLAMP_RELAY;
+extern const int CATCHER_CLAMP_RELAY;
+extern const int TRANSFER_ARM_SIGNAL_PIN;
+extern const int STATUS_LED_RED;
+extern const int STATUS_LED_YELLOW;
+extern const int STATUS_LED_GREEN;
+extern const int STATUS_LED_BLUE;
 
 // Extern declarations for catcher servo pin
 extern const int CATCHER_SERVO_PIN;
