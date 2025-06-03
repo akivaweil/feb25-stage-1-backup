@@ -1,11 +1,11 @@
-#ifndef SUCTION_ERROR_HOLD_H
-#define SUCTION_ERROR_HOLD_H
+#ifndef CUT_MOTOR_ERROR_H
+#define CUT_MOTOR_ERROR_H
 
 //* ************************************************************************
-//* ********************* SUCTION ERROR HOLD *******************************
+//* *********************** CUT MOTOR ERROR ********************************
 //* ************************************************************************
 
 // Function declaration
-void handleSuctionErrorHoldState();
+void handleCutMotorErrorState();
 
 #endif 

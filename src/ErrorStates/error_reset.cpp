@@ -1,4 +1,4 @@
-#include "ErrorStates/ERROR_RESET.h"
+#include "ErrorStates/Error_Reset.h"
 #include "StateMachine/StateManager.h"
 
 // External references to functions from main.cpp (LED functions only)

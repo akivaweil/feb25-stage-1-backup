@@ -1,11 +1,11 @@
-#ifndef SUCTION_ERROR_HOLD_H
-#define SUCTION_ERROR_HOLD_H
+#ifndef GENERAL_ERROR_H
+#define GENERAL_ERROR_H
 
 //* ************************************************************************
-//* ********************* SUCTION ERROR HOLD *******************************
+//* *********************** GENERAL ERROR **********************************
 //* ************************************************************************
 
 // Function declaration
-void handleSuctionErrorHoldState();
+void handleGeneralErrorState();
 
 #endif 

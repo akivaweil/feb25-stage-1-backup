@@ -1,5 +1,5 @@
-#include "ErrorStates/SUCTION_ERROR_HOLD.h"
-#include "ErrorStates/ERROR_RESET.h"  // For error timing constants
+#include "ErrorStates/Suction_Error_Hold.h"
+#include "ErrorStates/Error_Reset.h"  // For error timing constants
 #include "StateMachine/StateManager.h"
 #include <Bounce2.h>
 

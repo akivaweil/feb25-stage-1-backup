@@ -1,5 +1,5 @@
-#include "ErrorStates/STANDARD_ERROR.h"
-#include "ErrorStates/ERROR_RESET.h"  // For error timing constants
+#include "ErrorStates/General_Error.h"
+#include "ErrorStates/Error_Reset.h"  // For error timing constants
 #include "StateMachine/StateManager.h"
 
 // External references to functions from main.cpp (LED and motor functions only)
@@ -11,14 +11,14 @@ extern void stopCutMotor();
 extern void stopFeedMotor();
 
 //* ************************************************************************
-//* ***************************** ERROR ************************************
+//* *********************** GENERAL ERROR **********************************
 //* ************************************************************************
-// Handles system error states.
-// Step 1: Blink red and yellow LEDs to indicate an error at standard rate.
+// Handles general system error states.
+// Step 1: Blink red and yellow LEDs to indicate a general system error at standard rate.
 // Step 2: Ensure cut and feed motors are stopped.
 // Step 3: Wait for the reload switch to be pressed (rising edge) to acknowledge the error.
 // Step 4: Once error is acknowledged, transition to ERROR_RESET state.
-void handleStandardErrorState() {
+void handleGeneralErrorState() {
     // Blink error LEDs using StateManager timing
     if (millis() - stateManager.getLastErrorBlinkTime() > STANDARD_ERROR_BLINK_INTERVAL) {
         bool newBlinkState = !stateManager.getErrorBlinkState();
@@ -37,6 +37,6 @@ void handleStandardErrorState() {
     // Wait for reload switch to acknowledge error using StateManager
     if (stateManager.getErrorAcknowledged()) {
         stateManager.changeState(ERROR_RESET);
-        Serial.println("Error acknowledged in standard error state. Transitioning to ERROR_RESET.");
+        Serial.println("General error acknowledged. Transitioning to ERROR_RESET.");
     }
 } 
