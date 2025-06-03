@@ -1,7 +1,7 @@
-#include "Config/Config.h"
+#include "StateMachine/STATES/States_Config.h"
 
 //* ************************************************************************
-//* ************************ SYSTEM CONFIGURATION ************************
+//* ************************ STATES CONFIGURATION ************************
 //* ************************************************************************
 // Configuration constants for the Automated Table Saw - Stage 1
 // Motor settings, servo positions, timing, and operational parameters
@@ -74,7 +74,7 @@ const unsigned long TA_SIGNAL_DURATION = 2000; // Duration for Transfer Arm sign
 //* ************************ OPERATIONAL CONSTANTS ***********************
 //* ************************************************************************
 // Rotation clamp early activation offset
-const float ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES = 1.25; 
+const float ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES = 1.45; 
 
 // Rotation servo early activation offset
 const float ROTATION_SERVO_EARLY_ACTIVATION_OFFSET_INCHES = .3; 

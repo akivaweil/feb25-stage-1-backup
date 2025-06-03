@@ -5,7 +5,7 @@
 #include <Bounce2.h>
 #include <FastAccelStepper.h>
 #include <ESP32Servo.h>
-#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "ErrorStates/GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ************************* STATE MANAGER *******************************

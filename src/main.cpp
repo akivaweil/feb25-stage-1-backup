@@ -6,12 +6,12 @@
 #include "Config/Pins_Definitions.h"
 #include "Config/Config.h"
 #include "OTAUpdater/ota_updater.h"
-#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "ErrorStates/GENERAL_FUNCTIONS.h"
+#include "ErrorStates/CUT_MOTOR_ERROR_FUNCTIONS.h"
 #include "StateMachine/StateManager.h"
-#include "ErrorStates/standard_error.h"
-#include "ErrorStates/error_reset.h"
-#include "ErrorStates/suction_error_hold.h"
-#include "StateMachine/99_CUT_MOTOR_ERROR_FUNCTIONS.h"
+#include "ErrorStates/STANDARD_ERROR.h"
+#include "ErrorStates/ERROR_RESET.h"
+#include "ErrorStates/SUCTION_ERROR_HOLD.h"
 
 //* ************************************************************************
 //* ************************ AUTOMATED TABLE SAW **************************

@@ -1,10 +1,10 @@
-#ifndef CUT_MOTOR_HOME_ERROR_HANDLER_H
-#define CUT_MOTOR_HOME_ERROR_HANDLER_H
+#ifndef CUT_MOTOR_ERROR_FUNCTIONS_H
+#define CUT_MOTOR_ERROR_FUNCTIONS_H
 
 #include <Arduino.h>
 #include <Bounce2.h>
 #include <FastAccelStepper.h>
-#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "ErrorStates/GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ************* CUT MOTOR HOME ERROR HANDLER HEADER *********************
@@ -64,4 +64,4 @@ void executeCutMotorErrorStateTransition(
 // Utility function to log the results of error detection
 void logCutMotorHomeErrorResult(const CutMotorHomeErrorResult& result);
 
-#endif // CUT_MOTOR_HOME_ERROR_HANDLER_H 
+#endif // CUT_MOTOR_ERROR_FUNCTIONS_H 

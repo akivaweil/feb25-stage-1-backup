@@ -1,5 +1,5 @@
-#ifndef FUNCTIONS_H
-#define FUNCTIONS_H
+#ifndef GENERAL_FUNCTIONS_H
+#define GENERAL_FUNCTIONS_H
 
 #include <Arduino.h>
 #include <ESP32Servo.h> // For Servo object
@@ -212,4 +212,4 @@ void handleRotationServoReturn();
 //* ************************************************************************
 // Error state handling functions
 
-#endif // FUNCTIONS_H 
+#endif // GENERAL_FUNCTIONS_H 

@@ -1,7 +1,7 @@
 #ifndef BASE_STATE_H
 #define BASE_STATE_H
 
-#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "ErrorStates/GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ************************** BASE STATE **********************************

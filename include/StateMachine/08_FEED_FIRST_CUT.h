@@ -1,7 +1,7 @@
-#ifndef FEED_FIRST_CUT_STATE_H
-#define FEED_FIRST_CUT_STATE_H
+#ifndef FEED_FIRST_CUT_H
+#define FEED_FIRST_CUT_H
 
-#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "ErrorStates/GENERAL_FUNCTIONS.h"
 
 class StateManager; // Forward declaration
 
@@ -42,4 +42,4 @@ private:
     unsigned long stepStartTime = 0;
 };
 
-#endif // FEED_FIRST_CUT_STATE_H 
+#endif // FEED_FIRST_CUT_H 

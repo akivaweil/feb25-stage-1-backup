@@ -1,8 +1,9 @@
-#include "ErrorStates/suction_error_hold.h"
+#include "ErrorStates/SUCTION_ERROR_HOLD.h"
+#include "ErrorStates/ERROR_RESET.h"  // For error timing constants
 #include "StateMachine/StateManager.h"
 #include <Bounce2.h>
 
-// External references to global variables and functions from main.cpp
+// External references to functions from main.cpp (LED functions only)
 extern void turnRedLedOn();
 extern void turnRedLedOff();
 extern void turnYellowLedOff();
@@ -14,7 +15,7 @@ extern void turnBlueLedOff();
 //* ************************************************************************
 // Handles waiting for user to reset a wood suction error via cycle switch.
 // This state is entered from CUTTING (Step 1) if the WOOD_SUCTION_CONFIRM_SENSOR indicates an error (LOW).
-// Step 1: Slowly blink the red LED (e.g., every 1.5 seconds).
+// Step 1: Slowly blink the red LED using defined suction error timing interval.
 // Step 2: Ensure yellow, green, and blue LEDs are off.
 // Step 3: Monitor the start cycle switch.
 // Step 4: If the start cycle switch shows a rising edge (OFF to ON transition):
@@ -27,8 +28,8 @@ void handleSuctionErrorHoldState() {
     static unsigned long lastSuctionErrorBlinkTime = 0;
     static bool suctionErrorBlinkState = false;
 
-    // Blink STATUS_LED_RED every 1.5 seconds
-    if (millis() - lastSuctionErrorBlinkTime >= 1500) {
+    // Blink STATUS_LED_RED using defined suction error timing interval
+    if (millis() - lastSuctionErrorBlinkTime >= SUCTION_ERROR_BLINK_INTERVAL) {
         lastSuctionErrorBlinkTime = millis();
         suctionErrorBlinkState = !suctionErrorBlinkState;
         if(suctionErrorBlinkState) turnRedLedOn(); else turnRedLedOff();

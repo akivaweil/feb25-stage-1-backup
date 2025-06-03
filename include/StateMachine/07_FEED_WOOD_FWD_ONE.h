@@ -1,7 +1,7 @@
-#ifndef FEED_WOOD_FWD_ONE_STATE_H
-#define FEED_WOOD_FWD_ONE_STATE_H
+#ifndef FEED_WOOD_FWD_ONE_H
+#define FEED_WOOD_FWD_ONE_H
 
-#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "ErrorStates/GENERAL_FUNCTIONS.h"
 
 class StateManager; // Forward declaration
 
@@ -36,4 +36,4 @@ private:
     unsigned long stepStartTime = 0;
 };
 
-#endif // FEED_WOOD_FWD_ONE_STATE_H 
+#endif // FEED_WOOD_FWD_ONE_H 

@@ -1,6 +1,6 @@
 #include "StateMachine/03_CUTTING.h"
 #include "StateMachine/StateManager.h"
-#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "ErrorStates/GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ************************** CUTTING STATE *******************************

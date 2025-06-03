@@ -1,6 +1,6 @@
 #include "StateMachine/08_FEED_FIRST_CUT.h"
 #include "StateMachine/StateManager.h"
-#include "StateMachine/99_GENERAL_FUNCTIONS.h"
+#include "ErrorStates/GENERAL_FUNCTIONS.h"
 
 //* ************************************************************************
 //* ********************* FEED FIRST CUT STATE **************************
