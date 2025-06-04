@@ -5,11 +5,11 @@
 #include "StateMachine/08_FEED_FIRST_CUT.h"
 #include "StateMachine/07_FEED_WOOD_FWD_ONE.h"
 #include "StateMachine/03_CUTTING.h"
-#include "StateMachine/04_Yes_2x4.h"
-#include "StateMachine/05_No_2x4.h"
-#include "ErrorStates/standard_error.h"
-#include "ErrorStates/error_reset.h"
-#include "ErrorStates/suction_error_hold.h"
+#include "StateMachine/04_RETURNING_Yes_2x4.h"
+#include "StateMachine/05_RETURNING_No_2x4.h"
+#include "ErrorStates/Errors_Functions.h"
+#include "ErrorStates/Error_Reset.h"
+#include "ErrorStates/Suction_Error.h"
 #include <memory>
 
 //* ************************************************************************
@@ -73,8 +73,8 @@ void StateManager::execute() {
         case ERROR_RESET:
             handleErrorResetState();
             break;
-        case SUCTION_ERROR_HOLD:
-            handleSuctionErrorHoldState();
+        case SUCTION_ERROR:
+            handleSuctionErrorState();
             break;
     }
 }
@@ -124,7 +124,7 @@ void StateManager::changeState(SystemState newState) {
             case RETURNING_NO_2x4: Serial.println("RETURNING_NO_2x4"); break;
             case ERROR: Serial.println("ERROR"); break;
             case ERROR_RESET: Serial.println("ERROR_RESET"); break;
-            case SUCTION_ERROR_HOLD: Serial.println("SUCTION_ERROR_HOLD"); break;
+            case SUCTION_ERROR: Serial.println("SUCTION_ERROR"); break;
         }
     }
 }
@@ -143,7 +143,7 @@ void StateManager::printStateChange() {
             case RETURNING_NO_2x4: Serial.println("RETURNING_NO_2x4"); break;
             case ERROR: Serial.println("ERROR"); break;
             case ERROR_RESET: Serial.println("ERROR_RESET"); break;
-            case SUCTION_ERROR_HOLD: Serial.println("SUCTION_ERROR_HOLD"); break;
+            case SUCTION_ERROR: Serial.println("SUCTION_ERROR"); break;
             default: Serial.println("UNKNOWN"); break;
         }
         previousState = currentState;
@@ -217,4 +217,30 @@ void StateManager::handleCommonOperations() {
         signalTAActive = false;
         Serial.println("Signal to Transfer Arm (TA) timed out and reset to LOW"); 
     }
-} 
+}
+
+//* ************************************************************************
+//* ************************* ERROR STATE HANDLERS ************************
+//* ************************************************************************
+
+void StateManager::handleStandardErrorState() {
+    // Handle standard error state with basic error LED blinking
+    handleErrorLedBlink();
+    
+    // Check for error acknowledgment
+    if (reloadSwitch.rose()) {
+        changeState(ERROR_RESET);
+        errorAcknowledged = true;
+        Serial.println("Standard error acknowledged by reload switch.");
+    }
+}
+
+void StateManager::handleErrorResetState() {
+    // Call the actual error reset handling function from Error_Reset.cpp
+    ::handleErrorResetState();
+}
+
+void StateManager::handleSuctionErrorState() {
+    // Call the actual suction error handling function from Suction_Error.cpp
+    ::handleSuctionErrorState();
+}

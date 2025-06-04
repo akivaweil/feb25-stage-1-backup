@@ -1,6 +1,6 @@
 #include "StateMachine/08_FEED_FIRST_CUT.h"
 #include "StateMachine/StateManager.h"
-#include "ErrorStates/GENERAL_FUNCTIONS.h"
+#include "StateMachine/FUNCTIONS/General_Functions.h"
 
 //* ************************************************************************
 //* ********************* FEED FIRST CUT STATE **************************
@@ -27,7 +27,7 @@ void FeedFirstCutState::onExit(StateManager& stateManager) {
 void FeedFirstCutState::executeStep(StateManager& stateManager) {
     FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     extern const float FEED_TRAVEL_DISTANCE;
-    extern const int FEED_MOTOR_STEPS_PER_INCH;
+    // FEED_MOTOR_STEPS_PER_INCH is already declared in General_Functions.h
 
     switch (currentStep) {
         case RETRACT_FEED_CLAMP:

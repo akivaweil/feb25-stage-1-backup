@@ -1,6 +1,6 @@
 #include "StateMachine/03_CUTTING.h"
 #include "StateMachine/StateManager.h"
-#include "ErrorStates/GENERAL_FUNCTIONS.h"
+#include "StateMachine/FUNCTIONS/General_Functions.h"
 
 //* ************************************************************************
 //* ************************** CUTTING STATE *******************************
@@ -122,10 +122,9 @@ void CuttingState::handleCuttingStep1(StateManager& stateManager) {
 void CuttingState::handleCuttingStep2(StateManager& stateManager) {
     FastAccelStepper* cutMotor = stateManager.getCutMotor();
     extern const int _2x4_PRESENT_SENSOR; // From main.cpp
-    extern const float CUT_TRAVEL_DISTANCE; // From main.cpp
     extern const float ROTATION_CLAMP_EARLY_ACTIVATION_OFFSET_INCHES; // From main.cpp
     extern const float ROTATION_SERVO_EARLY_ACTIVATION_OFFSET_INCHES; // From main.cpp
-    extern const int CUT_MOTOR_STEPS_PER_INCH; // From main.cpp
+    // CUT_TRAVEL_DISTANCE and CUT_MOTOR_STEPS_PER_INCH are already declared in General_Functions.h
     
     // Debug logging for motor position every 500ms
     static unsigned long lastDebugTime = 0;
@@ -205,8 +204,7 @@ void CuttingState::handleCuttingStep4(StateManager& stateManager) {
     FastAccelStepper* cutMotor = stateManager.getCutMotor();
     extern const float CUT_MOTOR_INCREMENTAL_MOVE_INCHES; // From main.cpp
     extern const float CUT_MOTOR_MAX_INCREMENTAL_MOVE_INCHES; // From main.cpp
-    extern const int CUT_MOTOR_STEPS_PER_INCH; // From main.cpp
-    extern const float FEED_TRAVEL_DISTANCE; // From main.cpp
+    // CUT_MOTOR_STEPS_PER_INCH, FEED_TRAVEL_DISTANCE are already declared in General_Functions.h
     
     if (feedMotor && !feedMotor->isRunning()) {
         retract2x4SecureClamp();
@@ -279,8 +277,7 @@ void CuttingState::handleCuttingStep5(StateManager& stateManager) {
 void CuttingState::handleCuttingStep8_FeedMotorHomingSequence(StateManager& stateManager) {
     FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     extern const float FEED_MOTOR_HOMING_SPEED; // From main.cpp
-    extern const float FEED_TRAVEL_DISTANCE; // From main.cpp
-    extern const int FEED_MOTOR_STEPS_PER_INCH; // From main.cpp
+    // FEED_TRAVEL_DISTANCE and FEED_MOTOR_STEPS_PER_INCH are already declared in General_Functions.h
     
     // Non-blocking feed motor homing sequence
     switch (cuttingSubStep8) {
@@ -379,12 +376,12 @@ void CuttingState::handleCuttingStep9_SuctionErrorRecovery(StateManager& stateMa
         }
         
         if (sensorDetectedHome) {
-            Serial.println("Cut motor successfully returned home after suction error. Transitioning to SUCTION_ERROR_HOLD for manual reset.");
-            stateManager.changeState(SUCTION_ERROR_HOLD);
+            Serial.println("Cut motor successfully returned home after suction error. Transitioning to SUCTION_ERROR for manual reset.");
+            stateManager.changeState(SUCTION_ERROR);
             resetSteps();
         } else {
-            Serial.println("WARNING: Cut motor home sensor not detected after suction error recovery. Proceeding to SUCTION_ERROR_HOLD anyway.");
-            stateManager.changeState(SUCTION_ERROR_HOLD);
+            Serial.println("WARNING: Cut motor home sensor not detected after suction error recovery. Proceeding to SUCTION_ERROR anyway.");
+            stateManager.changeState(SUCTION_ERROR);
             resetSteps();
         }
     } else if (cutMotor) {

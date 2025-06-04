@@ -1,5 +1,5 @@
-#ifndef RETURNING_YES_2X4_STATE_H
-#define RETURNING_YES_2X4_STATE_H
+#ifndef _04_RETURNING_YES_2X4_STATE_H
+#define _04_RETURNING_YES_2X4_STATE_H
 
 #include "BaseState.h"
 
@@ -29,4 +29,4 @@ private:
     void resetSteps();
 };
 
-#endif // RETURNING_YES_2X4_STATE_H 
+#endif // _04_RETURNING_YES_2X4_STATE_H 

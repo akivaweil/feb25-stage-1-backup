@@ -1,6 +1,6 @@
 #include "StateMachine/00_STARTUP.h"
 #include "StateMachine/StateManager.h"
-#include "ErrorStates/GENERAL_FUNCTIONS.h"
+#include "StateMachine/FUNCTIONS/General_Functions.h"
 
 //* ************************************************************************
 //* ************************** STARTUP STATE *******************************

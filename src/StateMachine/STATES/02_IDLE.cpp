@@ -1,6 +1,6 @@
 #include "StateMachine/02_IDLE.h"
 #include "StateMachine/StateManager.h"
-#include "ErrorStates/GENERAL_FUNCTIONS.h"
+#include "StateMachine/FUNCTIONS/General_Functions.h"
 
 //* ************************************************************************
 //* ************************** IDLE STATE **********************************

@@ -18,8 +18,8 @@ extern const int ROTATION_SERVO_ACTIVE_POSITION;   // Position when activated (d
 //* ************************ MOTOR CONFIGURATION **************************
 //* ************************************************************************
 // Motor step calculations and travel distances
-extern const int CUT_MOTOR_STEPS_PER_INCH;  // 4x increase from 38
-extern const int FEED_MOTOR_STEPS_PER_INCH; // Steps per inch for feed motor
+extern const float CUT_MOTOR_STEPS_PER_INCH;  // 4x increase from 38
+extern const float FEED_MOTOR_STEPS_PER_INCH; // Steps per inch for feed motor
 extern const float CUT_TRAVEL_DISTANCE; // inches
 extern const float FEED_TRAVEL_DISTANCE; // inches
 extern const float CUT_MOTOR_INCREMENTAL_MOVE_INCHES; // Inches for incremental reverse

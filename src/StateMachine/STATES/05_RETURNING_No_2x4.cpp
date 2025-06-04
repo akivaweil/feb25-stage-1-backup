@@ -1,6 +1,6 @@
-#include "StateMachine/05_No_2x4.h"
+#include "StateMachine/05_RETURNING_No_2x4.h"
 #include "StateMachine/StateManager.h"
-#include "ErrorStates/GENERAL_FUNCTIONS.h"
+#include "StateMachine/FUNCTIONS/General_Functions.h"
 #include "Config/Pins_Definitions.h"
 
 //* ************************************************************************
@@ -188,7 +188,7 @@ void ReturningNo2x4State::handleReturningNo2x4FeedMotorHoming(StateManager& stat
     FastAccelStepper* feedMotor = stateManager.getFeedMotor();
     extern const float FEED_MOTOR_HOMING_SPEED; // From main.cpp
     extern const float FEED_TRAVEL_DISTANCE; // From main.cpp
-    extern const int FEED_MOTOR_STEPS_PER_INCH; // From main.cpp
+    // FEED_MOTOR_STEPS_PER_INCH is already declared in General_Functions.h
     
     // Non-blocking feed motor homing sequence for RETURNING_NO_2x4
     switch (returningNo2x4HomingSubStep) {
@@ -206,7 +206,7 @@ void ReturningNo2x4State::handleReturningNo2x4FeedMotorHoming(StateManager& stat
             if (stateManager.getFeedHomingSwitch()->read() == HIGH) {
                 Serial.println("RETURNING_NO_2x4 Feed Motor Homing Step 9.1: Home switch triggered. Stopping motor.");
                 if (feedMotor) {
-                    feedMotor->stopMove();
+                    feedMotor->forceStop();
                     feedMotor->setCurrentPosition(FEED_TRAVEL_DISTANCE * FEED_MOTOR_STEPS_PER_INCH);
                 }
                 Serial.println("RETURNING_NO_2x4: Feed motor hit home switch.");

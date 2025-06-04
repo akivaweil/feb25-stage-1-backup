@@ -5,7 +5,7 @@
 #include <Bounce2.h>
 #include <FastAccelStepper.h>
 #include <ESP32Servo.h>
-#include "ErrorStates/GENERAL_FUNCTIONS.h"
+#include "StateMachine/FUNCTIONS/General_Functions.h"
 
 //* ************************************************************************
 //* ************************* STATE MANAGER *******************************
@@ -107,6 +107,11 @@ private:
     
     // Handle common operations that happen every loop
     void handleCommonOperations();
+    
+    // Error state handling functions
+    void handleStandardErrorState();
+    void handleErrorResetState();
+    void handleSuctionErrorState();
 };
 
 // Global state manager instance

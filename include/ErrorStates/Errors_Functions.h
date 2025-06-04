@@ -6,6 +6,9 @@
 #include <ESP32Servo.h>
 #include <FastAccelStepper.h>
 
+// Include the SystemState enum definition
+#include "StateMachine/FUNCTIONS/General_Functions.h"
+
 //* ************************************************************************
 //* *********************** ERROR FUNCTION DECLARATIONS ********************
 //* ************************************************************************
@@ -129,8 +132,7 @@ extern const unsigned long TA_SIGNAL_DURATION;
 extern const unsigned long ROTATION_CLAMP_EXTEND_DURATION_MS;
 extern const float CUT_TRAVEL_DISTANCE;
 extern const float FEED_TRAVEL_DISTANCE;
-extern const float CUT_MOTOR_STEPS_PER_INCH;
-extern const float FEED_MOTOR_STEPS_PER_INCH;
+// CUT_MOTOR_STEPS_PER_INCH and FEED_MOTOR_STEPS_PER_INCH are declared in General_Functions.h
 extern const float CUT_MOTOR_NORMAL_SPEED;
 extern const float CUT_MOTOR_RETURN_SPEED;
 extern const float CUT_MOTOR_HOMING_SPEED;
@@ -141,17 +143,8 @@ extern const float FEED_MOTOR_HOMING_SPEED;
 extern const float FEED_MOTOR_NORMAL_ACCELERATION;
 extern const float FEED_MOTOR_RETURN_ACCELERATION;
 
-// System state enum
-enum SystemState {
-    STARTUP,
-    HOMING,
-    IDLE,
-    CUTTING,
-    ERROR,
-    ERROR_RESET,
-    SUCTION_ERROR_HOLD
-};
 
-extern SystemState currentState;
+
+// currentState is declared in General_Functions.h
 
 #endif 

@@ -1,7 +1,7 @@
 #ifndef FEED_FIRST_CUT_H
 #define FEED_FIRST_CUT_H
 
-#include "ErrorStates/GENERAL_FUNCTIONS.h"
+#include "StateMachine/FUNCTIONS/General_Functions.h"
 
 class StateManager; // Forward declaration
 
